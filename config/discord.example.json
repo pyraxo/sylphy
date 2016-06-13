@@ -1,0 +1,9 @@
+{
+  "prefix" : "+",
+  "token"  : "your bot token here",
+  "admins" : [
+    "admin ID 1",
+    "admin ID 2"
+  ],
+  "debug"  : false
+}

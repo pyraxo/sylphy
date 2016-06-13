@@ -1,0 +1,32 @@
+{
+  "name": "iris",
+  "version": "1.0.0",
+  "description": "Discord bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "Discord",
+    "chat",
+    "bot"
+  ],
+  "author": "pyraxo",
+  "license": "MIT",
+  "dependencies": {
+    "async": "^2.0.0-rc.6",
+    "babel-core": "^6.9.1",
+    "babel-polyfill": "^6.9.1",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-es2015-node6": "^0.2.0",
+    "canvas": "^1.3.16",
+    "chalk": "^1.1.3",
+    "clear-require": "^1.0.1",
+    "discord.js": "^8.0.0",
+    "jsonfile": "^2.3.1",
+    "lodash": "^4.13.1",
+    "moment": "^2.13.0",
+    "redis": "^2.6.1",
+    "require-all": "^2.0.0"
+  }
+}
