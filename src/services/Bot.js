@@ -3,6 +3,7 @@ import { EventEmitter } from 'events'
 import path from 'path'
 import chalk from 'chalk'
 import rq from 'require-all'
+import cr from 'clear-require'
 
 import Logger from './Logger'
 import Configs from './Configurator'
@@ -17,6 +18,8 @@ class Bot extends EventEmitter {
 
     this.once('loaded:config', () => this.login())
     this.once('loaded:discord', () => this.attachModules())
+    this.on('loaded:modules', () => this.runModules())
+    this.on('clear:modules', () => this.attachModules())
   }
 
   run () {
@@ -45,15 +48,34 @@ class Bot extends EventEmitter {
 
     client.on('message', msg => {
       if (msg.content.startsWith(this.config.prefix)) {
+        this.logger.heard(msg)
         this.emit(msg.content.split(' ')[0].substring(this.config.prefix.length), msg, client)
       }
     })
 
     client.loginWithToken(this.config.token)
+    this.client = client
   }
 
   attachModules () {
     this.modules = rq(this.modulesPath)
+    this.emit('loaded:modules')
+  }
+
+  runModules () {
+    for (let module in this.modules) {
+      for (let command in this.modules[module]) {
+        this.modules[module][command] = new this.modules[module][command]()
+      }
+    }
+  }
+
+  reloadModules () {
+    Object.keys(require.cache).forEach(key => {
+      if (key.startsWith(path.join(process.cwd(), 'modules'))) cr(key)
+    })
+    this.emit('clear:modules')
+    this.attachModules()
   }
 }
 

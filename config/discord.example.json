@@ -1,5 +1,6 @@
 {
   "prefix" : "+",
+  "admin_prefix" : "-",
   "token"  : "your bot token here",
   "admins" : [
     "admin ID 1",
