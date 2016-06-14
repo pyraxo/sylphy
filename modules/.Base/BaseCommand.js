@@ -1,4 +1,4 @@
-let Tatsumaki = require('../../src')
+const Tatsumaki = require('../../src')
 
 class BaseCommand {
   constructor () {
@@ -6,7 +6,7 @@ class BaseCommand {
       throw new Error('Can\'t instantiate abstract command!')
     }
     this.bot = Tatsumaki
-    Tatsumaki.on(this.name, (msg, client) => this.handle(msg, client))
+    this.bot.on(this.name, (suffix, msg, client) => this.handle(suffix, msg, client))
   }
 
   get name () {
@@ -17,7 +17,27 @@ class BaseCommand {
     throw new Error('Description must be overwritten')
   }
 
-  handle (msg, client) {}
+  get usage () {
+    return ''
+  }
+
+  get cooldown () {
+    return 0
+  }
+
+  get permissions () {
+    return []
+  }
+
+  get hidden () {
+    return false
+  }
+
+  get gif () {
+    return null
+  }
+
+  handle (suffix, msg, client) {}
 }
 
 module.exports = BaseCommand

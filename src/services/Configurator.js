@@ -30,7 +30,7 @@ function fetchConfigs (configPath, callback) {
       return
     }
     let reply = {}
-    names.forEach(n => logger.info(`Loaded config: ${n}`))
+    // names.forEach(n => logger.info(`Loaded config: ${n}`))
     results.forEach(obj => Object.keys(obj).forEach((key) => reply[key] = obj[key]))
     return callback(reply)
   })

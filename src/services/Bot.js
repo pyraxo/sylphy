@@ -15,8 +15,11 @@ class Bot extends EventEmitter {
     this.logger = new Logger()
     this.configPath = options.configPath || path.join(process.cwd(), 'config')
     this.modulesPath = options.modulesPath || path.join(process.cwd(), 'modules')
+    this.dbPath = options.dbPath || path.join(process.cwd(), 'db')
+    this.shardID = options.shardID || 0
+    this.shardCount = options.shardCount || 1
 
-    this.once('loaded:config', () => this.login())
+    this.once('loaded:configs', () => this.login())
     this.once('loaded:discord', () => this.attachModules())
     this.on('loaded:modules', () => this.runModules())
     this.on('clear:modules', () => this.attachModules())
@@ -25,7 +28,7 @@ class Bot extends EventEmitter {
   run () {
     Configs.get(this.configPath, results => {
       this.config = results
-      this.emit('loaded:config')
+      this.emit('loaded:configs')
     })
   }
 
@@ -37,7 +40,9 @@ class Bot extends EventEmitter {
     let client = new Discord({
       maxCachedMessages: 10,
       forceFetchUsers: true,
-      disableEveryone: true
+      disableEveryone: true,
+      shardId: this.shardID,
+      shardCount: this.shardCount
     })
 
     client.on('ready', () => {
@@ -49,7 +54,9 @@ class Bot extends EventEmitter {
     client.on('message', msg => {
       if (msg.content.startsWith(this.config.prefix)) {
         this.logger.heard(msg)
-        this.emit(msg.content.split(' ')[0].substring(this.config.prefix.length), msg, client)
+        const trigger = msg.content.split(' ')[0].substring(this.config.prefix.length)
+        const suffix = msg.content.split(' ').splice(1).join(' ')
+        this.emit(trigger, suffix, msg, client)
       }
     })
 

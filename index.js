@@ -2,4 +2,4 @@
 require('babel-core/register')
 require('babel-polyfill')
 
-const Client = require('./src')
+require('./src')
