@@ -33,6 +33,9 @@ node_modules
 # Optional REPL history
 .node_repl_history
 
+# Compiled files
+lib
+
 # Configuration directory
 config/discord.json
 config/redis.json

@@ -1,4 +1,4 @@
-const Tatsumaki = require('../../')
+const Tatsumaki = require('../')
 
 class BaseCommand {
   constructor () {
@@ -7,6 +7,8 @@ class BaseCommand {
     }
     this.bot = Tatsumaki
     this.logger = Tatsumaki.logger
+    this.init()
+
     this.bot.on(this.name, (args, msg, client) => {
       if (msg.channel.isPrivate && this.noPMs === true) {
         this.send(msg, 'You can\'t use this command in a DM!')
@@ -54,6 +56,8 @@ class BaseCommand {
   get noPMs () {
     return false
   }
+
+  init () {}
 
   handle (args) {}
 

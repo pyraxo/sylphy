@@ -1,6 +1,7 @@
 import path from 'path'
 import fs from 'fs'
-import BaseCommand from '../.Base/BaseCommand'
+
+import BaseCommand from '../../Base/BaseCommand'
 
 class Help extends BaseCommand {
   get name () {
@@ -31,7 +32,7 @@ class Help extends BaseCommand {
               const imgPath = path.join(this.bot.dbPath, 'gif', command.gif)
               fs.access(imgPath, fs.F_OK, err => {
                 if (err) {
-                  this.bot.error(`Gif not found: ${imgPath}`)
+                  this.logger.error(`Gif not found: ${imgPath}`)
                   return
                 }
                 this.client.sendFile(this.message, imgPath, command.gif, [

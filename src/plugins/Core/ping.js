@@ -1,6 +1,6 @@
 import tcpp from 'tcp-ping'
 
-import BaseCommand from '../.Base/BaseCommand'
+import BaseCommand from '../../Base/BaseCommand'
 
 class Ping extends BaseCommand {
   get name () {

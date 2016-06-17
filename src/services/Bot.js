@@ -15,7 +15,9 @@ class Bot extends EventEmitter {
     this.logger = new Logger('BOT')
     this.configPath = options.configPath || path.join(process.cwd(), 'config')
     this.pluginsPath = options.pluginsPath || path.join(process.cwd(), 'lib/plugins')
+    this.modPluginsPath = options.modPluginsPath || path.join(process.cwd(), 'lib/mod-plugins')
     this.dbPath = options.dbPath || path.join(process.cwd(), 'db')
+
     this.shardID = options.shardID || 0
     this.shardCount = options.shardCount || 1
 
@@ -57,6 +59,8 @@ class Bot extends EventEmitter {
         const trigger = msg.content.toLowerCase().split(' ')[0].substring(this.config.prefix.length)
         const args = msg.content.toLowerCase().split(' ').splice(1)
         this.emit(trigger, args, msg, client)
+      } else if (msg.content.startsWith(this.config.admin_prefix)) {
+        
       }
     })
 
@@ -70,16 +74,16 @@ class Bot extends EventEmitter {
   }
 
   runPlugins () {
-    for (let mod in this.plugins) {
-      for (let command in this.plugins[mod]) {
-        this.plugins[mod][command] = new this.plugins[mod][command]()
+    for (let plugin in this.plugins) {
+      for (let command in this.plugins[plugin]) {
+        this.plugins[plugin][command] = new this.plugins[plugin][command]()
       }
     }
   }
 
   reloadPlugins () {
     Object.keys(require.cache).forEach(key => {
-      if (key.startsWith(path.join(process.cwd(), 'plugins'))) cr(key)
+      if (key.startsWith(this.pluginsPath) || key.startsWith(this.modPluginsPath)) cr(key)
     })
     this.emit('clear:plugins')
     this.attachPlugins()

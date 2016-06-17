@@ -1,4 +1,5 @@
-import BaseCommand from '../.Base/BaseCommand'
+import BaseCommand from '../../Base/BaseCommand'
+
 
 class Server extends BaseCommand {
   get name () {
