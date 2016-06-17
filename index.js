@@ -1,5 +1,6 @@
 'use strict'
-require('babel-core/register')
-require('babel-polyfill')
+// Compiling with Gulp
+// require('babel-core/register')
+// require('babel-polyfill')
 
-require('./src')
+require('./lib')

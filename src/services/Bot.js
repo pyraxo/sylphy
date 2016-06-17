@@ -12,17 +12,17 @@ class Bot extends EventEmitter {
   constructor (options) {
     options = options || {}
     super()
-    this.logger = new Logger()
+    this.logger = new Logger('BOT')
     this.configPath = options.configPath || path.join(process.cwd(), 'config')
-    this.modulesPath = options.modulesPath || path.join(process.cwd(), 'modules')
+    this.pluginsPath = options.pluginsPath || path.join(process.cwd(), 'lib/plugins')
     this.dbPath = options.dbPath || path.join(process.cwd(), 'db')
     this.shardID = options.shardID || 0
     this.shardCount = options.shardCount || 1
 
     this.once('loaded:configs', () => this.login())
-    this.once('loaded:discord', () => this.attachModules())
-    this.on('loaded:modules', () => this.runModules())
-    this.on('clear:modules', () => this.attachModules())
+    this.once('loaded:discord', () => this.attachPlugins())
+    this.on('loaded:plugins', () => this.runPlugins())
+    this.on('clear:plugins', () => this.attachPlugins())
   }
 
   run () {
@@ -47,16 +47,16 @@ class Bot extends EventEmitter {
 
     client.on('ready', () => {
       this.emit('loaded:discord')
-      this.logger.info(`${chalk.red.bold('TatsuBot')} is ready! Logging in as ${chalk.cyan.bold(client.user.name)}`)
+      this.logger.info(`${chalk.red.bold('iris')} is ready! Logging in as ${chalk.cyan.bold(client.user.name)}`)
       this.logger.info(`Listening to ${chalk.magenta.bold(client.channels.length)} channels, on ${chalk.green.bold(client.servers.length)} servers`)
     })
 
     client.on('message', msg => {
       if (msg.content.startsWith(this.config.prefix)) {
         this.logger.heard(msg)
-        const trigger = msg.content.split(' ')[0].substring(this.config.prefix.length)
-        const suffix = msg.content.split(' ').splice(1).join(' ')
-        this.emit(trigger, suffix, msg, client)
+        const trigger = msg.content.toLowerCase().split(' ')[0].substring(this.config.prefix.length)
+        const args = msg.content.toLowerCase().split(' ').splice(1)
+        this.emit(trigger, args, msg, client)
       }
     })
 
@@ -64,25 +64,25 @@ class Bot extends EventEmitter {
     this.client = client
   }
 
-  attachModules () {
-    this.modules = rq(this.modulesPath)
-    this.emit('loaded:modules')
+  attachPlugins () {
+    this.plugins = rq(this.pluginsPath)
+    this.emit('loaded:plugins')
   }
 
-  runModules () {
-    for (let module in this.modules) {
-      for (let command in this.modules[module]) {
-        this.modules[module][command] = new this.modules[module][command]()
+  runPlugins () {
+    for (let mod in this.plugins) {
+      for (let command in this.plugins[mod]) {
+        this.plugins[mod][command] = new this.plugins[mod][command]()
       }
     }
   }
 
-  reloadModules () {
+  reloadPlugins () {
     Object.keys(require.cache).forEach(key => {
-      if (key.startsWith(path.join(process.cwd(), 'modules'))) cr(key)
+      if (key.startsWith(path.join(process.cwd(), 'plugins'))) cr(key)
     })
-    this.emit('clear:modules')
-    this.attachModules()
+    this.emit('clear:plugins')
+    this.attachPlugins()
   }
 }
 

@@ -8,6 +8,17 @@ log.addTarget('file', { file: path.join(process.cwd(), 'logs', moment().format('
 .withFormatter('commonInfoModel')
 
 class Logger {
+  constructor (name, bg, colour) {
+    this.name = name
+    this.bg = bg || 'bgWhite'
+    this.colour = colour || 'black'
+  }
+
+  log (text) {
+    console.log(`${chalk[this.bg][this.colour](` ${this.name} `)} ${text}`)
+    log.notice(text)
+  }
+
   warn (text) {
     console.log(`${chalk.bgYellow.black(' WARN ')} ${text}`)
     log.warn(text)
