@@ -7,7 +7,6 @@ class Hash {
 
   set (key, field, value) {
     return new Promise((resolve, reject) => {
-      if (typeof value === 'object') value = JSON.stringify(value)
       this.client.hset(key, field, value, (err, res) => {
         if (err) return reject(err)
         return resolve(res)
@@ -19,7 +18,7 @@ class Hash {
     return new Promise((resolve, reject) => {
       this.client.hget(key, field, (err, res) => {
         if (err) return reject(err)
-        return resolve(JSON.parse(res))
+        return resolve(res)
       })
     })
   }

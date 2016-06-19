@@ -1,16 +1,16 @@
 const Tatsumaki = require('../')
 
-class BaseCommand {
+class AdminCommand {
   constructor () {
-    if (this.constructor === BaseCommand) {
+    if (this.constructor === AdminCommand) {
       throw new Error('Can\'t instantiate abstract command!')
     }
     this.bot = Tatsumaki
     this.logger = Tatsumaki.logger
-    this.db = this.bot.db
+    this.db = Tatsumaki.db
     this.init()
 
-    this.bot.on(this.name, (args, msg, client) => {
+    this.bot.on(this.name.toUpperCase(), (args, msg, client) => {
       if (msg.channel.isPrivate && this.noPMs === true) {
         this.send(msg, 'You can\'t use this command in a DM!')
         return
@@ -120,4 +120,4 @@ class BaseCommand {
   }
 }
 
-module.exports = BaseCommand
+module.exports = AdminCommand
