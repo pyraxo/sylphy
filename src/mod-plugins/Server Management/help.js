@@ -2,15 +2,15 @@ import path from 'path'
 import fs from 'fs'
 import jsonfile from 'jsonfile'
 
-import BaseCommand from '../../Base/BaseCommand'
+import AdminCommand from '../../Base/AdminCommand'
 
-class Help extends BaseCommand {
+class Help extends AdminCommand {
   get name () {
     return 'help'
   }
 
   get description () {
-    return 'Displays a list of commands. Provide a command to get its info'
+    return 'Displays a list of moderation commands. Provide a command to get its info'
   }
 
   get usage () {
@@ -27,12 +27,12 @@ class Help extends BaseCommand {
         this.reply(`❎  **Error**: ${err}`)
         return
       }
-      const prefix = data['prefix']
+      const prefix = data['admin_prefix']
       if (args[0]) {
         let answered = false
-        for (let mod in this.bot.plugins) {
-          for (let command in this.bot.plugins[mod]) {
-            command = this.bot.plugins[mod][command]
+        for (let mod in this.bot.modPlugins) {
+          for (let command in this.bot.modPlugins[mod]) {
+            command = this.bot.modPlugins[mod][command]
             if (command.hidden === true) continue
             if (command.name === args[0]) {
               if (typeof command.gif === 'string') {
@@ -65,17 +65,17 @@ class Help extends BaseCommand {
         }
       } else {
         let arr = [
-          '__**Commands List**__\n',
+          '__**Moderation Commands List**__\n',
           '*Don\'t include the example brackets when using commands!*\n',
           `Use \`${prefix}help <command name>\` to get more info on a specific command.`,
           `For example: \`${prefix}help rank\`\n`
         ]
 
-        for (let mod in this.bot.plugins) {
-          if (Object.keys(this.bot.plugins[mod]) === 0) continue
+        for (let mod in this.bot.modPlugins) {
+          if (Object.keys(this.bot.modPlugins[mod]) === 0) continue
           let reply = [`**${mod} - **`]
-          for (let command in this.bot.plugins[mod]) {
-            command = this.bot.plugins[mod][command]
+          for (let command in this.bot.modPlugins[mod]) {
+            command = this.bot.modPlugins[mod][command]
             if (command.hidden === true) continue
             reply.push(`\`${command.name}\` `)
           }

@@ -43,4 +43,4 @@ config/mal.json
 config/keys.json
 
 # Databases / Storage
-db/replies/reply_channels.json
+db/server-settings

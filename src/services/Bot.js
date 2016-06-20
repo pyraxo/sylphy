@@ -1,7 +1,9 @@
-import { Client as Discord } from 'discord.js'
+import { Client as Discord, Cache } from 'discord.js'
 import { EventEmitter } from 'events'
+import fs from 'fs'
 import path from 'path'
 import chalk from 'chalk'
+import jsonfile from 'jsonfile'
 import rq from 'require-all'
 import cr from 'clear-require'
 import async from 'async'
@@ -15,6 +17,8 @@ class Bot extends EventEmitter {
     options = options || {}
     super()
     this.logger = new Logger('BOT')
+
+    this.userStates = new Cache()
 
     this.configPath = options.configPath || path.join(process.cwd(), 'config')
     this.pluginsPath = options.pluginsPath || path.join(process.cwd(), 'lib/plugins')
@@ -59,39 +63,35 @@ class Bot extends EventEmitter {
     })
 
     client.on('message', msg => {
-      async.series([
+      if (msg.author.bot === true || this.userStates.has('id', msg.sender.id)) return
+      const serverSettings = path.join(this.dbPath, 'server-settings', `${msg.server.id}.json`)
+      async.waterfall([
         cb => {
-          this.db.get(`server:${msg.server.id}:settings`, 'prefix')
-          .then(prefix => {
-            if (prefix === null) {
-              this.db.set(`server:${msg.server.id}:settings`, 'prefix', this.config.discord.prefix)
-              prefix = this.config.discord.prefix
-            }
-            if (msg.content.startsWith(prefix)) {
-              const trigger = msg.content.toLowerCase().split(' ')[0].substring(prefix.length)
-              const args = msg.content.toLowerCase().split(' ').splice(1)
-              this.emit(trigger, args, msg, client)
-            }
-            return cb(null)
-          })
+          this.verifyServerSettings(serverSettings)
+          .then(() => cb(null))
           .catch(err => cb(err))
         },
         cb => {
-          this.db.get(`server:${msg.server.id}:settings`, 'admin_prefix')
-          .then(prefix => {
-            if (prefix === null) {
-              this.db.set(`server:${msg.server.id}:settings`, 'admin_prefix', this.config.discord.admin_prefix)
-              prefix = this.config.discord.admin_prefix
-            }
-            if (msg.content.startsWith(prefix)) {
-              const trigger = msg.content.toUpperCase().split(' ')[0].substring(prefix.length)
-              const args = msg.content.toLowerCase().split(' ').splice(1)
-              this.emit(trigger, args, msg, client)
-            }
-            return cb(null)
+          jsonfile.readFile(serverSettings, (err, data) => {
+            if (err) return cb(err)
+            return cb(null, data)
           })
         }
-      ])
+      ], (err, data) => {
+        if (err) this.logger.error(err)
+        let trigger = ''
+        if (msg.content.startsWith(data.prefix)) {
+          trigger = msg.content.toLowerCase().split(' ')[0].substring(data.prefix.length)
+        } else if (msg.content.startsWith(data.admin_prefix)) {
+          trigger = msg.content.toUpperCase().split(' ')[0].substring(data.admin_prefix.length)
+        } else if (msg.content.startsWith(this.config.discord.prefix)) {
+          trigger = msg.content.toLowerCase().split(' ')[0].substring(this.config.discord.prefix.length)
+        } else if (msg.content.startsWith(this.config.discord.admin_prefix)) {
+          trigger = msg.content.toUpperCase().split(' ')[0].substring(this.config.discord.admin_prefix.length)
+        }
+        const args = msg.content.split(' ').splice(1)
+        this.emit(trigger, args, msg, client)
+      })
     })
 
     client.loginWithToken(this.config.discord.token)
@@ -100,6 +100,7 @@ class Bot extends EventEmitter {
 
   attachPlugins () {
     this.plugins = rq(this.pluginsPath)
+    this.modPlugins = rq(this.modPluginsPath)
     this.emit('loaded:plugins')
   }
 
@@ -109,6 +110,12 @@ class Bot extends EventEmitter {
         this.plugins[plugin][command] = new this.plugins[plugin][command]()
       }
     }
+
+    for (let plugin in this.modPlugins) {
+      for (let command in this.modPlugins[plugin]) {
+        this.modPlugins[plugin][command] = new this.modPlugins[plugin][command]()
+      }
+    }
   }
 
   reloadPlugins () {
@@ -116,6 +123,31 @@ class Bot extends EventEmitter {
       if (key.startsWith(this.pluginsPath) || key.startsWith(this.modPluginsPath)) cr(key)
     })
     this.emit('clear:plugins')
+  }
+
+  verifyServerSettings (jsonpath) {
+    return new Promise((res, rej) => {
+      fs.stat(jsonpath, err => {
+        if (err) {
+          jsonfile.writeFile(jsonpath, {
+            prefix: this.config.discord.prefix,
+            admin_prefix: this.config.discord.admin_prefix,
+            ignored: {},
+            welcome: 'Welcome to %server%!',
+            goodbye: 'We\'re sorry to see you leaving!',
+            nsfw: false,
+            levelUp: true,
+            banAlerts: true,
+            nameChanges: true,
+            notifyChannel: null
+          }, { spaces: 2 }, err => {
+            if (err) return rej(err)
+          })
+          return res()
+        }
+        return res()
+      })
+    })
   }
 }
 
