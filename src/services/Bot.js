@@ -80,6 +80,7 @@ class Bot extends EventEmitter {
       ], (err, data) => {
         if (err) this.logger.error(err)
         let trigger = ''
+
         if (msg.content.startsWith(data.prefix)) {
           trigger = msg.content.toLowerCase().split(' ')[0].substring(data.prefix.length)
         } else if (msg.content.startsWith(data.admin_prefix)) {
@@ -89,6 +90,10 @@ class Bot extends EventEmitter {
         } else if (msg.content.startsWith(this.config.discord.admin_prefix)) {
           trigger = msg.content.toUpperCase().split(' ')[0].substring(this.config.discord.admin_prefix.length)
         }
+
+        if (data.ignored[msg.channel.id] === true && trigger !== trigger.toUpperCase()) return
+
+        if (Array.isArray(data.ignored[msg.channel.id]) && data.ignored[msg.channel.id].find(c => c === trigger)) return
         const args = msg.content.split(' ').splice(1)
         this.emit(trigger, args, msg, client)
       })

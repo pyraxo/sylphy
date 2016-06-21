@@ -41,8 +41,9 @@ class Logger {
 
   heard (msg) {
     if (typeof msg === 'object') {
-      console.log(`${chalk.black.bgCyan(' MSG ')} ${chalk.bold.magenta(msg.channel.isPrivate ? '(in PMs)' : msg.server.name)} > ${chalk.bold.green(msg.author.name)}: ${chalk.bold.blue(msg.cleanContent.replace(/\n/g, ' '))}`)
-      log.info(`${msg.channel.isPrivate ? 'DMs' : msg.server.name} > ${msg.author.name}: ${msg.cleanContent.replace(/\n/g, ' ')}`)
+      const cleanMsg = msg.cleanContent.replace(/\n/g, ' ')
+      console.log(`${chalk.black.bgCyan(' MSG ')} ${chalk.bold.magenta(msg.channel.isPrivate ? '(in PMs)' : msg.server.name)} > ${chalk.bold.green(msg.author.name)}: ${chalk.bold.blue(cleanMsg)}`)
+      log.info(`${msg.channel.isPrivate ? 'DMs' : msg.server.name} > ${msg.author.name}: ${chalk.bold.blue(cleanMsg)}`)
     }
   }
 }

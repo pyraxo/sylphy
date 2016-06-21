@@ -5,6 +5,7 @@ class AbstractCommand {
     if (this.constructor === AbstractCommand) {
       throw new Error('Can\'t instantiate abstract command!')
     }
+    this.timer = {}
     this.bot = Tatsumaki
     this.logger = Tatsumaki.logger
     this.db = Tatsumaki.db
@@ -28,11 +29,7 @@ class AbstractCommand {
   }
 
   get cooldown () {
-    return 0
-  }
-
-  get permissions () {
-    return []
+    return 5
   }
 
   get hidden () {
