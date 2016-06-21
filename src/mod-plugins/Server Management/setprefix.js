@@ -14,6 +14,10 @@ class SetPrefix extends AdminCommand {
     return 'Sets a custom prefix for your server'
   }
 
+  get permissions () {
+    return ['manageChannels']
+  }
+
   handle (args) {
     const serverSettings = path.join(this.bot.dbPath, 'server-settings', `${this.message.server.id}.json`)
     async.waterfall([
@@ -65,7 +69,7 @@ class SetPrefix extends AdminCommand {
       }
     ], err => {
       this.bot.userStates.remove(this.message.sender)
-      if (err) this.reply(`❎  **Error**: ${err}`)
+      if (err) this.logger.error(`Error reading ${serverSettings}: ${err}`)
     })
   }
 }

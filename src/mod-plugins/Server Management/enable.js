@@ -18,6 +18,10 @@ class PluginEnable extends AdminCommand {
     return '[command]'
   }
 
+  get permissions () {
+    return ['manageChannel']
+  }
+
   handle (args) {
     const serverSettings = path.join(this.bot.dbPath, 'server-settings', `${this.message.server.id}.json`)
     async.waterfall([
@@ -61,7 +65,7 @@ class PluginEnable extends AdminCommand {
             return
           }
         } else {
-          data.ignored[this.message.channel.id] = true
+          delete data.ignored[this.message.channel.id]
           this.reply(`🔉  Enabled all commands on this channel.`)
         }
         jsonfile.writeFile(serverSettings, data, { spaces: 2 }, err => {
@@ -71,7 +75,7 @@ class PluginEnable extends AdminCommand {
       }
     ], err => {
       if (err) {
-        this.reply(`❎  **Error reading server settings**: ${err}`)
+        this.logger.error(`Error reading ${serverSettings}: ${err}`)
         return
       }
     })

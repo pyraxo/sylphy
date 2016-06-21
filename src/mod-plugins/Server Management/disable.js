@@ -18,6 +18,10 @@ class PluginDisable extends AdminCommand {
     return '[command]'
   }
 
+  get permissions () {
+    return ['manageChannel']
+  }
+
   handle (args) {
     const serverSettings = path.join(this.bot.dbPath, 'server-settings', `${this.message.server.id}.json`)
     async.waterfall([
@@ -65,7 +69,7 @@ class PluginDisable extends AdminCommand {
       }
     ], err => {
       if (err) {
-        this.reply(`❎  **Error reading server settings**: ${err}`)
+        this.logger.error(`Error reading ${serverSettings}: ${err}`)
         return
       }
     })

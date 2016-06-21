@@ -1,3 +1,6 @@
+import path from 'path'
+import jsonfile from 'jsonfile'
+
 const Tatsumaki = require('../')
 
 class AbstractCommand {
@@ -118,6 +121,17 @@ class AbstractCommand {
         }
       })
       .catch(err => rej(err))
+    })
+  }
+
+  wrongUsage () {
+    const serverSettings = path.join(this.bot.dbPath, 'server-settings', `${this.message.server.id}.json`)
+    jsonfile.readFile(serverSettings, (err, data) => {
+      if (err) {
+        this.logger.error(`Error reading ${serverSettings}: ${err}`)
+        return
+      }
+      this.reply(`❎  **${this.message.sender.name}**, the correct usage is: \`${data.prefix}${this.name} ${this.usage || ''}\``)
     })
   }
 }

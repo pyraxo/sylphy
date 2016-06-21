@@ -27,7 +27,7 @@ class Help extends BaseCommand {
     .then(() => {
       jsonfile.readFile(serverSettings, (err, data) => {
         if (err) {
-          this.reply(`❎  **Error**: ${err}`)
+          this.logger.error(`Error reading ${serverSettings}: ${err}`)
           return
         }
         const prefix = data['prefix']
@@ -39,7 +39,7 @@ class Help extends BaseCommand {
               if (command.hidden === true) continue
               if (command.name === args[0]) {
                 if (typeof command.gif === 'string') {
-                  const imgPath = path.join(this.bot.dbPath, 'gif', command.gif)
+                  const imgPath = path.join(this.bot.dbPath, 'gif-help', command.gif)
                   fs.access(imgPath, fs.F_OK, err => {
                     if (err) {
                       this.logger.error(`Gif not found: ${imgPath}`)
@@ -84,8 +84,17 @@ class Help extends BaseCommand {
             }
             arr.push(reply.join(''))
           }
+          arr.push(`\nTo view mod commands, use \`${data.admin_prefix}help\``)
 
-          this.reply(arr.join('\n'))
+          const imgPath = path.join(this.bot.dbPath, 'gif-help', 'more.gif')
+          fs.access(imgPath, fs.F_OK, err => {
+            if (err) {
+              this.logger.error(`Gif not found: ${imgPath}`)
+              return
+            }
+            this.client.sendFile(this.message, imgPath, 'more.gif')
+            .then(() => this.reply(arr.join('\n')))
+          })
         }
       })
     })

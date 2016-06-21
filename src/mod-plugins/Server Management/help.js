@@ -27,7 +27,7 @@ class Help extends AdminCommand {
     .then(() => {
       jsonfile.readFile(serverSettings, (err, data) => {
         if (err) {
-          this.reply(`❎  **Error**: ${err}`)
+          this.logger.error(`Error reading ${serverSettings}: ${err}`)
           return
         }
         const prefix = data['admin_prefix']
@@ -71,7 +71,8 @@ class Help extends AdminCommand {
             '__**Moderation Commands List**__\n',
             '*Don\'t include the example brackets when using commands!*\n',
             `Use \`${prefix}help <command name>\` to get more info on a specific command.`,
-            `For example: \`${prefix}help rank\`\n`
+            `For example: \`${prefix}help rank\`\n`,
+            '**Web Dashboard** is available at **<http://tatsumaki.xyz>**\n'
           ]
 
           for (let mod in this.bot.modPlugins) {
@@ -84,6 +85,7 @@ class Help extends AdminCommand {
             }
             arr.push(reply.join(''))
           }
+          arr.push(`\nTo view standard commands, use \`${data.prefix}help\``)
 
           this.reply(arr.join('\n'))
         }

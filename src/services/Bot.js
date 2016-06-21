@@ -64,6 +64,12 @@ class Bot extends EventEmitter {
 
     client.on('message', msg => {
       if (msg.author.bot === true || this.userStates.has('id', msg.sender.id)) return
+      if (msg.channel.isPrivate && msg.content.startsWith(this.config.discord.prefix)) {
+        const trigger = msg.content.toLowerCase().split(' ')[0].substring(this.config.discord.prefix.length)
+        const args = msg.content.split(' ').splice(1)
+        this.emit(trigger, args, msg, client)
+        return
+      }
       const serverSettings = path.join(this.dbPath, 'server-settings', `${msg.server.id}.json`)
       async.waterfall([
         cb => {

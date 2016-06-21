@@ -10,7 +10,14 @@ class AdminCommand extends AbstractCommand {
     }
 
     this.bot.on(this.name.toUpperCase(), (args, msg, client) => {
-      if (msg.channel.isPrivate && this.noPMs === true) {
+      this.message = msg
+      this.client = client
+      const perms = msg.channel.permissionsOf(msg.sender)
+      if (this.permissions.length > 0 && this.permissions.some(p => !perms.hasPermission(p))) {
+        this.reply(`**${msg.sender.name}**, you do not have enough permissions!`)
+        return false
+      }
+      if (msg.channel.isPrivate) {
         this.reply('You can\'t use this command in a DM!')
         return false
       }
@@ -26,8 +33,6 @@ class AdminCommand extends AbstractCommand {
           this.timer[msg.sender.id] = +moment()
         }
       }
-      this.message = msg
-      this.client = client
       this.handle(args)
       this.logger.heard(msg)
       this.bot.emit('command', this.name.toUpperCase())
@@ -37,6 +42,10 @@ class AdminCommand extends AbstractCommand {
 
   get permissions () {
     return []
+  }
+
+  get noPMs () {
+    return true
   }
 }
 
