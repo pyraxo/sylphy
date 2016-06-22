@@ -11,11 +11,16 @@ if (cluster.isMaster) {
   let spawnWorker = (count = 0) => {
     if (count === os.cpus().length) return
     const worker = cluster.fork({ shardID: count, shardCount: os.cpus().length })
-    worker.once('online', () => {
-      logger.debug(`WORKER ${worker.process.pid}: Shard ${count}`)
+    worker.on('online', () => {
+      logger.debug(`WORKER ${worker.process.pid} ONLINE: Shard ${count}`)
     })
-    worker.once('message', msg => {
+    worker.on('message', msg => {
       if (msg === 'loaded:shard') setTimeout(() => spawnWorker(++count), 2000)
+    })
+    worker.on('exit', () => {
+      const shard = count
+      setTimeout(() => spawnWorker(shard), 5000)
+      logger.debug(`WORKER ${worker.process.pid} EXITED: Shard ${count}`)
     })
   }
   spawnWorker()

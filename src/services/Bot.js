@@ -6,7 +6,6 @@ import chalk from 'chalk'
 import jsonfile from 'jsonfile'
 import rq from 'require-all'
 import cr from 'clear-require'
-import async from 'async'
 
 import Logger from './Logger'
 import Configs from './Configurator'
@@ -18,9 +17,11 @@ class Bot extends EventEmitter {
     super()
     this.logger = new Logger('BOT')
 
-    this.userStates = new Cache()
+    this.busyUsers = new Cache()
+    this.serverSettings = new Cache()
 
     this.configPath = options.configPath || path.join(process.cwd(), 'config')
+    this.handlersPath = options.handlersPath || path.join(process.cwd(), 'lib/handlers')
     this.pluginsPath = options.pluginsPath || path.join(process.cwd(), 'lib/plugins')
     this.modPluginsPath = options.modPluginsPath || path.join(process.cwd(), 'lib/mod-plugins')
     this.dbPath = options.dbPath || path.join(process.cwd(), 'db')
@@ -29,9 +30,14 @@ class Bot extends EventEmitter {
     this.shardCount = options.shardCount || 1
 
     this.once('loaded:configs', () => this.login())
-    this.once('loaded:discord', () => this.attachPlugins())
+    this.once('loaded:discord', () => {
+      this.attachPlugins()
+      this.attachHandlers()
+      this.loadSettings()
+    })
     this.on('loaded:plugins', () => this.runPlugins())
     this.on('clear:plugins', () => this.attachPlugins())
+    this.on('loaded:handlers', () => this.enableHandlers())
   }
 
   run () {
@@ -63,46 +69,33 @@ class Bot extends EventEmitter {
     })
 
     client.on('message', msg => {
-      if (msg.author.bot === true || this.userStates.has('id', msg.sender.id)) return
-      if (msg.channel.isPrivate && msg.content.startsWith(this.config.discord.prefix)) {
-        const trigger = msg.content.toLowerCase().split(' ')[0].substring(this.config.discord.prefix.length)
-        const args = msg.content.split(' ').splice(1)
-        this.emit(trigger, args, msg, client)
-        return
+      if (msg.author.bot === true || this.busyUsers.has('id', msg.sender.id)) return
+      if (msg.channel.isPrivate) {
+        if (msg.content.startsWith(this.config.discord.prefix)) {
+          const trigger = msg.content.toLowerCase().split(' ')[0].substring(this.config.discord.prefix.length)
+          const args = msg.content.split(' ').splice(1)
+          this.emit(trigger, args, msg, client)
+          return
+        }
       }
-      const serverSettings = path.join(this.dbPath, 'server-settings', `${msg.server.id}.json`)
-      async.waterfall([
-        cb => {
-          this.verifyServerSettings(serverSettings)
-          .then(() => cb(null))
-          .catch(err => cb(err))
-        },
-        cb => {
-          jsonfile.readFile(serverSettings, (err, data) => {
-            if (err) return cb(err)
-            return cb(null, data)
-          })
-        }
-      ], (err, data) => {
-        if (err) this.logger.error(err)
-        let trigger = ''
+      let trigger = ''
 
-        if (msg.content.startsWith(data.prefix)) {
-          trigger = msg.content.toLowerCase().split(' ')[0].substring(data.prefix.length)
-        } else if (msg.content.startsWith(data.admin_prefix)) {
-          trigger = msg.content.toUpperCase().split(' ')[0].substring(data.admin_prefix.length)
-        } else if (msg.content.startsWith(this.config.discord.prefix)) {
-          trigger = msg.content.toLowerCase().split(' ')[0].substring(this.config.discord.prefix.length)
-        } else if (msg.content.startsWith(this.config.discord.admin_prefix)) {
-          trigger = msg.content.toUpperCase().split(' ')[0].substring(this.config.discord.admin_prefix.length)
-        }
+      const settings = this.serverSettings.get('id', msg.server.id)
+      if (msg.content.startsWith(settings.prefix)) {
+        trigger = msg.content.toLowerCase().split(' ')[0].substring(settings.prefix.length)
+      } else if (msg.content.startsWith(settings.admin_prefix)) {
+        trigger = msg.content.toUpperCase().split(' ')[0].substring(settings.admin_prefix.length)
+      } else if (msg.content.startsWith(this.config.discord.prefix)) {
+        trigger = msg.content.toLowerCase().split(' ')[0].substring(this.config.discord.prefix.length)
+      } else if (msg.content.startsWith(this.config.discord.admin_prefix)) {
+        trigger = msg.content.toUpperCase().split(' ')[0].substring(this.config.discord.admin_prefix.length)
+      }
 
-        if (data.ignored[msg.channel.id] === true && trigger !== trigger.toUpperCase()) return
+      if (settings.ignored[msg.channel.id] === true && trigger !== trigger.toUpperCase()) return
 
-        if (Array.isArray(data.ignored[msg.channel.id]) && data.ignored[msg.channel.id].find(c => c === trigger)) return
-        const args = msg.content.split(' ').splice(1)
-        this.emit(trigger, args, msg, client)
-      })
+      if (Array.isArray(settings.ignored[msg.channel.id]) && settings.ignored[msg.channel.id].find(c => c === trigger)) return
+      const args = msg.content.split(' ').splice(1)
+      this.emit(trigger, args, msg, client)
     })
 
     client.loginWithToken(this.config.discord.token)
@@ -127,6 +120,7 @@ class Bot extends EventEmitter {
         this.modPlugins[plugin][command] = new this.modPlugins[plugin][command]()
       }
     }
+    this.emit('running:plugins')
   }
 
   reloadPlugins () {
@@ -136,28 +130,55 @@ class Bot extends EventEmitter {
     this.emit('clear:plugins')
   }
 
-  verifyServerSettings (jsonpath) {
+  attachHandlers () {
+    this.handlers = rq(this.handlersPath)
+    this.emit('loaded:handlers')
+  }
+
+  enableHandlers () {
+    for (let handler in this.handlers) {
+      this.handlers[handler](this.client, this)
+    }
+    this.emit('running:handlers')
+  }
+
+  getSettings (jsonpath, id) {
     return new Promise((res, rej) => {
+      const defaults = {
+        id: id,
+        prefix: this.config.discord.prefix,
+        admin_prefix: this.config.discord.admin_prefix,
+        ignored: {},
+        welcome: 'Welcome to %server%!',
+        goodbye: 'We\'re sorry to see you leaving!',
+        nsfw: false,
+        levelUp: true,
+        banAlerts: true,
+        nameChanges: true,
+        notifyChannel: null,
+        lang: 'default'
+      }
       fs.stat(jsonpath, err => {
         if (err) {
-          jsonfile.writeFile(jsonpath, {
-            prefix: this.config.discord.prefix,
-            admin_prefix: this.config.discord.admin_prefix,
-            ignored: {},
-            welcome: 'Welcome to %server%!',
-            goodbye: 'We\'re sorry to see you leaving!',
-            nsfw: false,
-            levelUp: true,
-            banAlerts: true,
-            nameChanges: true,
-            notifyChannel: null
-          }, { spaces: 2 }, err => {
+          jsonfile.writeFile(jsonpath, defaults, { spaces: 2 }, err => {
             if (err) return rej(err)
           })
-          return res()
+          return res(defaults)
         }
-        return res()
+        jsonfile.readFile(jsonpath, (err, data) => {
+          if (err) return rej(err)
+          res(data)
+        })
       })
+    })
+  }
+
+  loadSettings () {
+    this.client.servers.map(s => {
+      const settingsPath = path.join(this.dbPath, 'server-settings', `${s.id}.json`)
+      this.getSettings(settingsPath, s.id)
+      .then(settings => this.serverSettings.add(settings))
+      .catch(err => this.logger.error(`Error verifying ${settingsPath}: ${err}`))
     })
   }
 }

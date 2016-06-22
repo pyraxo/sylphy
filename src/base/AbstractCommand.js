@@ -134,6 +134,23 @@ class AbstractCommand {
       this.reply(`❎  **${this.message.sender.name}**, the correct usage is: \`${data.prefix}${this.name} ${this.usage || ''}\``)
     })
   }
+
+  getSettings () {
+    return this.bot.serverSettings.get('id', this.message.server.id)
+  }
+
+  saveSettings (data) {
+    return new Promise((res, rej) => {
+      const serverSettings = path.join(this.bot.dbPath, 'server-settings', `${this.message.server.id}.json`)
+      jsonfile.writeFile(serverSettings, data, { spaces: 2 }, err => {
+        if (err) {
+          this.logger.error(`Error writing to ${serverSettings}: ${err}`)
+          return rej(err)
+        }
+        return res()
+      })
+    })
+  }
 }
 
 module.exports = AbstractCommand
