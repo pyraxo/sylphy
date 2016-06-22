@@ -37,10 +37,10 @@ node_modules
 lib
 
 # Configuration directory
-config/discord.json
-config/redis.json
-config/mal.json
-config/keys.json
+config/*.json
+!config/*.example.json
+config/*.txt
+!config/*.example.txt
 
 # Databases / Storage
 db/guild-settings

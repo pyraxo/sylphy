@@ -4,10 +4,10 @@ import path from 'path'
 import async from 'async'
 
 import Logger from '../services/Logger'
+const logger = new Logger('AVATAR', 'green')
 
-module.exports = function AviGoRound (client, bot) {
+module.exports = function randomAvatar (client, bot) {
   if (bot.shardID > 0) return
-  const logger = new Logger('AvatarSwitcher')
   let avatars = []
   async.waterfall([
     cb => {
@@ -39,10 +39,12 @@ module.exports = function AviGoRound (client, bot) {
       logger.error(new Error('No avatars found'))
       return
     }
-    setInterval(() => {
-      logger.info('Changing avatar')
-      client.editSelf({avatar: `data:image/png;base64,${_.sample(avatars)}`})
-      .catch(err => logger.error(err))
-    }, 900000)
+    bot.on('loaded.discord', () => {
+      setInterval(() => {
+        logger.log('Changing avatar')
+        client.editSelf({avatar: `data:image/png;base64,${_.sample(avatars)}`})
+        .catch(err => logger.error(err))
+      }, 900000)
+    })
   })
 }

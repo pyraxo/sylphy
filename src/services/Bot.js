@@ -44,8 +44,10 @@ class Bot extends EventEmitter {
       this.loadSettings()
     })
     this.on('loaded.plugins', () => this.runPlugins())
-    this.on('clear.plugins', () => this.attachPlugins())
     this.on('loaded.handlers', () => this.enableHandlers())
+
+    this.on('clear.plugins', () => this.attachPlugins())
+    this.on('clear.handlers', () => this.attachHandlers())
 
     this.on('loaded.*', () => {
       this.loaded[this.event.replace('loaded.', '')] = true
@@ -85,7 +87,7 @@ class Bot extends EventEmitter {
     })
 
     client.on('ready', () => {
-      this.emit('loaded.discord')
+      this.emit('loaded.discord', client.guilds.size)
       this.logger.info(`${chalk.red.bold('iris')} is ready! Logging in as ${chalk.cyan.bold(client.user.username)} on shard ${chalk.red.bold(this.shardID)}`)
       this.logger.info(`Listening to ${chalk.green.bold(client.guilds.size)} guilds, with ${chalk.green.bold(Object.keys(client.channelGuildMap).length)} channels`)
     })
@@ -144,7 +146,7 @@ class Bot extends EventEmitter {
         this.modPlugins[plugin][command] = new this.modPlugins[plugin][command]()
       }
     }
-    this.emit('running:plugins')
+    this.emit('running.plugins')
   }
 
   reloadPlugins () {
@@ -157,6 +159,13 @@ class Bot extends EventEmitter {
   attachHandlers () {
     this.handlers = rq(this.handlersPath)
     this.emit('loaded.handlers')
+  }
+
+  reloadHandlers () {
+    Object.keys(require.cache).forEach(key => {
+      if (key.startsWith(this.handlersPath)) cr(key)
+    })
+    this.emit('clear.handlers')
   }
 
   enableHandlers () {
@@ -173,7 +182,7 @@ class Bot extends EventEmitter {
         prefix: this.config.discord.prefix,
         admin_prefix: this.config.discord.admin_prefix,
         ignored: {},
-        welcome: 'Welcome to %guild%!',
+        welcome: 'Welcome to %server_name%!',
         goodbye: 'We\'re sorry to see you leaving!',
         nsfw: false,
         levelUp: true,

@@ -17,7 +17,7 @@ function fetchConfigs (configPath, callback) {
       })
     },
     (filenames, cb) => {
-      _.remove(filenames, n => n.startsWith('.') || n.indexOf('example') > -1)
+      _.remove(filenames, n => n.startsWith('.') || n.indexOf('example') > -1 || !n.endsWith('.json'))
       filenames = filenames.map(n => path.join(configPath, n))
       let obj = {}
       async.each(filenames, (filename, cb) => {
