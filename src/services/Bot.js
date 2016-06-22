@@ -1,5 +1,5 @@
-import { Client as Discord, Cache } from 'discord.js'
-import { EventEmitter } from 'events'
+import { Client as Discord } from 'eris'
+import { EventEmitter2 as EventEmitter } from 'eventemitter2'
 import fs from 'fs'
 import path from 'path'
 import chalk from 'chalk'
@@ -14,11 +14,11 @@ import Hash from './util/Hash'
 class Bot extends EventEmitter {
   constructor (options) {
     options = options || {}
-    super()
+    super({ wildcard: true })
     this.logger = new Logger('BOT')
 
-    this.busyUsers = new Cache()
-    this.serverSettings = new Cache()
+    this.ignoredUsers = new Set()
+    this.guildSettings = new Map()
 
     this.configPath = options.configPath || path.join(process.cwd(), 'config')
     this.handlersPath = options.handlersPath || path.join(process.cwd(), 'lib/handlers')
@@ -29,21 +29,41 @@ class Bot extends EventEmitter {
     this.shardID = options.shardID || 0
     this.shardCount = options.shardCount || 1
 
-    this.once('loaded:configs', () => this.login())
-    this.once('loaded:discord', () => {
+    this.loaded = {
+      configs: false,
+      plugins: false,
+      handlers: false,
+      settings: false,
+      discord: false
+    }
+
+    this.once('loaded.configs', () => this.login())
+    this.once('loaded.discord', () => {
       this.attachPlugins()
       this.attachHandlers()
       this.loadSettings()
     })
-    this.on('loaded:plugins', () => this.runPlugins())
-    this.on('clear:plugins', () => this.attachPlugins())
-    this.on('loaded:handlers', () => this.enableHandlers())
+    this.on('loaded.plugins', () => this.runPlugins())
+    this.on('clear.plugins', () => this.attachPlugins())
+    this.on('loaded.handlers', () => this.enableHandlers())
+
+    this.on('loaded.*', () => {
+      this.loaded[this.event.replace('loaded.', '')] = true
+      if (this.checkLoaded()) this.emit('ready')
+    })
+  }
+
+  checkLoaded () {
+    for (let val in this.loaded) {
+      if (this.loaded[val] === false) return false
+    }
+    return true
   }
 
   run () {
     Configs.get(this.configPath, results => {
       this.config = results
-      this.emit('loaded:configs')
+      this.emit('loaded.configs')
 
       this.db = new Hash()
     })
@@ -54,58 +74,62 @@ class Bot extends EventEmitter {
       throw new Error('Unable to resolve Discord token')
     }
 
-    let client = new Discord({
-      maxCachedMessages: 10,
-      forceFetchUsers: true,
+    let client = new Discord(this.config.discord.token, {
+      messageLimit: 1,
+      sequencerWait: 2,
+      getAllUsers: true,
       disableEveryone: true,
-      shardId: this.shardID,
-      shardCount: this.shardCount
+      firstShardID: this.shardID,
+      lastShardID: this.shardID,
+      maxShards: this.shardCount
     })
 
     client.on('ready', () => {
-      this.emit('loaded:discord')
-      this.logger.info(`${chalk.red.bold('iris')} is ready! Logging in as ${chalk.cyan.bold(client.user.name)}`)
-      this.logger.info(`Listening to ${chalk.magenta.bold(client.channels.length)} channels, on ${chalk.green.bold(client.servers.length)} servers`)
+      this.emit('loaded.discord')
+      this.logger.info(`${chalk.red.bold('iris')} is ready! Logging in as ${chalk.cyan.bold(client.user.username)} on shard ${chalk.red.bold(this.shardID)}`)
+      this.logger.info(`Listening to ${chalk.green.bold(client.guilds.size)} guilds, with ${chalk.green.bold(Object.keys(client.channelGuildMap).length)} channels`)
     })
 
-    client.on('message', msg => {
-      if (msg.author.bot === true || this.busyUsers.has('id', msg.sender.id)) return
-      if (msg.channel.isPrivate) {
-        if (msg.content.startsWith(this.config.discord.prefix)) {
-          const trigger = msg.content.toLowerCase().split(' ')[0].substring(this.config.discord.prefix.length)
-          const args = msg.content.split(' ').splice(1)
-          this.emit(trigger, args, msg, client)
-          return
+    this.once('ready', () => {
+      this.client.on('messageCreate', msg => {
+        if (msg.author.bot === true || this.ignoredUsers.has(msg.author.id)) return
+        if (msg.channel.id === msg.author.id) { // isPrivate
+          if (msg.content.startsWith(this.config.discord.prefix)) {
+            const trigger = msg.content.toLowerCase().split(' ')[0].substring(this.config.discord.prefix.length)
+            const args = msg.content.split(' ').splice(1)
+            this.emit(trigger, args, msg, client)
+            return
+          }
         }
-      }
-      let trigger = ''
+        let trigger = ''
 
-      const settings = this.serverSettings.get('id', msg.server.id)
-      if (msg.content.startsWith(settings.prefix)) {
-        trigger = msg.content.toLowerCase().split(' ')[0].substring(settings.prefix.length)
-      } else if (msg.content.startsWith(settings.admin_prefix)) {
-        trigger = msg.content.toUpperCase().split(' ')[0].substring(settings.admin_prefix.length)
-      } else if (msg.content.startsWith(this.config.discord.prefix)) {
-        trigger = msg.content.toLowerCase().split(' ')[0].substring(this.config.discord.prefix.length)
-      } else if (msg.content.startsWith(this.config.discord.admin_prefix)) {
-        trigger = msg.content.toUpperCase().split(' ')[0].substring(this.config.discord.admin_prefix.length)
-      }
+        const settings = this.guildSettings.get(msg.channel.guild.id)
+        if (msg.content.startsWith(settings.prefix)) {
+          trigger = msg.content.toLowerCase().split(' ')[0].substring(settings.prefix.length)
+        } else if (msg.content.startsWith(settings.admin_prefix)) {
+          trigger = msg.content.toUpperCase().split(' ')[0].substring(settings.admin_prefix.length)
+        } else if (msg.content.startsWith(this.config.discord.prefix)) {
+          trigger = msg.content.toLowerCase().split(' ')[0].substring(this.config.discord.prefix.length)
+        } else if (msg.content.startsWith(this.config.discord.admin_prefix)) {
+          trigger = msg.content.toUpperCase().split(' ')[0].substring(this.config.discord.admin_prefix.length)
+        }
 
-      if (settings.ignored[msg.channel.id] === true && trigger !== trigger.toUpperCase()) return
+        if (settings.ignored[msg.channel.id] === true && trigger !== trigger.toUpperCase()) return
 
-      if (Array.isArray(settings.ignored[msg.channel.id]) && settings.ignored[msg.channel.id].find(c => c === trigger)) return
-      const args = msg.content.split(' ').splice(1)
-      this.emit(trigger, args, msg, client)
+        if (Array.isArray(settings.ignored[msg.channel.id]) && settings.ignored[msg.channel.id].find(c => c === trigger)) return
+        const args = msg.content.split(' ').splice(1)
+        this.emit(trigger, args, msg, client)
+      })
     })
 
-    client.loginWithToken(this.config.discord.token)
+    client.connect()
     this.client = client
   }
 
   attachPlugins () {
     this.plugins = rq(this.pluginsPath)
     this.modPlugins = rq(this.modPluginsPath)
-    this.emit('loaded:plugins')
+    this.emit('loaded.plugins')
   }
 
   runPlugins () {
@@ -127,19 +151,19 @@ class Bot extends EventEmitter {
     Object.keys(require.cache).forEach(key => {
       if (key.startsWith(this.pluginsPath) || key.startsWith(this.modPluginsPath)) cr(key)
     })
-    this.emit('clear:plugins')
+    this.emit('clear.plugins')
   }
 
   attachHandlers () {
     this.handlers = rq(this.handlersPath)
-    this.emit('loaded:handlers')
+    this.emit('loaded.handlers')
   }
 
   enableHandlers () {
     for (let handler in this.handlers) {
       this.handlers[handler](this.client, this)
     }
-    this.emit('running:handlers')
+    this.emit('running.handlers')
   }
 
   getSettings (jsonpath, id) {
@@ -149,7 +173,7 @@ class Bot extends EventEmitter {
         prefix: this.config.discord.prefix,
         admin_prefix: this.config.discord.admin_prefix,
         ignored: {},
-        welcome: 'Welcome to %server%!',
+        welcome: 'Welcome to %guild%!',
         goodbye: 'We\'re sorry to see you leaving!',
         nsfw: false,
         levelUp: true,
@@ -174,12 +198,13 @@ class Bot extends EventEmitter {
   }
 
   loadSettings () {
-    this.client.servers.map(s => {
-      const settingsPath = path.join(this.dbPath, 'server-settings', `${s.id}.json`)
-      this.getSettings(settingsPath, s.id)
-      .then(settings => this.serverSettings.add(settings))
+    this.client.guilds.map(g => g.id).forEach(id => {
+      const settingsPath = path.join(this.dbPath, 'guild-settings', `${id}.json`)
+      this.getSettings(settingsPath, id)
+      .then(settings => this.guildSettings.set(id, settings))
       .catch(err => this.logger.error(`Error verifying ${settingsPath}: ${err}`))
     })
+    this.emit('loaded.settings')
   }
 }
 

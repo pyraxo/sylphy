@@ -53,7 +53,7 @@ class PluginEnable extends AdminCommand {
       this.reply(`🔉  Enabled all commands on this channel.`)
     }
     this.saveSettings(settings)
-    .then(() => this.logger.info(`Saved server settings ${settings.id}`))
+    .then(() => this.logger.info(`Saved guild settings ${settings.id}`))
     .catch(err => this.logger.error(`Error saving settings ${settings.id}: ${err}`))
   }
 }

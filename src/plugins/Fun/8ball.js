@@ -28,7 +28,7 @@ class Dice extends BaseCommand {
   }
 
   handle (args) {
-    this.reply(`🎱  |  **${this.message.sender.name}**, ${this.response}`)
+    this.reply(`🎱  |  **${this.message.author.username}**, ${this.response}`)
   }
 }
 

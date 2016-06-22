@@ -8,7 +8,7 @@ class SetPrefix extends AdminCommand {
   }
 
   get description () {
-    return 'Sets a custom prefix for your server'
+    return 'Sets a custom prefix for your guild'
   }
 
   get permissions () {
@@ -16,10 +16,10 @@ class SetPrefix extends AdminCommand {
   }
 
   handle (args) {
-    const serverSettings = this.getSettings()
+    const guildSettings = this.getSettings()
     async.waterfall([
       cb => {
-        this.bot.busyUsers.add(this.message.sender)
+        this.bot.ignoredUsers.add(this.message.author.id)
         this.await([
           '\nℹ  **Prefix Customisation Menu**\n',
           'Which custom prefix would you like you to edit?',
@@ -32,7 +32,7 @@ class SetPrefix extends AdminCommand {
       (msg, cb) => {
         const setting = msg.content.toLowerCase() === 'admin' ? 'admin_prefix' : 'prefix'
         this.await([
-          `ℹ  The current custom **${setting}** is **${serverSettings[setting]}**.`,
+          `ℹ  The current custom **${setting}** is **${guildSettings[setting]}**.`,
           `Please enter the new prefix:`
         ].join('\n'),
         m => /^.+$/.test(m.content), 'That prefix is not allowed. Try another one!', msg)
@@ -40,8 +40,8 @@ class SetPrefix extends AdminCommand {
         .catch(err => cb(err))
       },
       (setting, msg, cb) => {
-        serverSettings[setting] = msg.content
-        this.saveSettings(serverSettings).then(() => cb(null, msg.content)).catch(err => cb(err))
+        guildSettings[setting] = msg.content
+        this.saveSettings(guildSettings).then(() => cb(null, msg.content)).catch(err => cb(err))
       },
       (prefix, cb) => {
         this.reply([
@@ -51,8 +51,8 @@ class SetPrefix extends AdminCommand {
         .catch(err => cb(err))
       }
     ], err => {
-      this.bot.busyUsers.remove(this.message.sender)
-      if (err) this.logger.error(`Error reading ${serverSettings}: ${err}`)
+      this.bot.ignoredUsers.delete(this.message.author.id)
+      if (err) this.logger.error(`Error reading ${guildSettings}: ${err}`)
     })
   }
 }

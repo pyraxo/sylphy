@@ -10,6 +10,10 @@ class Server extends BaseCommand {
     return 'Get a link to Tatsumaki-chan\'s support server'
   }
 
+  get aliases () {
+    return ['guild']
+  }
+
   handle () {
     this.reply([
       ':wrench: Looking for support? My support channel is here:',

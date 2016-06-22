@@ -12,25 +12,24 @@ class AdminCommand extends AbstractCommand {
     this.bot.on(this.name.toUpperCase(), (args, msg, client) => {
       this.message = msg
       this.client = client
-      const perms = msg.channel.permissionsOf(msg.sender)
-      if (this.permissions.length > 0 && this.permissions.some(p => !perms.hasPermission(p))) {
-        this.reply(`**${msg.sender.name}**, you do not have enough permissions!`)
+      const perms = msg.member.permission.json
+      if (this.permissions.length > 0 && this.permissions.some(p => !perms[p])) {
+        this.reply(`**${msg.author.username}**, you do not have enough permissions!`, 0, 5000)
         return false
       }
       if (msg.channel.isPrivate) {
         this.reply('You can\'t use this command in a DM!')
         return false
       }
-      if (!this.timer.hasOwnProperty(msg.sender.id)) {
-        this.timer[msg.sender.id] = +moment()
+      if (!this.timer.hasOwnProperty(msg.author.id)) {
+        this.timer[msg.author.id] = +moment()
       } else {
-        const diff = moment().diff(moment(this.timer[msg.sender.id]), 'seconds')
+        const diff = moment().diff(moment(this.timer[msg.author.id]), 'seconds')
         if (diff < this.cooldown) {
-          this.reply(`**${msg.sender.name}**, please cool down! (**${this.cooldown - diff}** seconds left)`)
-          .then(msg => client.deleteMessage(msg, { wait: 5000 }))
+          this.reply(`**${msg.author.username}**, please cool down! (**${this.cooldown - diff}** seconds left)`, 0, 5000)
           return false
         } else {
-          this.timer[msg.sender.id] = +moment()
+          this.timer[msg.author.id] = +moment()
         }
       }
       this.handle(args)

@@ -11,19 +11,18 @@ class BaseCommand extends AbstractCommand {
 
     this.bot.on(this.name, (args, msg, client) => {
       if (msg.channel.isPrivate && this.noPMs === true) {
-        this.reply('You can\'t use this command in a DM!')
+        this.reply('You can\'t use this command in a DM!', 0, 5000)
         return false
       }
-      if (!this.timer.hasOwnProperty(msg.sender.id)) {
-        this.timer[msg.sender.id] = +moment()
+      if (!this.timer.hasOwnProperty(msg.author.id)) {
+        this.timer[msg.author.id] = +moment()
       } else {
-        const diff = moment().diff(moment(this.timer[msg.sender.id]), 'seconds')
+        const diff = moment().diff(moment(this.timer[msg.author.id]), 'seconds')
         if (diff < this.cooldown) {
-          this.reply(`**${msg.sender.name}**, please cool down! (**${this.cooldown - diff}** seconds left)`)
-          .then(msg => client.deleteMessage(msg, { wait: 10000 }))
+          this.reply(`**${msg.author.username}**, please cool down! (**${this.cooldown - diff}** seconds left)`, 0, 5000)
           return false
         } else {
-          this.timer[msg.sender.id] = +moment()
+          this.timer[msg.author.id] = +moment()
         }
       }
       this.message = msg

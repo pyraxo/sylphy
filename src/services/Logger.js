@@ -1,11 +1,17 @@
+import fs from 'fs'
 import path from 'path'
 import moment from 'moment'
 import log from 'bristol'
 import chalk from 'chalk'
 
+const logName = path.join(process.cwd(), 'logs', moment().format('YYYY-MM-DD HHmm') + '.json')
 log.setSeverities(['panic', 'alert', 'crit', 'error', 'warn', 'notice', 'info', 'debug'])
-log.addTarget('file', { file: path.join(process.cwd(), 'logs', moment().format('YYYY-MM-DD HHmm') + '.json') })
+log.addTarget('file', { file: logName })
 .withFormatter('commonInfoModel')
+
+fs.mkdir(path.join(process.cwd(), 'logs'), err => {
+  if (err.code === 'EEXIST') return
+})
 
 class Logger {
   constructor (name, bg, colour) {
@@ -42,8 +48,8 @@ class Logger {
   heard (msg) {
     if (typeof msg === 'object') {
       const cleanMsg = msg.cleanContent.replace(/\n/g, ' ')
-      console.log(`${chalk.black.bgCyan(' MSG ')} ${chalk.bold.magenta(msg.channel.isPrivate ? '(in PMs)' : msg.server.name)} > ${chalk.bold.green(msg.author.name)}: ${chalk.bold.blue(cleanMsg)}`)
-      log.info(`${msg.channel.isPrivate ? 'DMs' : msg.server.name} > ${msg.author.name}: ${chalk.bold.blue(cleanMsg)}`)
+      console.log(`${chalk.black.bgCyan(' MSG ')} ${chalk.bold.magenta(msg.channel.id === msg.author.id ? '(in PMs)' : msg.channel.guild.name)} > ${chalk.bold.green(msg.author.username)}: ${chalk.bold.blue(cleanMsg)}`)
+      log.info(`${msg.channel.id === msg.author.id ? 'DMs' : msg.channel.guild.name} > ${msg.author.username}: ${chalk.bold.blue(cleanMsg)}`)
     }
   }
 }

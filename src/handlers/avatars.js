@@ -13,7 +13,7 @@ module.exports = function AviGoRound (client, bot) {
     cb => {
       fs.readdir(path.join(bot.dbPath, 'avatars'), (err, files) => {
         if (err) return cb(err)
-        if (files.length === 0) return cb(new Error('No avatars found'))
+        if (files.length === 0) return cb(new Error('No files found'))
         logger.info(`Found: ${files.join(', ')}`)
         return cb(null, files)
       })
@@ -21,6 +21,7 @@ module.exports = function AviGoRound (client, bot) {
     (files, done) => {
       async.each(files, (file, cb) => {
         if (file.startsWith('.')) return cb()
+        if (path.extname(file) !== '.png') return cb()
         fs.readFile(path.join(bot.dbPath, 'avatars', file), (err, data) => {
           if (err) return cb(err)
           logger.info(`Loaded: ${file}`)
@@ -34,9 +35,13 @@ module.exports = function AviGoRound (client, bot) {
       logger.error(err)
       return
     }
+    if (avatars.length === 0) {
+      logger.error(new Error('No avatars found'))
+      return
+    }
     setInterval(() => {
       logger.info('Changing avatar')
-      client.setAvatar(`data:image/png;base64,${_.sample(avatars)}`)
+      client.editSelf({avatar: `data:image/png;base64,${_.sample(avatars)}`})
       .catch(err => logger.error(err))
     }, 900000)
   })

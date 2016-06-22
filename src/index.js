@@ -8,18 +8,19 @@ const logger = new Logger()
 
 if (cluster.isMaster) {
   logger.debug('MASTER')
-  let spawnWorker = (count = 0) => {
+  let spawnWorker = (count = 0, end = false) => {
     if (count === os.cpus().length) return
     const worker = cluster.fork({ shardID: count, shardCount: os.cpus().length })
     worker.on('online', () => {
       logger.debug(`WORKER ${worker.process.pid} ONLINE: Shard ${count}`)
     })
     worker.on('message', msg => {
-      if (msg === 'loaded:shard') setTimeout(() => spawnWorker(++count), 2000)
+      if (end) return
+      if (msg === 'loaded.shard') setTimeout(() => spawnWorker(++count), 2000)
     })
     worker.on('exit', () => {
       const shard = count
-      setTimeout(() => spawnWorker(shard), 5000)
+      setTimeout(() => spawnWorker(shard, true), 5000)
       logger.debug(`WORKER ${worker.process.pid} EXITED: Shard ${count}`)
     })
   }
@@ -31,7 +32,7 @@ if (cluster.isMaster) {
   })
   Tatsumaki.run()
 
-  Tatsumaki.once('loaded:discord', () => process.send('loaded:shard'))
+  Tatsumaki.once('loaded.discord', () => process.send('loaded.shard'))
 
   module.exports = Tatsumaki
 }

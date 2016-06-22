@@ -43,4 +43,5 @@ config/mal.json
 config/keys.json
 
 # Databases / Storage
-db/server-settings
+db/guild-settings
+db/avatars

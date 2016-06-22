@@ -32,17 +32,13 @@ class Help extends AdminCommand {
           if (command.name === args[0]) {
             if (typeof command.gif === 'string') {
               const imgPath = path.join(this.bot.dbPath, 'gif', command.gif)
-              fs.access(imgPath, fs.F_OK, err => {
-                if (err) {
-                  this.logger.error(`Gif not found: ${imgPath}`)
-                  return
-                }
-                this.client.sendFile(this.message, imgPath, command.gif, [
+              this.upload(imgPath, command.gif)
+              .then(msg => {
+                this.reply([
                   `**${prefix}${command.name}** ${command.usage ? `\`${command.usage}\`` : ''}`,
                   command.description,
                   command.cooldown ? `**Cooldown**: ${command.cooldown} seconds` : ''
-                ])
-                answered = true
+                ].join('\n'))
               })
             } else {
               this.reply([

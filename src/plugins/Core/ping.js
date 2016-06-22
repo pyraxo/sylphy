@@ -23,13 +23,13 @@ class Ping extends BaseCommand {
           address: args[0]
         }, (err, data) => {
           if (err || !data.avg) {
-            this.client.updateMessage(msg,
+            this.client.editMessage(msg.channel.id, msg.id,
               '❎  Pinging failed! ' +
               `**${err || 'Connection not found!'}**`
             )
             return
           }
-          this.client.updateMessage(msg, [
+          this.client.editMessage(msg.channel.id, msg.id, [
             `✅  Pinged **${args[0]}**`,
             '```xl',
             `address: ${args[0]}`,
@@ -45,7 +45,7 @@ class Ping extends BaseCommand {
     } else {
       this.reply('ℹ  Pong!')
       .then(m => {
-        this.client.updateMessage(m, `${m.content}  |  Time taken: **${m.timestamp - this.message.timestamp}ms**`)
+        this.client.editMessage(m.channel.id, m.id, `${m.content}  |  Time taken: **${m.timestamp - this.message.timestamp}ms**`)
       })
     }
   }
