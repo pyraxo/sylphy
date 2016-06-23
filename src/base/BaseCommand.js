@@ -30,6 +30,10 @@ class BaseCommand extends AbstractCommand {
       this.handle(args)
       this.logger.heard(msg)
       this.bot.emit('command', this.name)
+
+      if (this.stats) {
+        // Metrics stuff go here
+      }
     })
     this.aliases.forEach(a => this.bot.on(a, (s, m, c) => this.handle(s, m, c)))
   }

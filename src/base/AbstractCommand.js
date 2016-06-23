@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import jsonfile from 'jsonfile'
 
+import Hash from '../services/util/Hash'
 const Tatsumaki = require('../')
 
 class AbstractCommand {
@@ -13,6 +14,12 @@ class AbstractCommand {
     this.bot = Tatsumaki
     this.logger = Tatsumaki.logger
     this.db = Tatsumaki.db
+
+    if (this.bot.config.hasOwnProperty('redis')) {
+      if (this.bot.config.redis.statistics) {
+        this.stats = new Hash(this.bot.config.redis.statistics)
+      }
+    }
     this.init()
   }
 

@@ -2,7 +2,21 @@ import redis from 'redis'
 
 class Hash {
   constructor (options) {
+    options = options || {}
+    options.retryStrategy = function (opt) {
+      if (opt.error.code === 'ECONNREFUSED') {
+        return new Error('The server refused the connection')
+      }
+      if (opt.total_retry_time > 1000 * 60 * 60) {
+        return new Error('Retry time exhausted')
+      }
+      if (opt.times_connected > 10) {
+        return undefined
+      }
+      return Math.max(options.attempt * 100, 3000)
+    }
     this.client = redis.createClient(options)
+    this.client.on('error', err => { throw err })
   }
 
   set (key, field, value) {
