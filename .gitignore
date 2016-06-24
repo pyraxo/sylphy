@@ -45,3 +45,4 @@ config/*.txt
 # Databases / Storage
 db/guild-settings
 db/avatars
+db/gif-help
