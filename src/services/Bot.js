@@ -37,6 +37,8 @@ class Bot extends EventEmitter {
       discord: false
     }
 
+    this.setMaxListeners(0) // unlimited listeners
+
     this.once('loaded.configs', () => this.login())
     this.once('loaded.discord', () => {
       this.attachPlugins()
@@ -45,6 +47,8 @@ class Bot extends EventEmitter {
     })
     this.on('loaded.plugins', () => this.runPlugins())
     this.on('loaded.handlers', () => this.enableHandlers())
+
+    this.on('reload.plugins', () => this.reloadPlugins())
 
     this.on('clear.plugins', () => this.attachPlugins())
     this.on('clear.handlers', () => this.attachHandlers())
@@ -83,7 +87,16 @@ class Bot extends EventEmitter {
       disableEveryone: true,
       firstShardID: this.shardID,
       lastShardID: this.shardID,
-      maxShards: this.shardCount
+      maxShards: this.shardCount,
+      disabledEvents: {
+        CHANNEL_DELETE: true,
+        CHANNEL_UPDATE: true,
+        GUILD_BAN_REMOVE: true,
+        GUILD_EMOJI_UPDATE: true,
+        TYPING_START: true,
+        VOICE_SERVER_UPDATE: true,
+        VOICE_STATE_UPDATE: true
+      }
     })
 
     client.on('ready', () => {
@@ -150,10 +163,27 @@ class Bot extends EventEmitter {
   }
 
   reloadPlugins () {
+    let pluginCount = 0
     Object.keys(require.cache).forEach(key => {
-      if (key.startsWith(this.pluginsPath) || key.startsWith(this.modPluginsPath)) cr(key)
+      if (key.startsWith(this.pluginsPath) || key.startsWith(this.modPluginsPath)) {
+        cr(key)
+        pluginCount++
+      }
     })
-    this.emit('clear.plugins')
+    for (let plugin in this.plugins) {
+      for (let command in this.plugins[plugin]) {
+        this.removeAllListeners(this.plugins[plugin][command].name)
+      }
+    }
+    for (let plugin in this.modPlugins) {
+      for (let command in this.modPlugins[plugin]) {
+        this.removeAllListeners(this.modPlugins[plugin][command].name)
+      }
+    }
+    this.plugins = {}
+    this.modPlugins = {}
+    this.logger.log('All plugins reloaded')
+    this.emit('clear.plugins', pluginCount)
   }
 
   attachHandlers () {
@@ -162,15 +192,21 @@ class Bot extends EventEmitter {
   }
 
   reloadHandlers () {
+    let handlerCount = 0
+    this.handlers = {}
     Object.keys(require.cache).forEach(key => {
-      if (key.startsWith(this.handlersPath)) cr(key)
+      if (key.startsWith(this.handlersPath)) {
+        cr(key)
+        handlerCount++
+      }
     })
-    this.emit('clear.handlers')
+    this.emit('clear.handlers', handlerCount)
   }
 
   enableHandlers () {
     for (let handler in this.handlers) {
-      this.handlers[handler](this.client, this)
+      this.handlers[handler] = this.handlers[handler].bind(this)
+      this.handlers[handler]()
     }
     this.emit('running.handlers')
   }

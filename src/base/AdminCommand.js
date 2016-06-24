@@ -12,10 +12,12 @@ class AdminCommand extends AbstractCommand {
     this.bot.on(this.name.toUpperCase(), (args, msg, client) => {
       this.message = msg
       this.client = client
-      const perms = msg.member.permission.json
-      if (this.permissions.length > 0 && this.permissions.some(p => !perms[p])) {
-        this.reply(`**${msg.author.username}**, you do not have enough permissions!`, 0, 5000)
-        return false
+      if (!this.bot.config.discord.admins.find(i => i === msg.author.id)) {
+        const perms = msg.member.permission.json
+        if (this.permissions.length > 0 && this.permissions.some(p => !perms[p])) {
+          this.reply(`**${msg.author.username}**, you do not have enough permissions!`, 0, 5000)
+          return false
+        }
       }
       if (msg.channel.isPrivate) {
         this.reply('You can\'t use this command in a DM!')

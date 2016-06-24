@@ -6,12 +6,12 @@ import async from 'async'
 import Logger from '../services/Logger'
 const logger = new Logger('AVATAR', 'green')
 
-module.exports = function randomAvatar (client, bot) {
-  if (bot.shardID > 0) return
+module.exports = function randomAvatar () {
+  if (this.shardID > 0) return
   let avatars = []
   async.waterfall([
     cb => {
-      fs.readdir(path.join(bot.dbPath, 'avatars'), (err, files) => {
+      fs.readdir(path.join(this.dbPath, 'avatars'), (err, files) => {
         if (err) return cb(err)
         if (files.length === 0) return cb(new Error('No files found'))
         logger.info(`Found: ${files.join(', ')}`)
@@ -22,7 +22,7 @@ module.exports = function randomAvatar (client, bot) {
       async.each(files, (file, cb) => {
         if (file.startsWith('.')) return cb()
         if (path.extname(file) !== '.png') return cb()
-        fs.readFile(path.join(bot.dbPath, 'avatars', file), (err, data) => {
+        fs.readFile(path.join(this.dbPath, 'avatars', file), (err, data) => {
           if (err) return cb(err)
           logger.info(`Loaded: ${file}`)
           avatars.push(new Buffer(data).toString('base64'))
@@ -39,10 +39,10 @@ module.exports = function randomAvatar (client, bot) {
       logger.error(new Error('No avatars found'))
       return
     }
-    bot.on('loaded.discord', () => {
+    this.on('loaded.discord', () => {
       setInterval(() => {
         logger.log('Changing avatar')
-        client.editSelf({avatar: `data:image/png;base64,${_.sample(avatars)}`})
+        this.client.editSelf({avatar: `data:image/png;base64,${_.sample(avatars)}`})
         .catch(err => logger.error(err))
       }, 900000)
     })
