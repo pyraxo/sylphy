@@ -19,7 +19,6 @@ class SetPrefix extends AdminCommand {
     const guildSettings = this.getSettings()
     async.waterfall([
       cb => {
-        this.bot.ignoredUsers.add(this.message.author.id)
         this.await([
           '\nℹ  **Prefix Customisation Menu**\n',
           'Which custom prefix would you like you to edit?',
@@ -32,7 +31,7 @@ class SetPrefix extends AdminCommand {
       (msg, cb) => {
         const setting = msg.content.toLowerCase() === 'admin' ? 'admin_prefix' : 'prefix'
         this.await([
-          `ℹ  The current custom **${setting}** is **${guildSettings[setting]}**.`,
+          `ℹ  The current custom **${setting}** is **${guildSettings[setting]}**.\n`,
           `Please enter the new prefix:`
         ].join('\n'),
         m => /^.+$/.test(m.content), 'That prefix is not allowed. Try another one!', msg)
@@ -51,7 +50,6 @@ class SetPrefix extends AdminCommand {
         .catch(err => cb(err))
       }
     ], err => {
-      this.bot.ignoredUsers.delete(this.message.author.id)
       if (err) this.logger.error(`Error reading ${guildSettings}: ${err}`)
     })
   }

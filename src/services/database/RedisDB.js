@@ -1,6 +1,6 @@
 import redis from 'redis'
 
-class Hash {
+class RedisDB {
   constructor (options) {
     options = options || {}
     options.retryStrategy = function (opt) {
@@ -19,7 +19,16 @@ class Hash {
     this.client.on('error', err => { throw err })
   }
 
-  set (key, field, value) {
+  set (key, field) {
+    return new Promise((resolve, reject) => {
+      this.client.set(key, field, (err, res) => {
+        if (err) return reject(err)
+        return resolve(res)
+      })
+    })
+  }
+
+  hset (key, field, value) {
     return new Promise((resolve, reject) => {
       this.client.hset(key, field, value, (err, res) => {
         if (err) return reject(err)
@@ -28,7 +37,16 @@ class Hash {
     })
   }
 
-  get (key, field) {
+  hincrby (key, field, value) {
+    return new Promise((resolve, reject) => {
+      this.client.hincrby(key, field, value, (err, res) => {
+        if (err) return reject(err)
+        return resolve(res)
+      })
+    })
+  }
+
+  hget (key, field) {
     return new Promise((resolve, reject) => {
       this.client.hget(key, field, (err, res) => {
         if (err) return reject(err)
@@ -37,7 +55,7 @@ class Hash {
     })
   }
 
-  has (key, field) {
+  hexists (key, field) {
     return new Promise((resolve, reject) => {
       this.client.hexists(key, field, (err, res) => {
         if (err) return reject(err)
@@ -46,7 +64,7 @@ class Hash {
     })
   }
 
-  del (key, field) {
+  hdel (key, field) {
     return new Promise((resolve, reject) => {
       this.client.hdel(key, field, (err, res) => {
         if (err) return reject(err)
@@ -55,7 +73,7 @@ class Hash {
     })
   }
 
-  getKeys (key) {
+  hkeys (key) {
     return new Promise((resolve, reject) => {
       this.client.hkeys(key, (err, res) => {
         if (err) return reject(err)
@@ -63,6 +81,28 @@ class Hash {
       })
     })
   }
+
+  expire (key, value) {
+    return new Promise((resolve, reject) => {
+      this.client.expire(key, value, (err, res) => {
+        if (err) return reject(err)
+        return resolve(res)
+      })
+    })
+  }
+
+  ttl (key) {
+    return new Promise((resolve, reject) => {
+      this.client.ttl(key, (err, res) => {
+        if (err) return reject(err)
+        return resolve(res)
+      })
+    })
+  }
+
+  multi () {
+    return this.client.multi()
+  }
 }
 
-module.exports = Hash
+module.exports = RedisDB

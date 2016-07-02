@@ -1,8 +1,11 @@
 import fs from 'fs'
 import path from 'path'
 import jsonfile from 'jsonfile'
+import moment from 'moment'
 
-import Hash from '../services/util/Hash'
+import Redis from '../services/database/RedisDB'
+import Localization from '../services/Localization'
+
 const Tatsumaki = require('../')
 
 class AbstractCommand {
@@ -12,14 +15,16 @@ class AbstractCommand {
     }
     this.timer = {}
     this.bot = Tatsumaki
+    this.commander = Tatsumaki.commander
     this.logger = Tatsumaki.logger
-    this.db = Tatsumaki.db
+    this.redisdb = Tatsumaki.redisdb
 
     if (this.bot.config.hasOwnProperty('redis')) {
       if (this.bot.config.redis.statistics) {
-        this.stats = new Hash(this.bot.config.redis.statistics)
+        this.stats = new Redis(this.bot.config.redis.statistics)
       }
     }
+    this.loadLocale()
     this.init()
   }
 
@@ -51,8 +56,21 @@ class AbstractCommand {
     return null
   }
 
+  get localeFile () {
+    return null
+  }
+
   get noPMs () {
     return false
+  }
+
+  loadLocale () {
+    if (this.localeFile) {
+      this.locale = new Localization(path.join(this.bot.dbPath, 'strings', this.localeFile))
+      this.locale.init()
+    } else {
+      this.logger.info(`No locale found for ${this.name} command`)
+    }
   }
 
   init () {}
@@ -126,19 +144,32 @@ class AbstractCommand {
     })
   }
 
-  await (prompt, check, errMsg) {
+  await (prompt, check, errMsg, expireTime = 60) {
     return new Promise((res, rej) => {
-      const callback = msg => {
-        if (msg.author.id !== this.message.author.id) return
-        this.client.removeListener('messageCreate', callback)
-        if (check(msg)) return res(msg)
-        errMsg = errMsg ||
-        'That is an invalid response. Please try again.'
-        return this.await(errMsg, check, errMsg).then(res).catch(rej)
-      }
       this.reply(prompt)
       .then(msg => {
-        this.client.on('messageCreate', callback)
+        const late = +moment()
+        this.commander.ignoredUsers.add(this.message.author.id)
+        const expire = () => {
+          if (moment().diff(late, 'seconds') >= expireTime) {
+            this.reply(`❎  |  The command menu for **${this.name}** has closed due to inactivity.`)
+            this.commander.ignoredUsers.delete(this.message.author.id)
+            this.client.removeListener('messageCreate', callback)
+          }
+        }
+        let expiry = setTimeout(expire, expireTime * 1000)
+        const callback = msg => {
+          if (msg.author.id !== this.message.author.id) return
+          clearTimeout(expiry)
+          if (check(msg)) {
+            this.commander.ignoredUsers.delete(this.message.author.id)
+            return res(msg)
+          }
+          errMsg = errMsg ||
+          '❎  |  That is an invalid response. Please try again.'
+          return this.await(errMsg, check, errMsg, expireTime).then(res).catch(rej)
+        }
+        this.client.once('messageCreate', callback)
       })
       .catch(err => rej(err))
     })
@@ -171,6 +202,25 @@ class AbstractCommand {
       })
       this.bot.guildSettings.delete(this.message.channel.guild.id)
       this.bot.guildSettings.set(this.message.channel.guild.id, data)
+    })
+  }
+
+  locateUser (query) {
+    return new Promise((res, rej) => {
+      if (this.message.isPrivate) return res(this.message.author)
+      const guild = this.message.channel.guild
+      query = query.toLowerCase()
+      guild.members.forEach(m => {
+        if (m.user.username.toLowerCase() === query) return res(m)
+        if (m.user.username.toLowerCase().indexOf(query) === 0) return res(m)
+        if (m.user.username.toLowerCase().includes(query)) return res(m)
+        if (m.nick !== null) {
+          if (m.nick.toLowerCase() === query) return res(m)
+          if (m.nick.toLowerCase().indexOf(query)) return res(m)
+          if (m.nick.toLowerCase().includes(query)) return res(m)
+        }
+      })
+      return rej()
     })
   }
 }

@@ -8,9 +8,8 @@ class BaseCommand extends AbstractCommand {
     if (this.constructor === BaseCommand) {
       throw new Error('Can\'t instantiate abstract command!')
     }
-
-    this.bot.on(this.name, (args, msg, client) => {
-      if (msg.channel.isPrivate && this.noPMs === true) {
+    this.commander.on(`msg.${this.name}`, (args, msg, client) => {
+      if (msg.isPrivate && this.noPMs === true) {
         this.reply('You can\'t use this command in a DM!', 0, 5000)
         return false
       }
@@ -35,7 +34,7 @@ class BaseCommand extends AbstractCommand {
         // Metrics stuff go here
       }
     })
-    this.aliases.forEach(a => this.bot.on(a, (s, m, c) => this.handle(s, m, c)))
+    this.aliases.forEach(a => this.bot.on(a, args => this.handle(args)))
   }
 }
 

@@ -1,5 +1,4 @@
 import path from 'path'
-import fs from 'fs'
 
 import AdminCommand from '../../Base/AdminCommand'
 
@@ -25,9 +24,9 @@ class Help extends AdminCommand {
     const prefix = settings.admin_prefix
     if (args[0]) {
       let answered = false
-      for (let mod in this.bot.modPlugins) {
-        for (let command in this.bot.modPlugins[mod]) {
-          command = this.bot.modPlugins[mod][command]
+      for (let plugin in this.bot.modPlugins) {
+        for (let command in this.bot.modPlugins[plugin]) {
+          command = this.bot.modPlugins[plugin][command]
           if (command.hidden === true) continue
           if (command.name === args[0]) {
             if (typeof command.gif === 'string') {
@@ -63,15 +62,16 @@ class Help extends AdminCommand {
         '**Web Dashboard** is available at **<http://tatsumaki.xyz>**\n'
       ]
 
-      for (let mod in this.bot.modPlugins) {
-        if (Object.keys(this.bot.modPlugins[mod]) === 0) continue
-        let reply = [`**${mod} - **`]
-        for (let command in this.bot.modPlugins[mod]) {
-          command = this.bot.modPlugins[mod][command]
+      for (let plugin in this.bot.modPlugins) {
+        let reply = [`**${plugin} - **`]
+        for (let command in this.bot.modPlugins[plugin]) {
+          command = this.bot.modPlugins[plugin][command]
           if (command.hidden === true) continue
           reply.push(`\`${command.name}\` `)
         }
-        arr.push(reply.join(''))
+        if (reply.length > 1) {
+          arr.push(reply.join(''))
+        }
       }
       arr.push(`\nTo view standard commands, use \`${settings.prefix}help\``)
 

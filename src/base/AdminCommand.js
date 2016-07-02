@@ -9,18 +9,19 @@ class AdminCommand extends AbstractCommand {
       throw new Error('Can\'t instantiate abstract command!')
     }
 
-    this.bot.on(this.name.toUpperCase(), (args, msg, client) => {
+    this.commander.on(`msg.${this.name.toUpperCase()}`, (args, msg, client) => {
       this.message = msg
       this.client = client
       if (!this.bot.config.discord.admins.find(i => i === msg.author.id)) {
+        if (this.adminOnly === true) return
         const perms = msg.member.permission.json
         if (this.permissions.length > 0 && this.permissions.some(p => !perms[p])) {
           this.reply(`**${msg.author.username}**, you do not have enough permissions!`, 0, 5000)
           return false
         }
       }
-      if (msg.channel.isPrivate) {
-        this.reply('You can\'t use this command in a DM!')
+      if (msg.isPrivate && this.noPMs === true) {
+        this.reply('You can\'t use this command in a DM!', 0, 5000)
         return false
       }
       if (!this.timer.hasOwnProperty(msg.author.id)) {
@@ -42,7 +43,7 @@ class AdminCommand extends AbstractCommand {
         // Metrics stuff go here
       }
     })
-    this.aliases.forEach(a => this.bot.on(a, (s, m, c) => this.handle(s, m, c)))
+    this.aliases.forEach(a => this.bot.on(a, args => this.handle(args)))
   }
 
   get permissions () {
@@ -51,6 +52,10 @@ class AdminCommand extends AbstractCommand {
 
   get noPMs () {
     return true
+  }
+
+  get adminOnly () {
+    return false
   }
 }
 

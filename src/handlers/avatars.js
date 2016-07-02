@@ -4,7 +4,7 @@ import path from 'path'
 import async from 'async'
 
 import Logger from '../services/Logger'
-const logger = new Logger('AVATAR', 'green')
+const logger = new Logger('AVATAR', 'bgCyan')
 
 module.exports = function randomAvatar () {
   if (this.shardID > 0) return
@@ -39,12 +39,10 @@ module.exports = function randomAvatar () {
       logger.error(new Error('No avatars found'))
       return
     }
-    this.on('loaded.discord', () => {
-      setInterval(() => {
-        logger.log('Changing avatar')
-        this.client.editSelf({avatar: `data:image/png;base64,${_.sample(avatars)}`})
-        .catch(err => logger.error(err))
-      }, 900000)
-    })
+    setInterval(() => {
+      logger.log('Changing avatar')
+      this.client.editSelf({avatar: `data:image/png;base64,${_.sample(avatars)}`})
+      .catch(err => logger.error(err))
+    }, 900000)
   })
 }

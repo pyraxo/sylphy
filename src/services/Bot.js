@@ -8,23 +8,22 @@ import rq from 'require-all'
 import cr from 'clear-require'
 
 import Logger from './Logger'
-import Configs from './Configurator'
-import Hash from './util/Hash'
+import Commander from './Commander'
+import Configs from './database/Configurator'
+import Redis from './database/RedisDB'
 
 class Bot extends EventEmitter {
   constructor (options) {
     options = options || {}
     super({ wildcard: true })
     this.logger = new Logger('BOT')
-
-    this.ignoredUsers = new Set()
     this.guildSettings = new Map()
 
     this.configPath = options.configPath || path.join(process.cwd(), 'config')
     this.handlersPath = options.handlersPath || path.join(process.cwd(), 'lib/handlers')
     this.pluginsPath = options.pluginsPath || path.join(process.cwd(), 'lib/plugins')
     this.modPluginsPath = options.modPluginsPath || path.join(process.cwd(), 'lib/mod-plugins')
-    this.dbPath = options.dbPath || path.join(process.cwd(), 'db')
+    this.dbPath = options.dbPath || path.join(process.cwd(), 'resources')
 
     this.shardID = options.shardID || 0
     this.shardCount = options.shardCount || 1
@@ -39,21 +38,21 @@ class Bot extends EventEmitter {
 
     this.setMaxListeners(0) // unlimited listeners
 
-    this.once('loaded.configs', () => this.login())
-    this.once('loaded.discord', () => {
-      this.attachPlugins()
-      this.attachHandlers()
+    this.on('loaded.configs', () => this.login())
+    this.on('loaded.discord', () => {
+      this.cachePlugins()
+      this.cacheHandlers()
       this.loadSettings()
     })
-    this.on('loaded.plugins', () => this.runPlugins())
-    this.on('loaded.handlers', () => this.enableHandlers())
 
-    this.on('reload.plugins', () => this.reloadPlugins())
+    this.on('clear.plugins', () => this.cachePlugins())
+    this.on('clear.handlers', () => this.cacheHandlers())
 
-    this.on('clear.plugins', () => this.attachPlugins())
-    this.on('clear.handlers', () => this.attachHandlers())
+    this.on('cached.plugins', () => this.runPlugins())
+    this.on('cached.handlers', () => this.runHandlers())
 
     this.on('loaded.*', () => {
+      if (this.loaded[this.event.replace('loaded.', '')] === true) return
       this.loaded[this.event.replace('loaded.', '')] = true
       if (this.checkLoaded()) this.emit('ready')
     })
@@ -71,7 +70,7 @@ class Bot extends EventEmitter {
       this.config = results
       this.emit('loaded.configs')
 
-      this.db = new Hash()
+      this.redisdb = new Redis(this.config.redis.base)
     })
   }
 
@@ -99,52 +98,65 @@ class Bot extends EventEmitter {
       }
     })
 
+    this.commander = new Commander(client, this.config, this.guildSettings)
+
     client.on('ready', () => {
-      this.emit('loaded.discord', client.guilds.size)
+      this.emit('loaded.discord', Object.keys(client.guildShardMap))
       this.logger.info(`${chalk.red.bold('iris')} is ready! Logging in as ${chalk.cyan.bold(client.user.username)} on shard ${chalk.red.bold(this.shardID)}`)
       this.logger.info(`Listening to ${chalk.green.bold(client.guilds.size)} guilds, with ${chalk.green.bold(Object.keys(client.channelGuildMap).length)} channels`)
     })
 
-    this.once('ready', () => {
-      this.client.on('messageCreate', msg => {
-        if (msg.author.bot === true || this.ignoredUsers.has(msg.author.id)) return
-        if (msg.channel.id === msg.author.id) { // isPrivate
-          if (msg.content.startsWith(this.config.discord.prefix)) {
-            const trigger = msg.content.toLowerCase().split(' ')[0].substring(this.config.discord.prefix.length)
-            const args = msg.content.split(' ').splice(1)
-            this.emit(trigger, args, msg, client)
-            return
-          }
-        }
-        let trigger = ''
+    client.on('guildCreate', guild => this.emit('cache.guild.create', guild))
+    client.on('guildDelete', guild => this.emit('cache.guild.delete', guild))
 
-        const settings = this.guildSettings.get(msg.channel.guild.id)
-        if (msg.content.startsWith(settings.prefix)) {
-          trigger = msg.content.toLowerCase().split(' ')[0].substring(settings.prefix.length)
-        } else if (msg.content.startsWith(settings.admin_prefix)) {
-          trigger = msg.content.toUpperCase().split(' ')[0].substring(settings.admin_prefix.length)
-        } else if (msg.content.startsWith(this.config.discord.prefix)) {
-          trigger = msg.content.toLowerCase().split(' ')[0].substring(this.config.discord.prefix.length)
-        } else if (msg.content.startsWith(this.config.discord.admin_prefix)) {
-          trigger = msg.content.toUpperCase().split(' ')[0].substring(this.config.discord.admin_prefix.length)
-        }
-
-        if (settings.ignored[msg.channel.id] === true && trigger !== trigger.toUpperCase()) return
-
-        if (Array.isArray(settings.ignored[msg.channel.id]) && settings.ignored[msg.channel.id].find(c => c === trigger)) return
-        const args = msg.content.split(' ').splice(1)
-        this.emit(trigger, args, msg, client)
-      })
+    this.on('ready', () => {
+      setTimeout(() => {
+        this.client.on('messageCreate', msg => {
+          this.commander.handle(msg)
+        })
+      }, 2000)
     })
 
     client.connect()
     this.client = client
   }
 
-  attachPlugins () {
+  cachePlugins () {
     this.plugins = rq(this.pluginsPath)
     this.modPlugins = rq(this.modPluginsPath)
-    this.emit('loaded.plugins')
+    this.emit('cached.plugins')
+  }
+
+  cacheHandlers () {
+    this.handlers = rq(this.handlersPath)
+    this.emit('cached.handlers')
+  }
+
+  reloadPlugins () {
+    let pluginCount = Object.keys(require.cache).reduce((p, c) => {
+      if (c.startsWith(this.pluginsPath) || c.startsWith(this.modPluginsPath)) {
+        cr(c)
+        return ++p
+      }
+      return p
+    }, 0)
+    this.plugins = {}
+    this.modPlugins = {}
+    this.commander.removeAllListeners('msg.*')
+    this.logger.log(`${pluginCount} plugins reloaded`)
+    this.emit('clear.plugins', pluginCount)
+  }
+
+  reloadHandlers () {
+    let handlerCount = Object.keys(require.cache).reduce((p, c) => {
+      if (c.startsWith(this.handlersPath)) {
+        cr(c)
+        return ++p
+      }
+      return p
+    }, 0)
+    this.handlers = {}
+    this.emit('clear.handlers', handlerCount)
   }
 
   runPlugins () {
@@ -159,56 +171,16 @@ class Bot extends EventEmitter {
         this.modPlugins[plugin][command] = new this.modPlugins[plugin][command]()
       }
     }
-    this.emit('running.plugins')
+
+    this.emit('loaded.plugins')
   }
 
-  reloadPlugins () {
-    let pluginCount = 0
-    Object.keys(require.cache).forEach(key => {
-      if (key.startsWith(this.pluginsPath) || key.startsWith(this.modPluginsPath)) {
-        cr(key)
-        pluginCount++
-      }
-    })
-    for (let plugin in this.plugins) {
-      for (let command in this.plugins[plugin]) {
-        this.removeAllListeners(this.plugins[plugin][command].name)
-      }
-    }
-    for (let plugin in this.modPlugins) {
-      for (let command in this.modPlugins[plugin]) {
-        this.removeAllListeners(this.modPlugins[plugin][command].name)
-      }
-    }
-    this.plugins = {}
-    this.modPlugins = {}
-    this.logger.log('All plugins reloaded')
-    this.emit('clear.plugins', pluginCount)
-  }
-
-  attachHandlers () {
-    this.handlers = rq(this.handlersPath)
-    this.emit('loaded.handlers')
-  }
-
-  reloadHandlers () {
-    let handlerCount = 0
-    this.handlers = {}
-    Object.keys(require.cache).forEach(key => {
-      if (key.startsWith(this.handlersPath)) {
-        cr(key)
-        handlerCount++
-      }
-    })
-    this.emit('clear.handlers', handlerCount)
-  }
-
-  enableHandlers () {
+  runHandlers () {
     for (let handler in this.handlers) {
       this.handlers[handler] = this.handlers[handler].bind(this)
       this.handlers[handler]()
     }
-    this.emit('running.handlers')
+    this.emit('loaded.handlers')
   }
 
   getSettings (jsonpath, id) {

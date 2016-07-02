@@ -4,7 +4,7 @@ import _ from 'lodash'
 import async from 'async'
 import jsonfile from 'jsonfile'
 
-import Logger from './Logger'
+import Logger from '../Logger'
 
 const logger = new Logger()
 

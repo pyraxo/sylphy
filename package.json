@@ -23,7 +23,6 @@
     "canvas": "^1.3.16",
     "chalk": "^1.1.3",
     "clear-require": "^1.0.1",
-    "discord.js": "github:hydrabolt/discord.js#indev",
     "eris": "github:abalabahaha/eris",
     "eventemitter2": "^1.0.3",
     "jsonfile": "^2.3.1",
@@ -31,6 +30,7 @@
     "moment": "^2.13.0",
     "redis": "^2.6.1",
     "require-all": "^2.0.0",
+    "superagent": "^2.0.0",
     "tcp-ping": "^0.1.1"
   },
   "devDependencies": {

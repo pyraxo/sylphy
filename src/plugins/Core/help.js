@@ -20,14 +20,18 @@ class Help extends BaseCommand {
     return ['h', 'commands']
   }
 
+  get gif () {
+    return 'more-help.gif'
+  }
+
   handle (args) {
     const settings = this.getSettings()
     const prefix = settings.prefix
     if (args[0]) {
       let answered = false
-      for (let mod in this.bot.plugins) {
-        for (let command in this.bot.plugins[mod]) {
-          command = this.bot.plugins[mod][command]
+      for (let plugin in this.bot.plugins) {
+        for (let command in this.bot.plugins[plugin]) {
+          command = this.bot.plugins[plugin][command]
           if (command.hidden === true) continue
           if (command.name === args[0]) {
             if (typeof command.gif === 'string') {
@@ -62,19 +66,20 @@ class Help extends BaseCommand {
         `For example: \`${prefix}help rank\`\n`
       ]
 
-      for (let mod in this.bot.plugins) {
-        if (Object.keys(this.bot.plugins[mod]) === 0) continue
-        let reply = [`**${mod} - **`]
-        for (let command in this.bot.plugins[mod]) {
-          command = this.bot.plugins[mod][command]
+      for (let plugin in this.bot.plugins) {
+        let reply = [`**${plugin} - **`]
+        for (let command in this.bot.plugins[plugin]) {
+          command = this.bot.plugins[plugin][command]
           if (command.hidden === true) continue
           reply.push(`\`${command.name}\` `)
         }
-        arr.push(reply.join(''))
+        if (reply.length > 1) {
+          arr.push(reply.join(''))
+        }
       }
       arr.push(`\nTo view mod commands, use \`${settings.admin_prefix}help\``)
 
-      const imgPath = path.join(this.bot.dbPath, 'gif-help', 'more.gif')
+      const imgPath = path.join(this.bot.dbPath, 'gif-help', this.gif)
       fs.access(imgPath, fs.F_OK, err => {
         if (err) {
           this.logger.error(`Gif not found: ${imgPath}`)
