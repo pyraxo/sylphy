@@ -13,7 +13,7 @@ class AbstractCommand {
     if (this.constructor === AbstractCommand) {
       throw new Error('Can\'t instantiate abstract command!')
     }
-    this.timer = {}
+    this.timer = new Map()
     this.bot = Tatsumaki
     this.commander = Tatsumaki.commander
     this.logger = Tatsumaki.logger

@@ -24,15 +24,16 @@ class AdminCommand extends AbstractCommand {
         this.reply('You can\'t use this command in a DM!', 0, 5000)
         return false
       }
-      if (!this.timer.hasOwnProperty(msg.author.id)) {
-        this.timer[msg.author.id] = +moment()
+      if (!this.timer.has(msg.author.id)) {
+        this.timer.set(msg.author.id, +moment())
       } else {
-        const diff = moment().diff(moment(this.timer[msg.author.id]), 'seconds')
+        const diff = moment().diff(moment(this.timer.get(msg.author.id)), 'seconds')
         if (diff < this.cooldown) {
           this.reply(`**${msg.author.username}**, please cool down! (**${this.cooldown - diff}** seconds left)`, 0, 5000)
           return false
         } else {
-          this.timer[msg.author.id] = +moment()
+          this.timer.delete(msg.author.id)
+          this.timer.set(msg.author.id, +moment())
         }
       }
       this.handle(args)
