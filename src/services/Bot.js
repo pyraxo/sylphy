@@ -124,9 +124,11 @@ class Bot extends EventEmitter {
       this.emit('loaded:configs')
 
       if (this.config.hasOwnProperty('redis')) {
+        this.db = {}
         for (let db in this.config.redis) {
-          this[`${db}DB`] = new Redis(this.config.redis[db])
+          this.db[`${db}DB`] = new Redis(this.config.redis[db])
         }
+      }
     })
   }
 
@@ -167,6 +169,7 @@ class Bot extends EventEmitter {
       this.emit('loaded:discord', Object.keys(client.guildShardMap))
       this.logger.info(`${chalk.red.bold('iris')} is ready! Logging in as ${chalk.cyan.bold(client.user.username)} on shard ${chalk.red.bold(this.shardID)}`)
       this.logger.info(`Listening to ${chalk.green.bold(client.guilds.size)} guilds, with ${chalk.green.bold(Object.keys(client.channelGuildMap).length)} channels`)
+      this.logger.info(`Prefix: ${this.config.discord.prefix} | Admin Prefix: ${this.config.discord.admin_prefix}`)
     })
 
     client.on('guildCreate', guild => this.emit('cache:guild.create', guild))
