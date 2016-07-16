@@ -24,7 +24,7 @@ class PluginDisable extends AdminCommand {
   }
 
   handle (args) {
-    this.bot.once('clear.plugins', count => {
+    this.bot.once('clear:plugins', count => {
       this.client.createMessage(this.message.channel.id, `ℹ  Reloaded **${count}** plugins`)
       this.logger.info(`${this.message.author.username} reloaded all ${count} plugins`)
     })

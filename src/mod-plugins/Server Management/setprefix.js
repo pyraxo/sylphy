@@ -34,7 +34,7 @@ class SetPrefix extends AdminCommand {
           `ℹ  The current custom **${setting}** is **${guildSettings[setting]}**.\n`,
           `Please enter the new prefix:`
         ].join('\n'),
-        m => /^.+$/.test(m.content), 'That prefix is not allowed. Try another one!', msg)
+        m => /^.+$/.test(m.content) && !/<@(!|&)*\d{17,18}/g.test(m.content), '❎  |  That prefix is not allowed. Try another one!')
         .then(msg => cb(null, setting, msg))
         .catch(err => cb(err))
       },

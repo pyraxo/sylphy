@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import async from 'async'
 
-import Logger from '../services/Logger'
+import Logger from '../../services/Logger'
 const logger = new Logger('AVATAR', 'bgCyan')
 
 module.exports = function randomAvatar () {

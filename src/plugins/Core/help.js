@@ -83,6 +83,7 @@ class Help extends BaseCommand {
       fs.access(imgPath, fs.F_OK, err => {
         if (err) {
           this.logger.error(`Gif not found: ${imgPath}`)
+          this.reply(arr.join('\n'))
           return
         }
         this.upload(imgPath, 'more.gif')

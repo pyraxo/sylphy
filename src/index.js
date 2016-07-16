@@ -17,11 +17,11 @@ if (cluster.isMaster) {
         if (msg.hasOwnProperty('guilds')) ipc.store(msg.guilds, num)
       } else if (typeof msg === 'string') {
         switch (msg) {
-          case 'cache.guild.create': {
+          case 'cache:guild:create': {
             ipc.add(num, msg.guild)
             break
           }
-          case 'cache.guild.delete': {
+          case 'cache:guild:delete': {
             ipc.remove(num, msg.guild)
             break
           }
@@ -45,19 +45,21 @@ if (cluster.isMaster) {
     setTimeout(() => createWorker(i), i * 5000)
   }
 } else if (cluster.isWorker) {
-  let Tatsumaki = new Bot({
+  const Tatsumaki = new Bot({
     shardID: parseInt(process.env.shardID, 10),
     shardCount: parseInt(process.env.shardCount, 10)
   })
   Tatsumaki.run()
 
-  Tatsumaki.on('loaded.discord', guilds => {
-    process.send('loaded.shard')
-    process.send({ guilds: guilds })
+  Tatsumaki.on('loaded:discord', guilds => {
+    process.send('loaded:shard')
+    process.send({ 'guilds': guilds })
   })
 
-  Tatsumaki.on('cache.guild.create', guild => process.send({ guild: guild }))
-  Tatsumaki.on('cache.guild.delete', guild => process.send({ guild: guild }))
+  Tatsumaki.on('cache:guild:*', guild => {
+    process.send(this.event)
+    process.send({ 'guild': guild.id })
+  })
 
   module.exports = Tatsumaki
 }

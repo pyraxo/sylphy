@@ -16,9 +16,9 @@ class Commander extends EventEmitter {
         const trigger = msg.content.toLowerCase().split(' ')[0].substring(this.config.discord.prefix.length)
         const args = msg.content.split(' ').splice(1)
         msg.isPrivate = true
-        this.emit(`msg.${trigger}`, args, msg, this.client)
-        return
+        this.emit(`msg:${trigger}`, args, msg, this.client)
       }
+      return
     }
     let trigger = ''
 
@@ -46,7 +46,7 @@ class Commander extends EventEmitter {
         if (user) args[idx] = user
       }
     })
-    this.emit(`msg.${trigger}`, args, msg, this.client)
+    this.emit(`msg:${trigger}`, args, msg, this.client)
   }
 }
 
