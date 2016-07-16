@@ -4,7 +4,8 @@
   "description": "Discord bot",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "gendocs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose"
   },
   "keywords": [
     "Discord",
@@ -23,6 +24,7 @@
     "canvas": "^1.3.16",
     "chalk": "^1.1.3",
     "clear-require": "^1.0.1",
+    "cleverbot-node": "^0.2.2",
     "eris": "github:abalabahaha/eris",
     "eventemitter2": "^1.0.3",
     "jsonfile": "^2.3.1",
@@ -40,6 +42,8 @@
     "gulp-coffee": "^2.3.2",
     "gulp-plumber": "^1.1.0",
     "gulp-sourcemaps": "^1.6.0",
-    "gulp-util": "^3.0.7"
+    "gulp-util": "^3.0.7",
+    "jsdoc": "^3.4.0",
+    "minami": "^1.1.1"
   }
 }
