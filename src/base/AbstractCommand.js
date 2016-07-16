@@ -3,8 +3,7 @@ import path from 'path'
 import jsonfile from 'jsonfile'
 import moment from 'moment'
 
-import Redis from '../services/database/RedisDB'
-import Localization from '../services/Localization'
+import Localization from '../services/util/Localization'
 
 const Tatsumaki = require('../')
 
@@ -17,13 +16,11 @@ class AbstractCommand {
     this.bot = Tatsumaki
     this.commander = Tatsumaki.commander
     this.logger = Tatsumaki.logger
-    this.redisdb = Tatsumaki.redisdb
 
-    if (this.bot.config.hasOwnProperty('redis')) {
-      if (this.bot.config.redis.statistics) {
-        this.stats = new Redis(this.bot.config.redis.statistics)
-      }
+    for (let db in Tatsumaki.db) {
+      this[db] = Tatsumaki.db[db]
     }
+
     this.loadLocale()
     this.init()
   }
@@ -161,6 +158,7 @@ class AbstractCommand {
         const callback = msg => {
           if (msg.author.id !== this.message.author.id) return
           clearTimeout(expiry)
+          this.client.removeListener('messageCreate', callback)
           if (check(msg)) {
             this.commander.ignoredUsers.delete(this.message.author.id)
             return res(msg)
@@ -169,7 +167,7 @@ class AbstractCommand {
           '❎  |  That is an invalid response. Please try again.'
           return this.await(errMsg, check, errMsg, expireTime).then(res).catch(rej)
         }
-        this.client.once('messageCreate', callback)
+        this.client.on('messageCreate', callback)
       })
       .catch(err => rej(err))
     })
