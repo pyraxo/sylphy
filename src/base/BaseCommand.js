@@ -3,8 +3,8 @@ import moment from 'moment'
 import AbstractCommand from './AbstractCommand'
 
 class BaseCommand extends AbstractCommand {
-  constructor () {
-    super()
+  constructor (bot) {
+    super(bot)
     if (this.constructor === BaseCommand) {
       throw new Error('Can\'t instantiate abstract command!')
     }

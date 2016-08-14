@@ -5,20 +5,18 @@ import moment from 'moment'
 
 import Localization from '../services/util/Localization'
 
-const Iris = require('../')
-
 class AbstractCommand {
-  constructor () {
+  constructor (bot) {
     if (this.constructor === AbstractCommand) {
       throw new Error('Can\'t instantiate abstract command!')
     }
     this.timer = new Map()
-    this.bot = Iris
-    this.commander = Iris.commander
-    this.logger = Iris.logger
+    this.bot = bot
+    this.commander = bot.commander
+    this.logger = bot.logger
 
-    for (let db in Iris.db) {
-      this[db] = Iris.db[db]
+    for (let db in bot.db) {
+      this[db] = bot.db[db]
     }
 
     this.loadLocale()

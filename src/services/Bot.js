@@ -275,13 +275,13 @@ class Bot extends EventEmitter {
      */
     for (let plugin in this.plugins) {
       for (let command in this.plugins[plugin]) {
-        this.plugins[plugin][command] = new this.plugins[plugin][command]()
+        this.plugins[plugin][command] = new this.plugins[plugin][command](this)
       }
     }
 
     for (let plugin in this.modPlugins) {
       for (let command in this.modPlugins[plugin]) {
-        this.modPlugins[plugin][command] = new this.modPlugins[plugin][command]()
+        this.modPlugins[plugin][command] = new this.modPlugins[plugin][command](this)
       }
     }
 
