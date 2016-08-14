@@ -9,7 +9,7 @@ class AdminCommand extends AbstractCommand {
       throw new Error('Can\'t instantiate abstract command!')
     }
 
-    this.commander.on(`msg:${this.name.toUpperCase()}`, (args, msg, client) => {
+    const listen = (args, msg, client) => {
       this.message = msg
       this.client = client
       if (!this.bot.config.discord.admins.find(i => i === msg.author.id)) {
@@ -39,8 +39,9 @@ class AdminCommand extends AbstractCommand {
       this.handle(args)
       this.logger.heard(msg)
       this.bot.emit('command', this.name.toUpperCase())
-    })
-    this.aliases.forEach(a => this.bot.on(a, args => this.handle(args)))
+    }
+    this.commander.on(`msg:${this.name.toUpperCase()}`, listen)
+    this.aliases.forEach(a => this.commander.on(`msg:${a.toUpperCase()}`, listen))
   }
 
   get permissions () {

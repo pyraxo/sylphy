@@ -45,21 +45,21 @@ if (cluster.isMaster) {
     setTimeout(() => createWorker(i), i * 5000)
   }
 } else if (cluster.isWorker) {
-  const Tatsumaki = new Bot({
+  const Iris = new Bot({
     shardID: parseInt(process.env.shardID, 10),
     shardCount: parseInt(process.env.shardCount, 10)
   })
-  Tatsumaki.run()
+  Iris.run()
 
-  Tatsumaki.on('loaded:discord', guilds => {
+  Iris.on('loaded:discord', guilds => {
     process.send('loaded:shard')
     process.send({ 'guilds': guilds })
   })
 
-  Tatsumaki.on('cache:guild:*', guild => {
+  Iris.on('cache:guild:*', guild => {
     process.send(this.event)
     process.send({ 'guild': guild.id })
   })
 
-  module.exports = Tatsumaki
+  module.exports = Iris
 }

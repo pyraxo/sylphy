@@ -5,7 +5,7 @@ import moment from 'moment'
 
 import Localization from '../services/util/Localization'
 
-const Tatsumaki = require('../')
+const Iris = require('../')
 
 class AbstractCommand {
   constructor () {
@@ -13,12 +13,12 @@ class AbstractCommand {
       throw new Error('Can\'t instantiate abstract command!')
     }
     this.timer = new Map()
-    this.bot = Tatsumaki
-    this.commander = Tatsumaki.commander
-    this.logger = Tatsumaki.logger
+    this.bot = Iris
+    this.commander = Iris.commander
+    this.logger = Iris.logger
 
-    for (let db in Tatsumaki.db) {
-      this[db] = Tatsumaki.db[db]
+    for (let db in Iris.db) {
+      this[db] = Iris.db[db]
     }
 
     this.loadLocale()
