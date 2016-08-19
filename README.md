@@ -26,9 +26,9 @@ $ npm start
 ## Configuration
 You will see **two** sample configuration files, `discord.example.json` and `redis.example.json`.
 
-If you do not intend to use [Redis](http://redis.io), simply edit `discord.json` as directed, and then save them as `discord.json`.
+If you do not intend to use [Redis](http://redis.io), simply edit `discord.example.json` as directed, and then save them as `discord.json`.
 
-Otherwise, edit `redis.example.json` and save it as `redis.example.json`.
+Otherwise, edit `redis.example.json` and save it as `redis.json`.
 
 ## Compilation
 **iris** uses [Gulp](http://gulpjs.com) to compile the files from `src` to `lib`.
