@@ -12,7 +12,10 @@
 
 **Written for:** [Tatsumaki](http://tatsumaki.xyz), a social Discord bot
 
-**Node.js 6+** required. Uses ECMAScript 6.
+**iris** is an advanced, efficient and highly customisable base for Discord command bots written in Node.js
+
+## Prerequisites
+**Node.js 6+** required. Uses ECMAScript 6 syntax.
 
 ## Installation
 ```bash
@@ -36,9 +39,15 @@ Otherwise, edit `redis.example.json` and save it as `redis.json`.
 Ensure that the `lib` folder exists before running the bot, and is generally in accordance with your `src` folder.
 
 ## Documentation
-To read the docs, simply run `npm run gendocs` in the main directory.
+To read the docs for `iris`, simply run `npm run gendocs` in the main directory.
+
+As the bot uses the [Eris](https://github.com/abalabahaha/Eris) Discord library, you may find the docs [here](https://abal.moe/Eris/docs.html).
 
 ## Contributing
 Want to help develop **iris** or **Tatsumaki**? Feel free to submit a PR or drop by the [Tatsumaki server](https://discord.gg/0xyZL4m5TyYTzVGY)!
 
 We're also currently looking for translators and artists.
+
+## License
+You are free to copy, modify, and distribute `iris` with attribution under the terms of the MIT license.<br />
+See the LICENSE file for details.
