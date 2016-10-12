@@ -1,6 +1,7 @@
 const { Client } = require('eris')
 const EventEmitter = require('eventemitter3')
 
+const IPC = require('./IPCManager')
 const Processor = require('./Processor')
 const Chain = require('../util/Chain')
 const Collection = require('../util/Collection')
@@ -19,6 +20,7 @@ class Engine extends EventEmitter {
 
     this.manager = new Chain()
     this.processor = new Processor(this)
+    this.ipc = new IPC(this.shardID)
   }
 
   createClient (token, shardID, shardCounts) {

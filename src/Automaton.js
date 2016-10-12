@@ -1,13 +1,11 @@
 const EventEmitter = require('eventemitter3')
-const _ = require('lodash')
 const path = require('path')
 const logger = require('winston')
 const requireAll = require('require-all')
-const clearRequire = require('clear-require')
 
 const Engine = require('./system/Engine')
-const PLUGIN_PATH = path.join(process.cwd(), 'plugins')
-const MIDDLEWARE_PATH = path.join(process.cwd(), 'middleware')
+const PLUGIN_PATH = path.join(__dirname, 'plugins')
+const MIDDLEWARE_PATH = path.join(__dirname, 'middleware')
 
 class Automaton extends EventEmitter {
   constructor (options) {
@@ -27,9 +25,9 @@ class Automaton extends EventEmitter {
     this.loadPlugins()
     this.loadMiddleware()
 
-    process.on('message', ({ title }) => {
+    process.on('message', ({ title, body }) => {
       if (!title) return
-      if (title === 'reload_plugins') return this.reloadPlugins()
+      if (title === 'reload_plugins') return this.reloadPlugins(body)
       if (title === 'reload_middleware') return this.reloadMiddleware()
     })
   }
@@ -49,19 +47,19 @@ class Automaton extends EventEmitter {
 
   loadMiddleware () {
     let count = 0
-    let middleware = requireAll(MIDDLEWARE_PATH)
-    middleware = _.sortBy(middleware, 'priority')
-    middleware.forEach(m => {
+    let mw = requireAll(MIDDLEWARE_PATH)
+    mw = Object.keys(mw).sort((a, b) => mw[a].priority - mw[b].priority).map(m => mw[m])
+    mw.forEach(m => {
       this.engine.attachMiddleware(m)
       count++
     })
     this.emit('loaded:middleware', count)
   }
 
-  reloadPlugins () {
+  reloadPlugins ({ category = '.', module = '.' } = {}) {
     let count = Object.keys(require.cache).reduce((num, filepath) => {
-      if (!filepath.startsWith(PLUGIN_PATH)) return num
-      clearRequire(filepath)
+      if (!filepath.startsWith(path.join(PLUGIN_PATH, category, module))) return num
+      delete require.cache[require.resolve(filepath)]
       return ++num
     }, 0)
     this.emit('reload:plugins', count)
@@ -70,7 +68,7 @@ class Automaton extends EventEmitter {
   reloadMiddleware () {
     let count = Object.keys(require.cache).reduce((num, filepath) => {
       if (!filepath.startsWith(MIDDLEWARE_PATH)) return num
-      clearRequire(filepath)
+      delete require.cache[require.resolve(filepath)]
       return ++num
     }, 0)
     this.emit('reload:middleware', count)

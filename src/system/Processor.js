@@ -18,7 +18,7 @@ class Processor {
     if (this.plugins.has(trigger)) {
       throw new Error(`Duplicate plugin: ${trigger}`)
     }
-    this.plugins.set(trigger, { plugin, module })
+    this.plugins.set(trigger, { plugin, module, trigger })
   }
 
   runPlugin (trigger, ...args) {
@@ -27,13 +27,17 @@ class Processor {
   }
 
   ejectModule (exp) {
-    this.plugins.filter(p => mm.isMatch(p.module, exp))
-    .forEach(p => this.ejectPlugin(p.plugin))
+    this.findModule(exp)
+    .forEach(p => this.ejectPlugin(p))
   }
 
   ejectPlugin (plugin) {
-    if (!this.plugins.has(plugin.name)) return
-    this.plugins.delete(plugin.name)
+    if (!this.plugins.has(plugin.trigger)) return
+    this.plugins.delete(plugin.trigger)
+  }
+
+  findModule (exp) {
+    return this.plugins.filter(p => mm.isMatch(p.module, exp))
   }
 }
 

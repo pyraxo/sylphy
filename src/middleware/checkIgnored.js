@@ -1,5 +1,4 @@
-const _ = require('lodash')
-const { baseDB } = require('../core/system/Database')
+const { baseDB } = require('../system/Database')
 
 module.exports = {
   priority: 7,
@@ -14,12 +13,13 @@ module.exports = {
       .sismember(`settings:${msg.channel.guild.id}:ignoredCommands`, trigger)
       .sismember(`settings:${msg.channel.guild.id}:${msg.channel.id}:ignoredCommands`, trigger)
     }
-    multi.exec((err, replies) => {
-      if (err) return done(err)
-      obj.args = _.compact(msg.content.split(' ').splice(1))
+    multi.execAsync()
+    .then(replies => {
+      obj.args = msg.content.split(' ').splice(1).filter(v => !v)
       if (replies[2] && trigger === trigger.toUpperCase()) return done(null, obj)
       if (replies.some(r => r === 1)) return done(true)
       return done(null, obj)
     })
+    .catch(err => done(err))
   }
 }

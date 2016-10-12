@@ -1,7 +1,8 @@
-const chalk = require('chalk')
+const path = require('path')
 const logger = require('winston')
 
-const emoji = require('./EmojiConstants')
+const emoji = require('./Emojis')
+const { Localisation } = require('../util/Localisation')
 
 class AbstractCommand {
   constructor (client) {
@@ -33,7 +34,15 @@ class AbstractCommand {
   get name () { throw new Error('Command must be named') }
   get aliases () { return [] }
   get cooldown () { return 5 }
-  get guildOnly () { return false }
+  get noPMs () { return false }
+  get hidden () { return false }
+  get botPerms () { return [] }
+  get localeFile () { return this.name }
+
+  loadLocales () {
+    this.locales = new Localisation(path.join(process.cwd(), 'resources/strings', this.localeFile))
+    this.locales.init()
+  }
 
   createResponder ({ msg }) {
     let responder = (...args) => responder.send(...args)
@@ -101,14 +110,6 @@ class AbstractCommand {
   }
 
   execute (container) {
-    const { isPrivate, msg } = container
-    logger.info(`${chalk.bold.magenta(
-      !isPrivate
-      ? msg.channel.guild.name
-      : '(in PMs)'
-    )} > ${chalk.bold.green(msg.author.username)}: ` +
-    `${chalk.bold.blue(msg.cleanContent.replace(/\n/g, ' '))}`)
-
     this.handle(container, this.createResponder(container))
   }
 
@@ -126,7 +127,7 @@ class AbstractCommand {
 
     let msgRem = ''
     if (content.length > 2000) {
-      content = content.match(/.{1,2000}/g)
+      content = content.match(/(.|[\r\n]){1,2000}/g)
       msgRem = content.shift()
       content = content.join('')
     }
@@ -167,6 +168,18 @@ class AbstractCommand {
   parseNumber (number) {
     if (typeof number === 'number') number = number.toString()
     return number.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  }
+
+  locateUser ({ msg, isPrivate }, query) {
+    query = query.toLowerCase()
+    if (isPrivate) return msg.author
+    const guild = msg.guild
+    const isInString = (str, query) => str === query || str.startsWith(query) || str.includes(query)
+    const member = guild.members.find(m => {
+      if (m.nick && isInString(m.nick.toLowerCase(), query)) return true
+      return isInString(m.user.username.toLowerCase(), query)
+    })
+    return member ? member.user : null
   }
 }
 

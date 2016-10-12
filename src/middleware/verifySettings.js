@@ -1,5 +1,5 @@
 const logger = require('winston')
-const { configDB } = require('../core/system/Database')
+const { configDB } = require('../system/Database')
 
 module.exports = {
   priority: 5,
@@ -12,7 +12,7 @@ module.exports = {
         lang: 'default'
       })
     }
-    configDB.get(`settings:${msg.channel.guild.id}`)
+    configDB.getAsync(`settings:${msg.channel.guild.id}`)
     .then(settings => {
       const defaults = {
         id: msg.channel.guild.id,
@@ -27,9 +27,9 @@ module.exports = {
       }
       if (settings === null) {
         obj.settings = defaults
-        configDB.set(`settings:${msg.channel.guild.id}`, JSON.stringify(defaults))
+        configDB.setAsync(`settings:${msg.channel.guild.id}`, JSON.stringify(defaults))
         .then(() => done(null, obj))
-        .catch(done)
+        .catch(err => done(err))
       } else {
         let altered = false
         settings = JSON.parse(settings)
@@ -40,12 +40,16 @@ module.exports = {
           }
         }
         if (altered) {
-          configDB.set(`settings:${msg.channel.guild.id}`, JSON.stringify(settings))
-          .catch(err => logger.error(`Error adding default keys to ${msg.channel.guild.name} (${msg.channel.guild.id})'s settings: ${err}`))
+          configDB.setAsync(`settings:${msg.channel.guild.id}`, JSON.stringify(settings))
+          .then(() => done(null, obj))
+          .catch(err => {
+            logger.error(`Error adding default keys to ${msg.channel.guild.name} (${msg.channel.guild.id})'s settings: ${err}`)
+          })
         }
         obj.settings = settings
         return done(null, obj)
       }
     })
+    .catch(err => done(err))
   }
 }

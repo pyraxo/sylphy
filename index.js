@@ -1,5 +1,7 @@
 global.Promise = require('bluebird')
 
+const util = require('util')
+const chalk = require('chalk')
 const path = require('path')
 const moment = require('moment')
 const winston = require('winston')
@@ -25,8 +27,16 @@ winston.add(winston.transports.DailyRotateFile, {
   colorize: false,
   datePattern: '.yyyy-MM-dd',
   filename: path.join(__dirname, 'logs/application.log'),
-  prepend: true
+  prepend: true,
+  json: false,
+  formatter: function ({ level, message = '', meta = {}, formatter, depth, colorize }) {
+    const timestamp = moment().format('YYYY-MM-DD hh:mm:ss a')
+    const obj = Object.keys(meta).length
+    ? `\n\t${meta.stack ? meta.stack : util.inspect(meta, false, depth || null, colorize)}`
+    : ''
+    return `${timestamp} ${level.toUpperCase()} ${chalk.stripColor(message)} ${obj}`
+  }
 })
 winston.cli()
 
-require('./core')
+require('./src')

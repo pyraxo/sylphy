@@ -1,4 +1,12 @@
 class Collection extends Map {
+  load (obj, overwrite = true) {
+    for (let k of Object.keys(obj)) {
+      if (this.has(k) && !overwrite) continue
+      this.set(k, obj[k])
+    }
+    return this
+  }
+
   toArray () {
     return [...this.values()]
   }
