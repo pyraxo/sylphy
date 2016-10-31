@@ -33,16 +33,16 @@ node_modules
 # Optional REPL history
 .node_repl_history
 
-# Compiled files
-lib
-
-# Configuration directory
+# Configuration
 config/*.json
 !config/*.example.json
 config/*.txt
 !config/*.example.txt
+.env
 
 # Databases / Storage
-db/guild-settings
-db/avatars
-db/gif-help
+resources/avatars
+.cache
+
+# Documentation
+docs

@@ -1,49 +1,51 @@
 {
   "name": "iris",
-  "version": "1.0.0",
-  "description": "Discord bot",
+  "version": "2.0.0",
+  "private": true,
+  "description": "The better Discord bot base",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node --harmony_async_await index.js",
+    "lint": "standard --fix",
     "gendocs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose"
+  },
+  "engines": {
+    "node": ">=7.0.0"
   },
   "keywords": [
     "Discord",
-    "chat",
-    "bot"
+    "Chat",
+    "Bot",
+    "Commands",
+    "Base"
   ],
-  "author": "pyraxo",
-  "license": "MIT",
+  "author": "pyraxo <pyraxo@pyraxo.moe> (https://pyraxo.moe)",
+  "license": "AGPL-3.0",
   "dependencies": {
     "async": "^2.0.0-rc.6",
-    "babel-core": "^6.9.1",
-    "babel-polyfill": "^6.9.1",
-    "babel-preset-es2015": "^6.9.0",
-    "babel-preset-es2015-node6": "^0.2.0",
-    "bristol": "^0.3.3",
-    "canvas": "^1.3.16",
+    "bluebird": "^3.4.6",
     "chalk": "^1.1.3",
-    "clear-require": "^1.0.1",
-    "cleverbot-node": "^0.2.2",
-    "eris": "github:abalabahaha/eris",
-    "eventemitter2": "^1.0.3",
+    "dotenv-safe": "^2.3.2",
+    "eris": "github:abalabahaha/eris#dev",
+    "eventemitter3": "^2.0.1",
     "jsonfile": "^2.3.1",
-    "lodash": "^4.13.1",
+    "longjohn": "^0.2.11",
     "moment": "^2.13.0",
+    "moment-timezone": "^0.5.5",
+    "node-emoji": "^1.4.1",
     "redis": "^2.6.1",
     "require-all": "^2.0.0",
-    "superagent": "^2.0.0",
-    "tcp-ping": "^0.1.1"
+    "rethinkdb": "^2.3.3",
+    "superagent": "^2.2.0",
+    "superagent-xml2jsparser": "^0.1.1",
+    "thinky": "^2.3.7",
+    "winston": "^2.2.0",
+    "winston-cluster": "0.0.4",
+    "winston-daily-rotate-file": "^1.3.1"
   },
   "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
-    "gulp-changed": "^1.3.0",
-    "gulp-coffee": "^2.3.2",
-    "gulp-plumber": "^1.1.0",
-    "gulp-sourcemaps": "^1.6.0",
-    "gulp-util": "^3.0.7",
     "jsdoc": "^3.4.0",
-    "minami": "^1.1.1"
+    "minami": "^1.1.1",
+    "standard": "^8.1.0"
   }
 }

@@ -1,65 +1,43 @@
-import os from 'os'
-import cluster from 'cluster'
+const chalk = require('chalk')
+const cluster = require('cluster')
+const winston = require('winston')
+const winstonCluster = require('winston-cluster')
 
-import Bot from './services/Bot'
-import Logger from './services/Logger'
-import IPC from './services/IPC'
-
-const logger = new Logger()
+const Automaton = require('./core/Automaton')
+const ShardManager = require('./core/shards/ShardManager')
 
 if (cluster.isMaster) {
-  let ipc = new IPC(os.cpus().length)
-  logger.debug('MASTER')
-  let createWorker = num => {
-    const worker = spawnWorker(num)
-    worker.on('message', msg => {
-      if (typeof msg === 'object') {
-        if (msg.hasOwnProperty('guilds')) ipc.store(msg.guilds, num)
-      } else if (typeof msg === 'string') {
-        switch (msg) {
-          case 'cache:guild:create': {
-            ipc.add(num, msg.guild)
-            break
-          }
-          case 'cache:guild:delete': {
-            ipc.remove(num, msg.guild)
-            break
-          }
-        }
-      }
-    })
-  }
-  let spawnWorker = (count = 0) => {
-    if (count === os.cpus().length) return
-    const worker = cluster.fork({ shardID: count, shardCount: os.cpus().length })
-    worker.on('online', () => {
-      logger.debug(`WORKER ${worker.process.pid} ONLINE: Shard ${count}`)
-    })
-    worker.on('exit', () => {
-      logger.debug(`WORKER ${worker.process.pid} EXITED: Shard ${count}`)
-      setTimeout(() => createWorker(count), 5000)
-    })
-    return worker
-  }
-  for (let i = 0; i < os.cpus().length; i++) {
-    setTimeout(() => createWorker(i), i * 5000)
-  }
-} else if (cluster.isWorker) {
-  const Iris = new Bot({
-    shardID: parseInt(process.env.shardID, 10),
-    shardCount: parseInt(process.env.shardCount, 10)
-  })
-  Iris.run()
+  winstonCluster.bindListeners()
+  const shardManager = new ShardManager(
+    parseInt(process.env.CLIENT_PROCESSES, 10),
+    parseInt(process.env.CLIENT_SHARDS_PER_PROCESS, 10)
+  )
+  shardManager.createShards()
+} else {
+  winstonCluster.bindTransport()
+  const processCount = parseInt(process.env.CLIENT_PROCESSES, 10)
+  const processShards = parseInt(process.env.CLIENT_SHARDS_PER_PROCESS, 10)
 
-  Iris.on('loaded:discord', guilds => {
-    process.send('loaded:shard')
-    process.send({ 'guilds': guilds })
-  })
+  const firstShardID = parseInt(process.env.BASE_SHARD_ID, 10) * processShards
+  const lastShardID = firstShardID + processShards - 1
+  const maxShards = processCount * processShards
+  const automaton = new Automaton({ firstShardID, lastShardID, maxShards })
 
-  Iris.on('cache:guild:*', guild => {
-    process.send(this.event)
-    process.send({ 'guild': guild.id })
-  })
+  automaton.once('ready', () => {
+    const { guilds, channels, users } = automaton.fetchCounts()
 
-  module.exports = Iris
+    winston.info(`${chalk.red.bold('iris')} - ${
+      firstShardID === lastShardID
+      ? `Shard ${firstShardID} is ready`
+      : `Shards ${firstShardID} to ${lastShardID} are ready`
+    }`)
+    winston.info(
+      `G: ${chalk.green.bold(guilds)} | ` +
+      `C: ${chalk.green.bold(channels)} | ` +
+      `U: ${chalk.green.bold(users)}`
+    )
+    winston.info(`Prefix: ${chalk.cyan.bold(process.env.CLIENT_PREFIX)}`)
+  })
+  automaton.on('error', err => winston.error(err))
+  automaton.run()
 }
