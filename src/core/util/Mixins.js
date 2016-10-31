@@ -1,5 +1,3 @@
-'use strict'
-
 const _appliedMixin = '__mixwith_appliedMixin'
 
 const apply = (superclass, mixin) => {

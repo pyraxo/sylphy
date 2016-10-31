@@ -3,8 +3,8 @@ const logger = require('winston')
 
 module.exports = {
   priority: 100,
-  process: function (obj, done) {
-    const { msg, isPrivate, isCommand } = obj
+  process: async (container, resolve, reject) => {
+    const { msg, isPrivate, isCommand } = container
     if (isCommand) {
       logger.info(`${chalk.bold.magenta(
         !isPrivate
@@ -12,8 +12,8 @@ module.exports = {
         : '(in PMs)'
       )} > ${chalk.bold.green(msg.author.username)}: ` +
       `${chalk.bold.blue(msg.cleanContent.replace(/\n/g, ' '))}`)
-      return done(null, obj)
+      return resolve(container)
     }
-    return done(true)
+    return reject()
   }
 }

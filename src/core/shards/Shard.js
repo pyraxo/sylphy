@@ -1,8 +1,8 @@
 const cluster = require('cluster')
 
 class Shard {
-  constructor (id, { count }) {
-    this.worker = cluster.fork({ SHARD_ID: id })
+  constructor (id) {
+    this.worker = cluster.fork({ BASE_SHARD_ID: id })
 
     this.id = id
     this.process = this.worker.process

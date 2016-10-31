@@ -1,38 +1,37 @@
 const logger = require('winston')
-const { configDB } = require('../system/Database')
+const { configDB } = require('../core/system/Database')
+
+const unwrap = (key, obj) => {
+  let multi = configDB.multi()
+  for (let prop in obj) {
+    multi.hset(key, prop, obj[prop])
+  }
+  return multi.execAsync()
+}
 
 module.exports = {
   priority: 5,
-  process: function (obj, done) {
-    const { msg, isPrivate } = obj
+  process: async (container, resolve, reject) => {
+    const { msg, isPrivate } = container
     if (isPrivate) {
-      return done(null, {
-        prefix: process.env.CLIENT_PREFIX_STANDARD,
-        admin_prefix: process.env.CLIENT_PREFIX_ADMIN,
-        lang: 'default'
-      })
+      container.settings = {
+        prefix: process.env.CLIENT_PREFIX,
+        lang: 'en'
+      }
+      return resolve(container)
     }
-    configDB.getAsync(`settings:${msg.channel.guild.id}`)
-    .then(settings => {
+    try {
+      let settings = await configDB.hgetallAsync(`settings:${msg.channel.guild.id}`)
       const defaults = {
         id: msg.channel.guild.id,
-        prefix: process.env.CLIENT_PREFIX_STANDARD,
-        admin_prefix: process.env.CLIENT_PREFIX_ADMIN,
-        welcome: 'Welcome to $SERVER$, $USERMENTION$!',
-        goodbye: '$USER$ has left the server.',
-        autorole: false,
-        levelUpMsg: true,
-        cleverbot: true,
-        lang: 'default'
+        prefix: process.env.CLIENT_PREFIX,
+        lang: 'en'
       }
       if (settings === null) {
-        obj.settings = defaults
-        configDB.setAsync(`settings:${msg.channel.guild.id}`, JSON.stringify(defaults))
-        .then(() => done(null, obj))
-        .catch(err => done(err))
+        await unwrap(`settings:${msg.channel.guild.id}`, defaults)
+        container.settings = defaults
       } else {
         let altered = false
-        settings = JSON.parse(settings)
         for (let key in defaults) {
           if (!settings.hasOwnProperty(key)) {
             settings[key] = defaults[key]
@@ -40,16 +39,17 @@ module.exports = {
           }
         }
         if (altered) {
-          configDB.setAsync(`settings:${msg.channel.guild.id}`, JSON.stringify(settings))
-          .then(() => done(null, obj))
-          .catch(err => {
-            logger.error(`Error adding default keys to ${msg.channel.guild.name} (${msg.channel.guild.id})'s settings: ${err}`)
-          })
+          await unwrap(`settings:${msg.channel.guild.id}`, settings)
         }
-        obj.settings = settings
-        return done(null, obj)
+        container.settings = settings
       }
-    })
-    .catch(err => done(err))
+      return resolve(container)
+    } catch (err) {
+      logger.error(
+        `Error adding default keys to ${msg.channel.guild.name} ` +
+        `(${msg.channel.guild.id})'s settings: ${err}`
+      )
+      return reject(err)
+    }
   }
 }

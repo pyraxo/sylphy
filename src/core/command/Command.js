@@ -1,16 +1,18 @@
-const path = require('path')
 const logger = require('winston')
+const moment = require('moment')
 
-const emoji = require('./Emojis')
-const { Localisation } = require('../util/Localisation')
+const { Parser } = require('../util')
+const { Emojis: emoji } = require('../enums')
 
-class AbstractCommand {
-  constructor (client) {
-    if (this.constructor === AbstractCommand) {
-      throw new Error('Must extend AbstractCommand')
+class Command {
+  constructor (bot, options) {
+    if (this.constructor === Command) {
+      throw new Error('Must extend abstract Command')
     }
 
-    this.client = client
+    this._verify(options)
+    this.bot = bot
+    this.client = bot.client
 
     this.responseMethods = {
       send: (msg, res) => res,
@@ -26,25 +28,52 @@ class AbstractCommand {
       underline: (res) => `__${res}__`,
       strikethrough: (res) => `~~${res}~~`,
       inlineCode: (res) => `\`${res}\``,
-      code: (res, type) => `${'```'}${type}\n${res}${'```'}`,
+      code: (res, type = '') => `\`\`\`${type}\n${res}\n\`\`\``,
       emoji: (res, type) => `${emoji[type || 'success']}  |  ${res}`
     }
+
+    this.timers = new Map()
   }
 
-  get name () { throw new Error('Command must be named') }
-  get aliases () { return [] }
-  get cooldown () { return 5 }
-  get noPMs () { return false }
-  get hidden () { return false }
-  get botPerms () { return [] }
-  get localeFile () { return this.name }
+  _verify ({
+    name,
+    names = [],
+    description = 'No description',
+    guildOnly = false,
+    adminOnly = false,
+    cooldown = 5,
+    examples = []
+  } = {}) {
+    this.labels = typeof name === 'string'
+    ? [name].concat(names)
+    : (Array.isArray(names) && names.length > 0 ? names : [])
 
-  loadLocales () {
-    this.locales = new Localisation(path.join(process.cwd(), 'resources/strings', this.localeFile))
-    this.locales.init()
+    if (this.labels.length === 0) {
+      throw new Error(`${this.constructor.name} command is not named`)
+    }
+    this.description = String(description)
+
+    this.guildOnly = guildOnly
+    this.adminOnly = adminOnly
+
+    this.cooldown = cooldown
+    this.examples = examples
+
+    this.usageParser = new Parser({
+      user: msg => msg.author.username,
+      channel: msg => msg.channel.mention,
+      guild: msg => msg.guild.name,
+      int: msg => ~~(Math.random() * 100)
+    }, ['{', '}'])
   }
 
-  createResponder ({ msg }) {
+  generateExample (msg) {
+    let ex = this.examples[~~(Math.random() * this.examples.length)]
+    ex = this.usageParser.replace(ex, msg)
+    return ex
+  }
+
+  _createResponder ({ msg }) {
     let responder = (...args) => responder.send(...args)
     for (let method in this.responseMethods) {
       responder[method] = (response, options = {}, ...args) => {
@@ -109,8 +138,32 @@ class AbstractCommand {
     return responder
   }
 
-  execute (container) {
-    this.handle(container, this.createResponder(container))
+  _execute (container) {
+    const message = container.msg
+    const awaitID = message.channel.id + message.author.id
+    const responder = this._createResponder(container)
+
+    if (this.cooldown > 0) {
+      if (!this.timers.has(awaitID)) {
+        this.timers.set(awaitID, +moment())
+      } else {
+        const diff = moment().diff(moment(this.timer.get(awaitID)), 'seconds')
+        if (diff < this.cooldown) {
+          responder.reply(
+            `please cool down! (**${this.cooldown - diff}** seconds left)`,
+            null, { delay: 0, deleteDelay: 5000 }
+          )
+          return
+        } else {
+          this.timer.delete(awaitID)
+          this.timer.set(awaitID, +moment())
+        }
+      }
+    }
+
+    if (this.guildOnly && container.isPrivate) return
+
+    this.handle(container, responder)
   }
 
   handle () { return false }
@@ -126,6 +179,7 @@ class AbstractCommand {
     }
 
     let msgRem = ''
+    if (Array.isArray(content)) content = content.join()
     if (content.length > 2000) {
       content = content.match(/(.|[\r\n]){1,2000}/g)
       msgRem = content.shift()
@@ -149,7 +203,7 @@ class AbstractCommand {
             .then(() => {
               if (!msgRem) return resolve(msg)
             })
-            .catch(err => reject(err))
+            .catch(reject)
           }, deleteDelay)
         }
         if (msgRem) {
@@ -183,4 +237,4 @@ class AbstractCommand {
   }
 }
 
-module.exports = AbstractCommand
+module.exports = Command

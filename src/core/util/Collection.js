@@ -11,6 +11,10 @@ class Collection extends Map {
     return [...this.values()]
   }
 
+  forEach (...args) {
+    return this.toArray().forEach(...args)
+  }
+
   filter (...args) {
     return this.toArray().filter(...args)
   }
@@ -42,6 +46,10 @@ class Collection extends Map {
       i[val].push(o)
       return i
     }, {})
+  }
+
+  unique () {
+    return [...new Set(this.toArray())]
   }
 }
 

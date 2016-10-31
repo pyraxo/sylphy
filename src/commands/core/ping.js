@@ -1,8 +1,13 @@
 const logger = require('winston')
-const { AbstractCommand } = require('../../../interfaces')
+const { Command } = require('../../core/command')
 
-class PingCommand extends AbstractCommand {
-  get name () { return 'ping' }
+class PingCommand extends Command {
+  constructor (...args) {
+    super(...args, {
+      name: 'ping',
+      description: 'Pong!'
+    })
+  }
 
   handle ({ msg }, responder) {
     responder.format('emoji:info').send('Pong!').then(m => {

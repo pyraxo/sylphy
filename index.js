@@ -13,11 +13,19 @@ require('dotenv-safe').config({
   allowEmptyValues: true
 })
 
+const processShards = parseInt(process.env.CLIENT_SHARDS_PER_PROCESS, 10)
+const firstShardID = parseInt(process.env.BASE_SHARD_ID, 10) * processShards
+const lastShardID = firstShardID + processShards - 1
+
 winston.remove(winston.transports.Console)
 winston.add(winston.transports.Console, {
   level: process.env.CLIENT_DEBUG === 'true' ? 'silly' : 'verbose',
   colorize: true,
-  label: process.env.SHARD_ID ? `SHARD ${process.env.SHARD_ID}` : 'MASTER',
+  label: process.env.BASE_SHARD_ID
+  ? processShards > 1
+    ? `S ${firstShardID}-${lastShardID}`
+    : `S ${process.env.SHARD_ID}`
+  : 'MASTER',
   timestamp: function () {
     return moment().format('YYYY-MM-DD hh:mm:ss a')
   }
@@ -38,5 +46,9 @@ winston.add(winston.transports.DailyRotateFile, {
   }
 })
 winston.cli()
+
+process.on('unhandledRejection', (reason, promise) => {
+  winston.error(`Unhandled rejection: ${reason} - ${util.inspect(promise)}`)
+})
 
 require('./src')

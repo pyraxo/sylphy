@@ -18,8 +18,8 @@
   "opts": {
     "destination": "./docs/",
     "encoding": "utf8",
-    "private": true,
+    "verbose": true,
     "recurse": true,
-    "template": "./node_modules/minami"
+    "template": "node_modules/minami"
   }
 }

@@ -2,11 +2,13 @@ const EventEmitter = require('eventemitter3')
 const logger = require('winston')
 
 class IPCManager extends EventEmitter {
-  constructor (shardID = 0) {
+  constructor (shardID = 0, client) {
     super()
 
     this.id = shardID
     this.pid = process.pid
+    this.commands = new Map()
+    this._client = client
 
     process.on('message', this.onMessage.bind(this))
   }
@@ -20,13 +22,19 @@ class IPCManager extends EventEmitter {
 
   onMessage (message) {
     if (!message.op) {
-      return logger.warn('Received IPC message with no op.')
+      return logger.warn('Received IPC message with no op')
     }
 
     if (['resp', 'broadcast'].includes(message.op)) return
 
     if (this[message.op]) {
       return this[message.op](message)
+    }
+
+    const command = this.commands.get(message.op)
+
+    if (command) {
+      return command(message, this._client)
     }
 
     this.emit(message.op, message.d)
@@ -48,9 +56,15 @@ class IPCManager extends EventEmitter {
 
       setTimeout(() => {
         process.removeListener('message', awaitListener)
-        return reject('IPC Timed out.')
-      }, 1000)
+        return reject('IPC timed out after 2000ms')
+      }, 2000)
     })
+  }
+
+  register (command) {
+    if (!command || !command.name) return logger.error('Invalid command')
+    logger.info(`Registering IPC command ${command.name}`)
+    this.commands.set(command.name, command)
   }
 }
 

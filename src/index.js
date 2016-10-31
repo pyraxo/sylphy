@@ -3,38 +3,41 @@ const cluster = require('cluster')
 const winston = require('winston')
 const winstonCluster = require('winston-cluster')
 
-const Automaton = require('./Automaton')
-const ShardManager = require('./system/ShardManager')
+const Automaton = require('./core/Automaton')
+const ShardManager = require('./core/shards/ShardManager')
 
 if (cluster.isMaster) {
   winstonCluster.bindListeners()
-  const shardManager = new ShardManager(parseInt(process.env.CLIENT_SHARDS, 10))
+  const shardManager = new ShardManager(
+    parseInt(process.env.CLIENT_PROCESSES, 10),
+    parseInt(process.env.CLIENT_SHARDS_PER_PROCESS, 10)
+  )
   shardManager.createShards()
 } else {
   winstonCluster.bindTransport()
-  const shardID = parseInt(process.env.SHARD_ID, 10)
-  const shardCounts = parseInt(process.env.CLIENT_SHARDS, 10)
-  const automaton = new Automaton({ shardID, shardCounts })
+  const processCount = parseInt(process.env.CLIENT_PROCESSES, 10)
+  const processShards = parseInt(process.env.CLIENT_SHARDS_PER_PROCESS, 10)
 
-  automaton.once('ready', user => {
-    const counts = automaton.engine.fetchCounts()
+  const firstShardID = parseInt(process.env.BASE_SHARD_ID, 10) * processShards
+  const lastShardID = firstShardID + processShards - 1
+  const maxShards = processCount * processShards
+  const automaton = new Automaton({ firstShardID, lastShardID, maxShards })
 
-    winston.info(`${chalk.red.bold('iris')} - Shard ${shardID} is ready`)
+  automaton.once('ready', () => {
+    const { guilds, channels, users } = automaton.fetchCounts()
+
+    winston.info(`${chalk.red.bold('iris')} - ${
+      firstShardID === lastShardID
+      ? `Shard ${firstShardID} is ready`
+      : `Shards ${firstShardID} to ${lastShardID} are ready`
+    }`)
     winston.info(
-      `G: ${chalk.green.bold(counts.guilds)} | ` +
-      `C: ${chalk.green.bold(counts.channels)} | ` +
-      `U: ${chalk.green.bold(counts.users)}`
+      `G: ${chalk.green.bold(guilds)} | ` +
+      `C: ${chalk.green.bold(channels)} | ` +
+      `U: ${chalk.green.bold(users)}`
     )
-    winston.info(
-      `Prefix: ${chalk.cyan.bold(process.env.CLIENT_PREFIX_STANDARD)} | ` +
-      `Admin Prefix: ${chalk.cyan.bold(process.env.CLIENT_PREFIX_ADMIN)}`
-    )
-
-    process.send({ title: 'ready', counts })
+    winston.info(`Prefix: ${chalk.cyan.bold(process.env.CLIENT_PREFIX)}`)
   })
   automaton.on('error', err => winston.error(err))
-  automaton.on('loaded:plugins', count => winston.info(`Loaded ${count} plugins`))
-  automaton.on('loaded:middleware', count => winston.info(`Loaded ${count} middleware`))
-
   automaton.run()
 }
