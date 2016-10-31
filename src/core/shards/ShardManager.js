@@ -33,14 +33,14 @@ class ShardManager {
 
   handleExit (worker) {
     const shard = this.getShard(worker)
-    logger.info(`WORKER ${worker.process.pid} EXITED: Shard ${shard.id}`)
+    logger.info(`WORKER ${worker.process.pid} EXITED: Process ${shard.id}`)
     this.shards.delete(shard.id)
     this.createShard(shard.id)
   }
 
   onReady (worker) {
     const shard = this.getShard(worker)
-    logger.info(`WORKER ${worker.process.pid} ONLINE: Shard ${shard.id}`)
+    logger.info(`WORKER ${worker.process.pid} ONLINE: Process ${shard.id}`)
   }
 
   onMessage (worker, message) {

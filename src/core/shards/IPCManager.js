@@ -2,13 +2,13 @@ const EventEmitter = require('eventemitter3')
 const logger = require('winston')
 
 class IPCManager extends EventEmitter {
-  constructor (shardID = 0, client) {
+  constructor (shardID = 0, bot) {
     super()
 
-    this.id = shardID
+    this.ids = Array.isArray(shardID) ? shardID : [shardID]
     this.pid = process.pid
     this.commands = new Map()
-    this._client = client
+    this._bot = bot
 
     process.on('message', this.onMessage.bind(this))
   }
@@ -32,18 +32,18 @@ class IPCManager extends EventEmitter {
     }
 
     const command = this.commands.get(message.op)
-
     if (command) {
-      return command(message, this._client)
+      return command(message, this._bot)
     }
 
     this.emit(message.op, message.d)
   }
 
-  awaitResponse (op, d) {
+  async awaitResponse (op, d) {
     return new Promise((resolve, reject) => {
       const awaitListener = (msg) => {
         if (!['resp', 'error'].includes(msg.op)) return
+        process.removeListener('message', awaitListener)
         if (msg.op === 'resp') return resolve(msg.d)
         if (msg.op === 'error') return reject(msg.d)
       }
@@ -51,7 +51,7 @@ class IPCManager extends EventEmitter {
       const payload = { op: op }
       if (d) payload.d = d
 
-      process.once('message', awaitListener)
+      process.on('message', awaitListener)
       process.send(payload)
 
       setTimeout(() => {
@@ -63,7 +63,7 @@ class IPCManager extends EventEmitter {
 
   register (command) {
     if (!command || !command.name) return logger.error('Invalid command')
-    logger.info(`Registering IPC command ${command.name}`)
+    logger.info(`Registering IPC command '${command.name}'`)
     this.commands.set(command.name, command)
   }
 }

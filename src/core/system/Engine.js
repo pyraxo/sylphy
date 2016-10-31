@@ -12,9 +12,9 @@ class Engine extends EventEmitter {
     super()
 
     this.client = bot.client
-    this.config = bot.config
+    this.paths = bot.paths
 
-    this.stations = bot.shardIDs.map(i => new IPC(i))
+    this.ipc = new IPC(bot.shardIDs, bot)
     this.commands = new Manager(bot)
     this.handlers = new Manager(bot)
     this.bridge = new Bridge(this.commands)
@@ -38,10 +38,13 @@ class Engine extends EventEmitter {
     this.loadIPC()
   }
 
-  loadCommands () {
+  loadCommands (mod) {
     let count = 0
-    const commands = requireAll(this.config.commands)
+    this.commands.eject(mod)
+
+    const commands = requireAll(this.paths.commands)
     for (let module in commands) {
+      if (typeof mod === 'string' && module !== mod) continue
       for (let command in commands[module]) {
         this.commands.attach(module, commands[module][command])
         count++
@@ -52,7 +55,7 @@ class Engine extends EventEmitter {
 
   loadMiddleware () {
     let count = 0
-    let mw = requireAll(this.config.middleware)
+    let mw = requireAll(this.paths.middleware)
     mw = Object.keys(mw).sort((a, b) => mw[a].priority - mw[b].priority).map(m => mw[m])
     mw.forEach(m => {
       this.bridge.push(m)
@@ -63,7 +66,9 @@ class Engine extends EventEmitter {
 
   loadHandlers () {
     let count = 0
-    const handlers = requireAll(this.config.handlers)
+    this.handlers.eject()
+
+    const handlers = requireAll(this.paths.handlers)
     for (let handler in handlers) {
       this.handlers.attach(handler, handlers[handler])
       count++
@@ -73,39 +78,43 @@ class Engine extends EventEmitter {
 
   loadIPC () {
     let count = 0
-    const processes = requireAll(this.config.ipc)
+    const processes = requireAll(this.paths.ipc)
     for (let proc in processes) {
-      this.stations.forEach(s => s.register(processes[proc]))
+      this.ipc.register(processes[proc])
       count++
     }
     this.emit('loaded:ipc', count)
   }
 
-  reload (dir = this.config.commands, cat = '.') {
+  reload (dir = this.paths.commands, cat = '.') {
+    let count = 0
     Object.keys(require.cache).forEach(filepath => {
-      if (!filepath.startsWith(path.join(this.commandsPath, cat))) return
+      if (!filepath.startsWith(path.join(dir, cat))) return
       delete require.cache[require.resolve(filepath)]
+      count++
     })
+
+    return count
   }
 
   reloadCommands (module) {
-    this.reload(this.config.commands, module)
-    this.emit('reload:commands')
+    let cmd = this.reload(this.paths.commands, module)
+    this.emit('reload:commands', cmd)
   }
 
   reloadMiddleware () {
-    this.reload(this.config.middleware)
-    this.emit('reload:middleware')
+    let mw = this.reload(this.paths.middleware)
+    this.emit('reload:middleware', mw)
   }
 
   reloadHandler () {
-    this.reload(this.config.handlers)
-    this.emit('reload:handlers')
+    let count = this.reload(this.paths.handlers)
+    this.emit('reload:handlers', count)
   }
 
   reloadIPC () {
-    this.reload(this.config.ipc)
-    this.emit('reload:ipc')
+    let count = this.reload(this.paths.ipc)
+    this.emit('reload:ipc', count)
   }
 }
 

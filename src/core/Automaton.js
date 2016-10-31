@@ -18,7 +18,7 @@ class Automaton extends EventEmitter {
       this.shardIDs.push(i)
     }
 
-    this.config = {
+    this.paths = {
       commands: options.commands || path.join(__dirname, '../commands'),
       middleware: options.middleware || path.join(__dirname, '../middleware'),
       handlers: options.middleware || path.join(__dirname, '../handlers'),
@@ -29,6 +29,11 @@ class Automaton extends EventEmitter {
   }
 
   init () {
+    this.loadClient()
+    this.loadEngine()
+  }
+
+  loadClient () {
     let client = new Client(process.env.CLIENT_TOKEN, {
       messageLimit: 0,
       getAllUsers: true,
@@ -50,7 +55,6 @@ class Automaton extends EventEmitter {
     client.on('disconnect', () => this.emit('disconnect'))
 
     this.client = client
-    this.loadEngine()
   }
 
   loadEngine () {
@@ -59,8 +63,8 @@ class Automaton extends EventEmitter {
     engine.on('loaded:commands', count => logger.info(`Loaded ${count} commands`))
     engine.on('loaded:middleware', count => logger.info(`Loaded ${count} middleware`))
 
-    engine.on('reload:commands', () => logger.info(`Reloading commands`))
-    engine.on('reload:middleware', () => logger.info(`Reloading middleware`))
+    engine.on('reload:commands', count => logger.info(`Reloading ${count} commands`))
+    engine.on('reload:middleware', count => logger.info(`Reloading ${count} middleware`))
 
     engine.run()
     this.engine = engine

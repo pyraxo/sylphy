@@ -15,7 +15,7 @@ class Manager extends Collection {
   }
 
   eject (group) {
-    this.filter(e => e.group === group)
+    this.filter(e => e.group === group || typeof group === 'undefined')
     .forEach(e => this.delete(e.label))
   }
 

@@ -16,7 +16,7 @@ module.exports = {
     }
     try {
       let replies = await multi.execAsync()
-      container.args = msg.content.split(' ').splice(1).filter(v => !v)
+      container.args = msg.content.split(' ').splice(1).filter(v => !!v)
       if (replies[2] && trigger === trigger.toUpperCase()) return resolve(container)
       if (replies.some(r => r === 1)) return reject()
       return resolve(container)
