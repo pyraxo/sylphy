@@ -10,7 +10,7 @@
     "gendocs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose"
   },
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=7.0.0"
   },
   "keywords": [
     "Discord",

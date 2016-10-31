@@ -17,7 +17,7 @@
 **iris** is an advanced, efficient and highly customisable base for Discord command bots written in Node.js
 
 ### Prerequisites
-**Node.js 6+** is required. Please ensure that you are using a node version that fulfills the requirements. A firm grasp of **ECMAScript 2015** syntax is recommended.
+**Node.js 7+** is required. Please ensure that you are using a node version that fulfills these requirements. A firm grasp of **ES6 + async/await** syntax is recommended.
 
 ### Installation
 ```bash
