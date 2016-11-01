@@ -1,8 +1,7 @@
 const logger = require('winston')
 const moment = require('moment')
 
-const { Parser } = require('../util')
-const { Emojis: emoji } = require('../enums')
+const { Emojis: emoji, Parser } = require('../util')
 
 class Command {
   constructor (bot, options) {
@@ -29,7 +28,7 @@ class Command {
       strikethrough: (res) => `~~${res}~~`,
       inlineCode: (res) => `\`${res}\``,
       code: (res, type = '') => `\`\`\`${type}\n${res}\n\`\`\``,
-      emoji: (res, type) => `${emoji[type || 'success']}  |  ${res}`
+      emoji: (res, type) => `${emoji[type] || emoji.success}  |  ${res}`
     }
 
     this.timers = new Map()
