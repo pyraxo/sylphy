@@ -74,52 +74,41 @@ class Command {
 
   _createResponder ({ msg }) {
     let responder = (...args) => responder.send(...args)
+
+    const construct = (m, c, r, o, a) => {
+      r = this.responseMethods[m](msg, r)
+      const formats = responder._formats
+      if (formats) {
+        for (let format of formats) {
+          format = format.split(':')
+          if (this.formatMethods[format[0]]) {
+            r = this.formatMethods[format[0]](r, format[1])
+          }
+        }
+      }
+      if (responder._file) o.file = responder._file
+
+      delete responder._formats
+      delete responder._file
+      return this.send(c, r, o, ...a)
+    }
+
     for (let method in this.responseMethods) {
       responder[method] = (response, options = {}, ...args) => {
-        let promise = new Promise((resolve, reject) => {
-          const formats = responder._formats
-          response = this.responseMethods[method](msg, response)
-
-          if (formats) {
-            for (let format of formats) {
-              format = format.split(':')
-              response = this.formatMethods[format[0]](response, format[1])
-            }
-          }
-          if (responder._file) options.file = responder._file
-
-          delete responder._formats
-          delete responder._file
-          this.send(msg.channel, response, options, ...args).then(resolve).catch(reject)
-        })
-
-        promise.catch(logger.error)
-
-        return promise
+        let prom = construct(method, msg.channel, response, options, args)
+        prom.catch(err => logger.error(`${this.labels[0]} command failed to call ${method} - ${err}`))
       }
     }
-    responder.DM = (response, options = null, ...args) => {
+    responder.DM = (response, options = {}, ...args) => {
+      let method = options.method && this.responseMethods[options.method]
+      ? options.method : 'send'
+      delete options.method
       let promise = new Promise((resolve, reject) => {
         this.client.getDMChannel(msg.author.id)
-        .then(channel => {
-          const formats = responder._formats
-
-          if (formats) {
-            for (let format of formats) {
-              format = format.split(':')
-              response = this.formatMethods[format[0]](response, format[1])
-            }
-          }
-          if (responder._file) options.file = responder._file
-
-          delete responder._formats
-          delete responder._file
-          this.send(channel, response, options, ...args).then(resolve).catch(reject)
-        })
+        .then(channel => construct(method, channel, response, options, args).then(resolve).catch(reject))
+        .catch(reject)
       })
-
-      promise.catch(logger.error)
-
+      promise.catch(err => logger.error(`${this.labels[0]} command failed to DM with method ${method} - ${err}`))
       return promise
     }
 
