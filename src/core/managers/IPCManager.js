@@ -63,8 +63,8 @@ class IPCManager extends EventEmitter {
 
   register (command) {
     if (!command || !command.name) return logger.error('Invalid command')
-    logger.info(`Registering IPC command '${command.name}'`)
     this.commands.set(command.name, command)
+    this.emit('registered', command.name)
   }
 }
 

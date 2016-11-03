@@ -97,19 +97,21 @@ class Command {
       responder[method] = (response, options = {}, ...args) => {
         let prom = construct(method, msg.channel, response, options, args)
         prom.catch(err => logger.error(`${this.labels[0]} command failed to call ${method} - ${err}`))
+
+        return prom
       }
     }
     responder.DM = (response, options = {}, ...args) => {
       let method = options.method && this.responseMethods[options.method]
       ? options.method : 'send'
       delete options.method
-      let promise = new Promise((resolve, reject) => {
+      let prom = new Promise((resolve, reject) => {
         this.client.getDMChannel(msg.author.id)
         .then(channel => construct(method, channel, response, options, args).then(resolve).catch(reject))
         .catch(reject)
       })
-      promise.catch(err => logger.error(`${this.labels[0]} command failed to DM with method ${method} - ${err}`))
-      return promise
+      prom.catch(err => logger.error(`${this.labels[0]} command failed to DM with method ${method} - ${err}`))
+      return prom
     }
 
     responder.format = (formats) => {
@@ -135,7 +137,7 @@ class Command {
       if (!this.timers.has(awaitID)) {
         this.timers.set(awaitID, +moment())
       } else {
-        const diff = moment().diff(moment(this.timer.get(awaitID)), 'seconds')
+        const diff = moment().diff(moment(this.timers.get(awaitID)), 'seconds')
         if (diff < this.cooldown) {
           responder.reply(
             `please cool down! (**${this.cooldown - diff}** seconds left)`,
@@ -143,8 +145,8 @@ class Command {
           )
           return
         } else {
-          this.timer.delete(awaitID)
-          this.timer.set(awaitID, +moment())
+          this.timers.delete(awaitID)
+          this.timers.set(awaitID, +moment())
         }
       }
     }

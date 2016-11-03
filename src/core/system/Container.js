@@ -1,6 +1,6 @@
 const { Collection } = require('../util')
 
-class Manager extends Collection {
+class Container extends Collection {
   constructor (bot) {
     super()
     this.bot = bot
@@ -26,8 +26,8 @@ class Manager extends Collection {
 
   executeGroup (group, ...args) {
     this.filter(e => e.group === group)
-    .forEach(e => e._execute(...args))
+    .forEach(e => e.ext._execute(...args))
   }
 }
 
-module.exports = Manager
+module.exports = Container

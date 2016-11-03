@@ -2,8 +2,34 @@ const logger = require('winston')
 const cluster = require('cluster')
 const os = require('os')
 
-const Shard = require('./Shard')
 const Collection = require('../util/Collection')
+
+class Shard {
+  constructor (id) {
+    this.worker = cluster.fork({ BASE_SHARD_ID: id })
+
+    this.id = id
+    this.process = this.worker.process
+    this.pid = this.process.pid
+  }
+
+  awaitResponse (message) {
+    return new Promise((resolve, reject) => {
+      const awaitListener = (msg) => {
+        if (!['resp', 'error'].includes(msg.op)) return
+        return resolve({ id: this.id, result: msg.d })
+      }
+
+      this.worker.once('message', awaitListener)
+      this.worker.send(message)
+
+      setTimeout(() => {
+        this.worker.removeListener('message', awaitListener)
+        return reject('IPC request timed out.')
+      }, 1000)
+    })
+  }
+}
 
 class ShardManager {
   constructor (processCount = os.cpus().length) {

@@ -1,6 +1,6 @@
-class Handler {
+class Module {
   constructor (client, options) {
-    if (this.constructor === Handler) {
+    if (this.constructor === Module) {
       throw new Error('Must extend abstract Handler')
     }
 
@@ -24,4 +24,4 @@ class Handler {
   }
 }
 
-module.exports = Handler
+module.exports = Module
