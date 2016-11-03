@@ -1,5 +1,5 @@
 const logger = require('winston')
-const { Command } = require('../../core/command')
+const { Command } = require('../../core')
 
 class PingCommand extends Command {
   constructor (...args) {

@@ -1,55 +1,32 @@
-const logger = require('winston')
-const { configDB } = require('../core/system/Database')
-
-const unwrap = (key, obj) => {
-  let multi = configDB.multi()
-  for (let prop in obj) {
-    multi.hset(key, prop, obj[prop])
-  }
-  return multi.execAsync()
-}
-
 module.exports = {
   priority: 5,
-  process: async (container, resolve, reject) => {
-    const { msg, isPrivate } = container
+  process: async container => {
+    const { client, msg, isPrivate, db } = container
     if (isPrivate) {
-      container.settings = {
-        prefix: process.env.CLIENT_PREFIX,
-        lang: 'en'
+      try {
+        let channel = await client.getDMChannel(msg.author.id)
+        container.settings = new db.Guild({ id: channel.id })
+        return container
+      } catch (err) {
+        throw err
       }
-      return resolve(container)
     }
     try {
-      let settings = await configDB.hgetallAsync(`settings:${msg.channel.guild.id}`)
-      const defaults = {
-        id: msg.channel.guild.id,
-        prefix: process.env.CLIENT_PREFIX,
-        lang: 'en'
-      }
-      if (settings === null) {
-        await unwrap(`settings:${msg.channel.guild.id}`, defaults)
-        container.settings = defaults
-      } else {
-        let altered = false
-        for (let key in defaults) {
-          if (!settings.hasOwnProperty(key)) {
-            settings[key] = defaults[key]
-            altered = true
-          }
-        }
-        if (altered) {
-          await unwrap(`settings:${msg.channel.guild.id}`, settings)
-        }
+      try {
+        let settings = await db.Guild.get(msg.channel.id).run()
         container.settings = settings
+        return container
+      } catch (err) {
+        if (err.name === 'DocumentNotFoundError') {
+          let settings = new db.Guild({ id: msg.guild.id })
+          await settings.save()
+          container.settings = settings
+          return container
+        }
+        throw err
       }
-      return resolve(container)
     } catch (err) {
-      logger.error(
-        `Error adding default keys to ${msg.channel.guild.name} ` +
-        `(${msg.channel.guild.id})'s settings: ${err}`
-      )
-      return reject(err)
+      throw err
     }
   }
 }

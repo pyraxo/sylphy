@@ -5,7 +5,7 @@ const bluebird = require('bluebird')
 bluebird.promisifyAll(redis.RedisClient.prototype)
 bluebird.promisifyAll(redis.Multi.prototype)
 
-class Database {
+class Cache {
   constructor (opts) {
     for (let key in opts) {
       this.create(key, opts[key])
@@ -39,10 +39,10 @@ class Database {
 
 const opts = {}
 for (const key in process.env) {
-  if (!key.startsWith('DB_')) continue
+  if (!key.startsWith('REDIS_')) continue
   if (!process.env[key]) winston.warn(`${key} has no specified port`)
   const [port, db] = process.env[key].split(':')
-  opts[key.replace('DB_', '').toLowerCase()] = { port: port || 6379, db: db || 0 }
+  opts[key.replace('REDIS_', '').toLowerCase()] = { port: port || 6379, db: db || 0 }
 }
 
-module.exports = new Database(opts)
+module.exports = new Cache(opts)

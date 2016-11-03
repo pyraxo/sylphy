@@ -1,6 +1,6 @@
 const logger = require('winston')
 const { padEnd } = require('../../core/util')
-const { Command } = require('../../core/command')
+const { Command } = require('../../core')
 
 class HelpCommand extends Command {
   constructor (...args) {
@@ -10,11 +10,11 @@ class HelpCommand extends Command {
     })
   }
 
-  handle ({ msg, manager }, responder) {
+  handle ({ msg, commander }, responder) {
     let commands = {}
     let reply = []
     let maxPad = 10
-    manager.unique()
+    commander.unique()
     .forEach(c => {
       const module = c.group
       const name = c.ext.labels[0]

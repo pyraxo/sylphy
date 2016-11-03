@@ -35,7 +35,6 @@
     "node-emoji": "^1.4.1",
     "redis": "^2.6.1",
     "require-all": "^2.0.0",
-    "rethinkdb": "^2.3.3",
     "superagent": "^2.2.0",
     "superagent-xml2jsparser": "^0.1.1",
     "thinky": "^2.3.7",
