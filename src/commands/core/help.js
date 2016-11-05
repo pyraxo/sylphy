@@ -1,8 +1,7 @@
-const logger = require('winston')
 const { padEnd } = require('../../core/util')
 const { Command } = require('../../core')
 
-class HelpCommand extends Command {
+class HelpMenu extends Command {
   constructor (...args) {
     super(...args, {
       name: 'help',
@@ -37,4 +36,4 @@ class HelpCommand extends Command {
   }
 }
 
-module.exports = HelpCommand
+module.exports = HelpMenu

@@ -1,5 +1,4 @@
 const util = require('util')
-const logger = require('winston')
 const { Command } = require('../../core')
 
 class Reload extends Command {

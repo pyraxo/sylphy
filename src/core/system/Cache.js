@@ -7,12 +7,10 @@ bluebird.promisifyAll(redis.Multi.prototype)
 
 class Cache {
   constructor (opts) {
-    for (let key in opts) {
-      this.create(key, opts[key])
-    }
+    this.init(opts)
   }
 
-  create (name, opts = {}) {
+  init (opts = {}) {
     opts.retryStrategy = function (opt) {
       if (opt.error.code === 'ECONNREFUSED') {
         return new Error('The server refused the connection')
@@ -25,24 +23,81 @@ class Cache {
       }
       return Math.max(opts.attempt * 100, 3000)
     }
-    let client = redis.createClient(opts)
-    client.on('ready', () => `Redis DB ${name} is ready`)
-    client.on('error', err => winston.error(err))
-    client.on('end', () => `Redis DB ${name} has closed its connection`)
-    this[`${name}DB`] = client
+
+    let client = this.client = redis.createClient({
+      host: opts.host || process.env.REDIS_HOST,
+      port: opts.port || process.env.REDIS_PORT || 6379,
+      password: opts.password || process.env.REDIS_PASS || null,
+      db: opts.db || 0
+    })
+
+    client.on('ready', () => this.emit('ready'))
+    client.on('error', err => winston.error(`Cache met with an error: ${err}`))
+    client.on('end', () => this.emit('end'))
   }
 
-  remove (name) {
-    delete this[`${name}DB`]
+  async set (key, value) {
+    try {
+      let res = await this.client.set(key, value)
+      return res
+    } catch (err) {
+      throw err
+    }
+  }
+
+  async get (key, value) {
+    try {
+      let res = await this.client.get(key, value)
+      return res
+    } catch (err) {
+      throw err
+    }
+  }
+
+  async push (key, ...members) {
+    try {
+      let res = await this.client.sadd(key, ...members)
+      return res
+    } catch (err) {
+      throw err
+    }
+  }
+
+  async pop (key, ...members) {
+    try {
+      let res = await this.client.srem(key, ...members)
+      return res
+    } catch (err) {
+      throw err
+    }
+  }
+
+  async unwrapValues (key, hash) {
+    let multi = this.client.multi()
+    for (let field in hash) {
+      if (!hash.hasOwnProperty(field)) continue
+      multi.hset(key, field, hash[field])
+    }
+    try {
+      let res = await multi.execAsync()
+      return res
+    } catch (err) {
+      throw err
+    }
+  }
+
+  async unwrapScores (key, hash) {
+    let multi = this.client.multi()
+    for (let field in hash) {
+      if (typeof hash[field] !== 'number') continue
+      multi.zadd(key, hash[field], field)
+    }
+    try {
+      let res = await multi.execAsync()
+      return res
+    } catch (err) {
+      throw err
+    }
   }
 }
-
-const opts = {}
-for (const key in process.env) {
-  if (!key.startsWith('REDIS_')) continue
-  if (!process.env[key]) winston.warn(`${key} has no specified port`)
-  const [port, db] = process.env[key].split(':')
-  opts[key.replace('REDIS_', '').toLowerCase()] = { port: port || 6379, db: db || 0 }
-}
-
-module.exports = new Cache(opts)
+module.exports = Cache

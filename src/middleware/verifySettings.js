@@ -2,18 +2,14 @@ module.exports = {
   priority: 5,
   process: async container => {
     const { client, msg, isPrivate, db } = container
-    if (isPrivate) {
-      try {
+    try {
+      if (isPrivate) {
         let channel = await client.getDMChannel(msg.author.id)
         container.settings = new db.Guild({ id: channel.id })
         return container
-      } catch (err) {
-        throw err
       }
-    }
-    try {
       try {
-        let settings = await db.Guild.get(msg.channel.id).run()
+        let settings = await db.Guild.get(msg.guild.id).run()
         container.settings = settings
         return container
       } catch (err) {
