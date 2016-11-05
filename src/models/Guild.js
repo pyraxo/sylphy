@@ -22,6 +22,7 @@ module.exports = function () {
       deleted: type.boolean().default(false),
       prefix: type.string().default(process.env.CLIENT_PREFIX),
       lang: type.string().default('en')
-    }
+    },
+    cache: true
   }
 }

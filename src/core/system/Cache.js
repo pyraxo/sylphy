@@ -1,12 +1,14 @@
 const winston = require('winston')
 const redis = require('redis')
+const EventEmitter = require('eventemitter3')
 
 const bluebird = require('bluebird')
 bluebird.promisifyAll(redis.RedisClient.prototype)
 bluebird.promisifyAll(redis.Multi.prototype)
 
-class Cache {
+class Cache extends EventEmitter {
   constructor (opts) {
+    super()
     this.init(opts)
   }
 

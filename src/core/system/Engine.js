@@ -30,8 +30,13 @@ class Engine extends EventEmitter {
     this.loadAll()
 
     this.client.on('messageCreate', msg => {
+      if (msg.author.id === this.client.id || msg.author.bot) return
       this.bridge.handle({
-        msg, commander: this.commands, db: this.db.models, client: this.client
+        msg,
+        commander: this.commands,
+        client: this.client,
+        db: this.db.models,
+        data: this.db.data
       }).catch(err => {
         if (err) logger.error(`Failed to run command: ${err.stack}`)
       })

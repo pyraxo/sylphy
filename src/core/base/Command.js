@@ -102,14 +102,11 @@ class Command {
       }
     }
     responder.DM = (response, options = {}, ...args) => {
-      let method = options.method && this.responseMethods[options.method]
-      ? options.method : 'send'
+      let method = options.method && this.responseMethods[options.method] ? options.method : 'send'
       delete options.method
-      let prom = new Promise((resolve, reject) => {
-        this.client.getDMChannel(msg.author.id)
-        .then(channel => construct(method, channel, response, options, args).then(resolve).catch(reject))
-        .catch(reject)
-      })
+      let prom = this.client.getDMChannel(msg.author.id)
+      .then(channel => construct(method, channel, response, options, args))
+
       prom.catch(err => logger.error(`${this.labels[0]} command failed to DM with method ${method} - ${err}`))
       return prom
     }
@@ -158,54 +155,30 @@ class Command {
 
   handle () { return false }
 
-  send (channel, content, file = null, { delay = 0, deleteDelay = 0 } = {}) {
+  async send (channel, content, file = null, { delay = 0, deleteDelay = 0 } = {}) {
     if (delay) {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          this.send(channel, content, file, { delay, deleteDelay })
-          .then(resolve).catch(reject)
-        }, delay)
-      })
+      await Promise.delay(delay)
     }
 
-    let msgRem = ''
-    if (Array.isArray(content)) content = content.join()
-    if (content.length > 2000) {
-      content = content.match(/(.|[\r\n]){1,2000}/g)
-      msgRem = content.shift()
-      content = content.join('')
+    if (Array.isArray(content)) {
+      content = content.join('\n')
     }
+    content = content.match(/(.|[\r\n]){1,2000}/g)
 
-    return new Promise((resolve, reject) => {
-      if (content instanceof Array) content = content.join('\n')
-
-      if (msgRem) {
-        return this.send(channel, msgRem, 0, deleteDelay)
-        .then(msg => resolve(Array.isArray(msg) ? msg.concat(msg) : [msg]))
-        .catch(reject)
-      }
-
-      channel.createMessage(content, file)
-      .then(msg => {
+    try {
+      let replies = await Promise.mapSeries(content, async (c, idx) => {
+        let m = await channel.createMessage(c, idx === 0 ? file : null)
         if (deleteDelay) {
-          setTimeout(() => {
-            msg.delete()
-            .then(() => {
-              if (!msgRem) return resolve(msg)
-            })
-            .catch(reject)
-          }, deleteDelay)
+          setTimeout(() => m.delete(), deleteDelay)
+          m.delete()
         }
-        if (msgRem) {
-          this.send(channel, msgRem, { delay: 0, deleteDelay })
-          .then(msg => resolve(Array.isArray(msg) ? msg.concat(msg) : [msg]))
-          .catch(reject)
-          return
-        }
-        return resolve(msg)
+        return m
       })
-      .catch(reject)
-    })
+      // Might resolve the array directly instead of checking if length is 1 then resolve first msg
+      return replies.length > 1 ? replies : replies[0]
+    } catch (err) {
+      throw err
+    }
   }
 
   // Utility
