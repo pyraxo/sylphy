@@ -1,7 +1,8 @@
 const logger = require('winston')
 const moment = require('moment')
 
-const { Emojis: emoji, Parser } = require('../util')
+const { Emojis: emoji } = require('../util')
+const UsageManager = require('../managers/UsageManager')
 
 class Command {
   constructor (bot, options) {
@@ -9,15 +10,16 @@ class Command {
       throw new Error('Must extend abstract Command')
     }
 
-    this._verify(options)
     this.bot = bot
     this.client = bot.client
+    this.usageParser = new UsageManager()
+    this._verify(options)
 
     this.responseMethods = {
       send: (msg, res) => res,
       reply: (msg, res) => `**${msg.author.username}**, ${res}`,
       success: (msg, res) => `${emoji.success}  |  **${msg.author.username}**, ${res}`,
-      error: (msg, res) => `${emoji.error}  |  **${msg.author.username}**, ` +
+      error: (msg, res) => `${emoji.fail}  |  **${msg.author.username}**, ` +
       res || 'an error occurred! Please try again later.'
     }
 
@@ -36,34 +38,27 @@ class Command {
 
   _verify ({
     name,
-    names = [],
+    aliases = [],
     description = 'No description',
     guildOnly = false,
     adminOnly = false,
     cooldown = 5,
-    examples = []
+    usage = []
   } = {}) {
     this.labels = typeof name === 'string'
-    ? [name].concat(names)
-    : (Array.isArray(names) && names.length > 0 ? names : [])
+    ? [name].concat(aliases)
+    : (Array.isArray(aliases) && aliases.length > 0 ? aliases : [])
 
     if (this.labels.length === 0) {
       throw new Error(`${this.constructor.name} command is not named`)
     }
     this.description = String(description)
-
     this.guildOnly = guildOnly
     this.adminOnly = adminOnly
-
     this.cooldown = cooldown
-    this.examples = examples
 
-    this.usageParser = new Parser({
-      user: msg => msg.author.username,
-      channel: msg => msg.channel.mention,
-      guild: msg => msg.guild.name,
-      int: msg => ~~(Math.random() * 100)
-    }, ['{', '}'])
+    this.usage = usage
+    this.usageParser.load(usage)
   }
 
   generateExample (msg) {
@@ -72,7 +67,7 @@ class Command {
     return ex
   }
 
-  _createResponder ({ msg }) {
+  _createResponder ({ msg, rawArgs }) {
     let responder = (...args) => responder.send(...args)
 
     const construct = (m, c, r, o, a) => {
@@ -126,9 +121,21 @@ class Command {
   }
 
   _execute (container) {
-    const message = container.msg
-    const awaitID = message.channel.id + message.author.id
     const responder = this._createResponder(container)
+
+    this.usageParser.resolve(container.message, container.rawArgs, {
+      prefix: container.settings.prefix,
+      command: container.trigger
+    }).then((args = {}) => {
+      container.args = args
+      if (!this._execCheck(container, responder)) return
+
+      this.handle(container, responder)
+    }).catch(err => responder.format('emoji:fail').send(`Error resolving command: ${err.message || err}`))
+  }
+
+  _execCheck ({ msg, isPrivate }, responder) {
+    const awaitID = msg.channel.id + msg.author.id
 
     if (this.cooldown > 0) {
       if (!this.timers.has(awaitID)) {
@@ -140,20 +147,18 @@ class Command {
             `please cool down! (**${this.cooldown - diff}** seconds left)`,
             null, { delay: 0, deleteDelay: 5000 }
           )
-          return
+          return false
         } else {
           this.timers.delete(awaitID)
           this.timers.set(awaitID, +moment())
         }
       }
     }
-
-    if (this.guildOnly && container.isPrivate) return
-
-    this.handle(container, responder)
+    if (this.guildOnly && isPrivate) return false
+    return true
   }
 
-  handle () { return false }
+  handle () { return true }
 
   async send (channel, content, file = null, { delay = 0, deleteDelay = 0 } = {}) {
     if (delay) {
@@ -166,13 +171,13 @@ class Command {
     content = content.match(/(.|[\r\n]){1,2000}/g)
 
     try {
-      let replies = await Promise.mapSeries(content, async (c, idx) => {
-        let m = await channel.createMessage(c, idx === 0 ? file : null)
-        if (deleteDelay) {
-          setTimeout(() => m.delete(), deleteDelay)
-          m.delete()
-        }
-        return m
+      let replies = await Promise.mapSeries(content, (c, idx) => {
+        return channel.createMessage(c, idx === 0 ? file : null).then(m => {
+          if (deleteDelay) {
+            setTimeout(() => m.delete(), deleteDelay)
+          }
+          return m
+        })
       })
       // Might resolve the array directly instead of checking if length is 1 then resolve first msg
       return replies.length > 1 ? replies : replies[0]
@@ -197,6 +202,10 @@ class Command {
       return isInString(m.user.username.toLowerCase(), query)
     })
     return member ? member.user : null
+  }
+
+  logError (err) {
+    logger.error(`Error running ${this.labels[0]} command: ${err}`)
   }
 }
 

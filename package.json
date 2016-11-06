@@ -28,7 +28,6 @@
     "dotenv-safe": "^2.3.2",
     "eris": "github:abalabahaha/eris#dev",
     "eventemitter3": "^2.0.1",
-    "jsonfile": "^2.3.1",
     "longjohn": "^0.2.11",
     "moment": "^2.13.0",
     "moment-timezone": "^0.5.5",

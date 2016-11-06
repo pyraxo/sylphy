@@ -13,7 +13,7 @@ module.exports = {
     const trigger = msg.content.substring((chk ? prefix : defPrefix).length).split(' ')[0]
     container.trigger = trigger.toLowerCase()
     container.isCommand = commander.has(container.trigger)
-    container.args = msg.content.split(' ').splice(1).filter(v => !!v)
+    container.rawArgs = msg.content.split(' ').splice(1).filter(v => !!v)
     return container
   }
 }

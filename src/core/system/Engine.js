@@ -5,6 +5,7 @@ const requireAll = require('require-all')
 
 const Container = require('./Container')
 const Bridge = require('./Bridge')
+const Cache = require('./Cache')
 const IPC = require('../managers/IPCManager')
 const ModelManager = require('../managers/ModelManager')
 
@@ -17,6 +18,7 @@ class Engine extends EventEmitter {
 
     let ipc = this.ipc = new IPC(bot.shardIDs, bot)
     let db = this.db = new ModelManager(bot.dbOptions)
+    let cache = this.cache = new Cache()
 
     this.commands = new Container(bot)
     this.modules = new Container(bot)
@@ -24,6 +26,7 @@ class Engine extends EventEmitter {
 
     ipc.on('registered', command => this.emit('register:ipc', command))
     db.on('loaded', id => this.emit('register:db', id))
+    cache.on('error', err => logger.error(err))
   }
 
   run () {
@@ -35,6 +38,7 @@ class Engine extends EventEmitter {
         msg,
         commander: this.commands,
         client: this.client,
+        cache: this.cache.client,
         db: this.db.models,
         data: this.db.data
       }).catch(err => {
@@ -66,8 +70,13 @@ class Engine extends EventEmitter {
     for (let module in commands) {
       if (typeof mod === 'string' && module !== mod) continue
       for (let command in commands[module]) {
-        this.commands.attach(module, commands[module][command])
-        count++
+        let cmds = commands[module][command]
+        cmds = Array.isArray(cmds) ? cmds : [cmds]
+
+        cmds.forEach(c => {
+          this.commands.attach(module, c)
+          count++
+        })
       }
     }
     this.emit('loaded:commands', count)
@@ -111,7 +120,7 @@ class Engine extends EventEmitter {
   async reload (type = 'commands', cat = '.') {
     const dir = this.paths[type]
     if (!dir) {
-      const err = new Error(`Cannot reload "${type}": Type not found`)
+      const err = new TypeError(`"${type}" not found`)
       this.emit('error', err)
       throw err
     }
