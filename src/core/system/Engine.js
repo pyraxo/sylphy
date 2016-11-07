@@ -3,9 +3,11 @@ const logger = require('winston')
 const EventEmitter = require('eventemitter3')
 const requireAll = require('require-all')
 
-const Container = require('./Container')
-const Bridge = require('./Bridge')
 const Cache = require('./Cache')
+const Bridge = require('./Bridge')
+const Commander = require('./Commander')
+const Router = require('./Router')
+
 const IPC = require('../managers/IPCManager')
 const ModelManager = require('../managers/ModelManager')
 
@@ -20,8 +22,8 @@ class Engine extends EventEmitter {
     let db = this.db = new ModelManager(bot.dbOptions)
     let cache = this.cache = new Cache()
 
-    this.commands = new Container(bot)
-    this.modules = new Container(bot)
+    this.commands = new Commander(bot)
+    this.modules = new Router(bot.client, bot)
     this.bridge = new Bridge(this.commands)
 
     ipc.on('registered', command => this.emit('register:ipc', command))
@@ -53,7 +55,7 @@ class Engine extends EventEmitter {
     this.loadModels()
     this.loadCommands()
     this.loadMiddleware()
-    this.loadHandlers()
+    this.loadModules()
     this.loadIpc()
   }
 
@@ -67,14 +69,14 @@ class Engine extends EventEmitter {
     this.commands.eject(mod)
 
     const commands = requireAll(this.paths.commands)
-    for (let module in commands) {
-      if (typeof mod === 'string' && module !== mod) continue
-      for (let command in commands[module]) {
-        let cmds = commands[module][command]
+    for (let group in commands) {
+      if (typeof mod === 'string' && group !== mod) continue
+      for (let command in commands[group]) {
+        let cmds = commands[group][command]
         cmds = Array.isArray(cmds) ? cmds : [cmds]
 
         cmds.forEach(c => {
-          this.commands.attach(module, c)
+          this.commands.attach(group, c)
           count++
         })
       }
@@ -95,16 +97,16 @@ class Engine extends EventEmitter {
     this.emit('loaded:middleware', count)
   }
 
-  loadHandlers () {
-    this.modules.eject()
-
+  loadModules () {
     let count = 0
-    const handlers = requireAll(this.paths.handlers)
-    for (let handler in handlers) {
-      this.modules.attach(handler, handlers[handler])
+    const modules = requireAll(this.paths.modules)
+    for (let module in modules) {
+      this.modules.attach(modules, modules[module])
       count++
     }
-    this.emit('loaded:handlers', count)
+    this.modules.setup()
+
+    this.emit('loaded:modules', count)
   }
 
   loadIpc () {

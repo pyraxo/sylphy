@@ -8,7 +8,8 @@ class Credits extends MultiCommand {
       description: 'Currency system',
       cooldown: 5,
       types: {
-        claim: 'claim'
+        claim: 'claim',
+        give: 'give'
       },
       hasMain: true
     })
@@ -65,6 +66,10 @@ class Credits extends MultiCommand {
     } catch (err) {
       throw new Error(`Error claiming credits for ${msg.author.username} (${msg.author.id}): ${err}`)
     }
+  }
+
+  async give ({ msg, cache, db }, responder) {
+
   }
 }
 

@@ -1,21 +1,25 @@
 class Module {
-  constructor (client, options) {
+  constructor (bot, options) {
     if (this.constructor === Module) {
-      throw new Error('Must extend abstract Handler')
+      throw new Error('Must extend abstract Module')
     }
 
     this._verify(options)
-    this.client = client
+    this.bot = bot
   }
 
   _verify ({ name, events = {} }) {
     if (typeof name === 'undefined') throw new Error(`${this.constructor.name} is not named`)
-    if (typeof events !== 'object') throw new Error('Handler event must be an object')
-    if (Object.keys(events).length === 0) throw new Error('Handler must have registered events')
+    if (typeof events !== 'object') throw new Error('Module event must be an object')
+    if (Object.keys(events).length === 0) throw new Error('Module must have registered events')
 
     for (let event in events) {
-      if (typeof event !== 'string' || events[event] !== 'function') {
-        throw new Error(`Handler ${name} has an incompatible event/function`)
+      if (typeof event !== 'string') {
+        throw new TypeError(`Module ${name} has an invalid event`)
+      }
+
+      if (typeof this[events[event]] !== 'function') {
+        throw new TypeError(`Module ${name} has an invalid handler`)
       }
     }
 

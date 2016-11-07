@@ -5,7 +5,7 @@ class Reload extends Command {
   constructor (...args) {
     super(...args, {
       name: 'reload',
-      description: 'Reloads modules, middleware and handlers',
+      description: 'Reloads commands, middleware and modules',
       adminOnly: true,
       cooldown: 0,
       usage: [
