@@ -1,8 +1,8 @@
 module.exports = {
   priority: 2,
-  process: async (container, resolve) => {
+  process: async (container) => {
     const { msg } = container
     container.isPrivate = !msg.guild
-    return resolve(container)
+    return container
   }
 }

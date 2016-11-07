@@ -1,20 +1,22 @@
 const util = require('util')
-const logger = require('winston')
-const { Command } = require('../../core/command')
+const { Command } = require('../../core')
 
 class Reload extends Command {
   constructor (...args) {
     super(...args, {
       name: 'reload',
-      description: 'Reloads modules, middleware and handlers',
+      description: 'Reloads commands, middleware and modules',
       adminOnly: true,
-      cooldown: 0
+      cooldown: 0,
+      usage: [
+        { name: 'type', type: 'string', optional: true },
+        { name: 'group', type: 'string', optional: true }
+      ]
     })
   }
 
   handle ({ args }, responder) {
-    const type = args[0]
-    this.bot.engine.ipc.awaitResponse('reload', { type, group: args[1] })
+    this.bot.engine.ipc.awaitResponse('reload', { type: args.type, group: args.group })
     .then(data => responder.format('code:js').send(data.map(d => util.inspect(d)).join('\n')))
     .catch(err => responder.format('code:js').send(err))
   }

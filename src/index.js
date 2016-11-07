@@ -3,8 +3,7 @@ const cluster = require('cluster')
 const winston = require('winston')
 const winstonCluster = require('winston-cluster')
 
-const Automaton = require('./core/Automaton')
-const ShardManager = require('./core/shards/ShardManager')
+const { Automaton, ShardManager } = require('./core')
 
 if (cluster.isMaster) {
   winstonCluster.bindListeners()

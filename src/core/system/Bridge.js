@@ -28,11 +28,10 @@ class Bridge {
         }
         return resolve(container)
       }
-      this.tasks[idx++](
-        container,
-        container => this.handle(container, idx).catch(reject),
-        reject
-      )
+      this.tasks[idx++](container).then(c => {
+        if (!c) return reject()
+        return this.handle(c, idx).then(resolve).catch(reject)
+      }).catch(reject)
     })
   }
 }

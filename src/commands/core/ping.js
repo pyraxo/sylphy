@@ -1,7 +1,7 @@
 const logger = require('winston')
-const { Command } = require('../../core/command')
+const { Command } = require('../../core')
 
-class PingCommand extends Command {
+class Ping extends Command {
   constructor (...args) {
     super(...args, {
       name: 'ping',
@@ -17,4 +17,4 @@ class PingCommand extends Command {
   }
 }
 
-module.exports = PingCommand
+module.exports = Ping

@@ -1,55 +1,22 @@
-const logger = require('winston')
-const { configDB } = require('../core/system/Database')
-
-const unwrap = (key, obj) => {
-  let multi = configDB.multi()
-  for (let prop in obj) {
-    multi.hset(key, prop, obj[prop])
-  }
-  return multi.execAsync()
-}
-
 module.exports = {
   priority: 5,
-  process: async (container, resolve, reject) => {
-    const { msg, isPrivate } = container
-    if (isPrivate) {
-      container.settings = {
-        prefix: process.env.CLIENT_PREFIX,
-        lang: 'en'
-      }
-      return resolve(container)
-    }
+  process: async container => {
+    const { client, msg, isPrivate, data, db } = container
     try {
-      let settings = await configDB.hgetallAsync(`settings:${msg.channel.guild.id}`)
-      const defaults = {
-        id: msg.channel.guild.id,
-        prefix: process.env.CLIENT_PREFIX,
-        lang: 'en'
+      if (isPrivate) {
+        let channel = await client.getDMChannel(msg.author.id)
+        container.settings = new db.Guild({ id: channel.id })
+        return container
       }
-      if (settings === null) {
-        await unwrap(`settings:${msg.channel.guild.id}`, defaults)
-        container.settings = defaults
-      } else {
-        let altered = false
-        for (let key in defaults) {
-          if (!settings.hasOwnProperty(key)) {
-            settings[key] = defaults[key]
-            altered = true
-          }
-        }
-        if (altered) {
-          await unwrap(`settings:${msg.channel.guild.id}`, settings)
-        }
-        container.settings = settings
+      let settings = data['Guild'].get(msg.guild.id)
+      if (!settings) {
+        settings = new db.Guild({ id: msg.guild.id })
+        await settings.save()
       }
-      return resolve(container)
+      container.settings = settings
+      return container
     } catch (err) {
-      logger.error(
-        `Error adding default keys to ${msg.channel.guild.name} ` +
-        `(${msg.channel.guild.id})'s settings: ${err}`
-      )
-      return reject(err)
+      throw err
     }
   }
 }

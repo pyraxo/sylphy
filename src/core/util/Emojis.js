@@ -3,5 +3,6 @@ module.exports = {
   fail: '❎',
   info: 'ℹ',
   search: '🔍',
-  inbox: '📥'
+  inbox: '📥',
+  credits: '💳'
 }
