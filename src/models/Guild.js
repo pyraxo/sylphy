@@ -1,27 +1,30 @@
 module.exports = function () {
   const type = this.thinky.type
+  const object = type.object
+  const string = type.string
+  const bool = type.boolean
 
   return {
     tableName: 'Guild',
     schema: {
-      id: type.string(),
-      permissions: type.object().schema({
-        roles: type.object().schema({
-          id: type.string(),
-          nodes: type.object()
+      id: string(),
+      permissions: object().schema({
+        roles: object().schema({
+          id: string(),
+          nodes: object()
         }).default({}),
-        channels: type.object().schema({
-          id: type.string(),
-          nodes: type.object()
+        channels: object().schema({
+          id: string(),
+          nodes: object()
         }).default({}),
-        members: type.object().schema({
-          id: type.string(),
-          nodes: type.object()
+        members: object().schema({
+          id: string(),
+          nodes: object()
         }).default({})
       }).default({}),
-      deleted: type.boolean().default(false),
-      prefix: type.string().default(process.env.CLIENT_PREFIX),
-      lang: type.string().default('en')
+      deleted: bool().default(false),
+      prefix: string().default(process.env.CLIENT_PREFIX),
+      lang: string().default('en')
     },
     cache: true
   }

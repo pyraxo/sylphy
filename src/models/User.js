@@ -1,15 +1,18 @@
 module.exports = function () {
   const type = this.thinky.type
+  const string = type.string
+  const number = type.number
+  const bool = type.boolean
 
   return {
     tableName: 'User',
     schema: {
-      id: type.string(),
-      credits: type.number().default(0),
-      exp: type.number().default(0),
-      deleted: type.boolean().default(false),
-      title: type.string().default('Commoner'),
-      description: type.string().default('A simple wandering soul')
+      id: string(),
+      credits: number().default(0),
+      exp: number().default(0),
+      deleted: bool().default(false),
+      title: string().default('Commoner'),
+      description: string().default('A simple wandering soul')
     }
   }
 }
