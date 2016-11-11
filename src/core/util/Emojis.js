@@ -4,5 +4,6 @@ module.exports = {
   info: 'ℹ',
   search: '🔍',
   inbox: '📥',
-  credits: '💳'
+  credits: '💳',
+  atm: '🏧'
 }

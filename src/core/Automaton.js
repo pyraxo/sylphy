@@ -23,7 +23,8 @@ class Automaton extends EventEmitter {
       middleware: options.middleware || path.join(__dirname, '../middleware'),
       modules: options.middleware || path.join(__dirname, '../modules'),
       ipc: options.middleware || path.join(__dirname, '../ipc'),
-      models: options.models || path.join(__dirname, '../models')
+      models: options.models || path.join(__dirname, '../models'),
+      resources: options.resources || path.join(process.cwd(), 'resources')
     }
 
     this.dbOptions = {

@@ -22,7 +22,6 @@
   "author": "pyraxo <pyraxo@pyraxo.moe> (https://pyraxo.moe)",
   "license": "AGPL-3.0",
   "dependencies": {
-    "async": "^2.0.0-rc.6",
     "bluebird": "^3.4.6",
     "chalk": "^1.1.3",
     "dotenv-safe": "^2.3.2",
@@ -31,7 +30,7 @@
     "longjohn": "^0.2.11",
     "moment": "^2.13.0",
     "moment-timezone": "^0.5.5",
-    "node-emoji": "^1.4.1",
+    "node-opus": "^0.2.4",
     "redis": "^2.6.1",
     "require-all": "^2.0.0",
     "superagent": "^2.2.0",

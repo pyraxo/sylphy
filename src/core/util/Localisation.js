@@ -1,24 +1,24 @@
-const fs = require('fs')
-const path = require('path')
+const requireAll = require('require-all')
 const logger = require('winston')
 
 const Collection = require('./Collection')
 
 class Localisation {
-  constructor (filepath, wrapper = '%') {
-    if (typeof filepath !== 'string') throw new TypeError('Invalid locale filepath')
-    this._file = filepath
+  constructor (folderpath, wrapper = '%') {
+    if (typeof folderpath !== 'string') throw new TypeError('Invalid locale filepath')
+    this._folder = folderpath
 
     this._leftWrapper = wrapper[0]
     this._rightWrapper = wrapper[1] || wrapper[0]
   }
 
-  async init () {
+  init () {
     try {
-      const data = await fs.readFile(this._file)
+      const data = requireAll(this._folder)
       this.strings = new Collection().load(data)
     } catch (err) {
-      logger.error(`Locale file ${path.basename(this._file)} could not be loaded - ${err}`)
+      logger.error(`Error loading ${this._folder} locale`)
+      logger.error(err)
     }
   }
 
@@ -42,6 +42,16 @@ class Localisation {
       }
     }
     return str
+  }
+
+  parse (string, locale, options = {}) {
+    return string.split(' ').map(str => {
+      const lw = this._leftWrapper
+      const rw = this._rightWrapper
+      if (!str.startsWith(lw) || !str.endsWith(rw)) return str
+      let key = str.substr(lw.length, str.length - rw.length - lw.length)
+      return this.shift(key, locale, options)
+    }).join(' ')
   }
 }
 

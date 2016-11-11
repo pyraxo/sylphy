@@ -2,7 +2,8 @@ const path = require('path')
 const requireAll = require('require-all')
 
 class UsageManager {
-  constructor () {
+  constructor (bot) {
+    this.bot = bot
     this._resolvers = {}
     const resolvers = requireAll(path.join(__dirname, 'resolvers'))
     for (let resolver in resolvers) {
@@ -24,13 +25,13 @@ class UsageManager {
     this.usage = usage
   }
 
-  async execResolve (type, content, arg) {
+  async execResolve (type, content, arg, msg) {
     const resolver = this._resolvers[type]
     if (typeof resolver === 'undefined') {
       throw new TypeError('Invalid resolver type')
     }
     try {
-      return await resolver.resolve(content, arg)
+      return await resolver.resolve(content, arg, msg, this.bot)
     } catch (err) {
       throw new TypeError(`Invalid input: ${err.message.replace('{arg}', '**`' + (arg.displayName || 'argument') + '`**')}`)
     }
@@ -43,9 +44,9 @@ class UsageManager {
     const requiredArgs = this.minArgs
     const optionalArgs = argsCount - requiredArgs
 
-    if (requiredArgs > optionalArgs) {
+    if (argsCount < requiredArgs) {
       throw new Error([
-        `Insufficient arguments - Expected at least **${this.minArgs}**, saw **${rawArgs.length}**. \n`,
+        `Insufficient arguments - Expected at least **${requiredArgs}**, saw **${argsCount}**. \n`,
         `**Correct usage**: \`${data.prefix}${data.command} ${(this.usage.length
         ? this.usage.map(arg => arg.optional ? `[${arg.displayName}]` : `<${arg.name}>`).join(' ')
         : '')}\``
@@ -88,8 +89,8 @@ class UsageManager {
     return Promise.all(resolves).then(() => args)
   }
 
-  resolveArg (arg, rawArg) {
-    return Promise.all(arg.types.map(type => this.execResolve(type, rawArg, arg)))
+  resolveArg (arg, rawArg, msg) {
+    return Promise.all(arg.types.map(type => this.execResolve(type, rawArg, arg, msg)))
     .then(results => results[0])
   }
 }

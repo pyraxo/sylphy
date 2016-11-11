@@ -24,7 +24,8 @@ module.exports = function () {
       }).default({}),
       deleted: bool().default(false),
       prefix: string().default(process.env.CLIENT_PREFIX),
-      lang: string().default('en')
+      lang: string().default('en'),
+      tz: string().default('utc')
     },
     cache: true
   }
