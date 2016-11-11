@@ -17,8 +17,7 @@ class Localisation {
       const data = requireAll(this._folder)
       this.strings = new Collection().load(data)
     } catch (err) {
-      logger.error(`Error loading ${this._folder} locale`)
-      logger.error(err)
+      logger.error(`Error loading ${this._folder} locale - ${err}`)
     }
   }
 

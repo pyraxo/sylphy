@@ -177,13 +177,13 @@ class Command {
 
   handle () { return true }
 
-  async send (channel, content, file = null, { lang = 'en' } = {}, { delay = 0, deleteDelay = 0, replacements = {} } = {}) {
+  async send (channel, content, file = null, { lang = 'en' } = {}, { delay = 0, deleteDelay = 0, tags = {} } = {}) {
     if (delay) {
       await Promise.delay(delay)
     }
 
     if (Array.isArray(content)) content = content.join('\n')
-    content = this.i18n.parse(content, lang, replacements)
+    content = this.i18n.parse(content, lang, tags)
     content = content.match(/(.|[\r\n]){1,2000}/g)
 
     try {
