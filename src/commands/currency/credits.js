@@ -8,18 +8,18 @@ class Credits extends MultiCommand {
       name: 'credits',
       description: 'Currency system',
       aliases: ['credit'],
-      cooldown: 5,
-      types: {
-        claim: 'claim',
-        give: {
-          usage: [
-            { name: 'member', type: 'member', optional: false },
-            { name: 'amount', type: 'int', optional: false }
-          ]
-        }
-      },
-      hasMain: true
+      cooldown: 5
     })
+
+    this.registerSubcommands({
+      claim: 'claim',
+      give: {
+        usage: [
+          { name: 'member', type: 'member', optional: false },
+          { name: 'amount', type: 'int', optional: false }
+        ]
+      }
+    }, 'default')
   }
 
   async getUser (db, id) {
@@ -108,4 +108,15 @@ class Credits extends MultiCommand {
   }
 }
 
-module.exports = Credits
+class Claim extends Credits {
+  constructor (...args) {
+    super(...args, {
+      name: 'wage',
+      description: 'Claim your credits every 8 hours'
+    })
+
+    this.registerSubcommand('claim')
+  }
+}
+
+module.exports = [ Credits, Claim ]

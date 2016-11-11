@@ -1,4 +1,3 @@
-const util = require('util')
 const { Command } = require('../../core')
 
 class Eval extends Command {
@@ -15,10 +14,10 @@ class Eval extends Command {
     const content = msg.content.split(' ').slice(1).join(' ')
     this.bot.engine.ipc.awaitResponse('evaluate', { content })
     .then(data => responder.format('code:js').send(data.map(d => {
-      const r = d.result
+      const r = d.result || null
       return [
         `PROCESS ${d.id}:`,
-        (r.length > 200 ? r.substr(0, 200) + '...' : r) + '\n'
+        (r && r.length > 200 ? r.substr(0, 200) + '...' : r) + '\n'
       ].join('\n')
     }).join('\n')))
     .catch(err => responder.format('code:js').send(err))

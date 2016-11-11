@@ -5,7 +5,8 @@ class Ping extends Command {
   constructor (...args) {
     super(...args, {
       name: 'ping',
-      description: 'Pong!'
+      description: 'Pong!',
+      hidden: true
     })
   }
 

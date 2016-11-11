@@ -46,14 +46,13 @@ class HelpMenu extends Command {
     ]
     let maxPad = 10
     commander.unique().forEach(c => {
+      if (c.cmd.labels[0] !== c.label || c.cmd.hidden || c.cmd.adminOnly) return
       const module = c.group
       const name = c.cmd.labels[0]
       const desc = c.cmd.description
-      if (!c.cmd.adminOnly) {
-        if (name.length > maxPad) maxPad = name.length
-        if (!Array.isArray(commands[module])) commands[module] = []
-        commands[module].push([name, desc])
-      }
+      if (name.length > maxPad) maxPad = name.length
+      if (!Array.isArray(commands[module])) commands[module] = []
+      commands[module].push([name, desc])
     })
     for (let mod in commands) {
       if (commands[mod].length === 0) continue

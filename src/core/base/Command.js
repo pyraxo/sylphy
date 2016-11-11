@@ -6,7 +6,7 @@ const { Emojis: emoji, Localisation } = require('../util')
 const UsageManager = require('../managers/UsageManager')
 
 class Command {
-  constructor (bot, options) {
+  constructor (bot, options, ...args) {
     if (this.constructor === Command) {
       throw new Error('Cannot instantiate abstract Command')
     }
@@ -14,7 +14,7 @@ class Command {
     this.bot = bot
     this.client = bot.client
     this.resolver = new UsageManager(bot)
-    this._verify(options)
+    this._verify(options, ...args)
 
     this.responseMethods = {
       send: (msg, res) => res,
@@ -43,6 +43,7 @@ class Command {
     description = 'No description',
     guildOnly = false,
     adminOnly = false,
+    hidden = false,
     cooldown = 5,
     usage = []
   } = {}) {
@@ -57,6 +58,7 @@ class Command {
     this.guildOnly = guildOnly
     this.adminOnly = adminOnly
     this.cooldown = cooldown
+    this.hidden = hidden
 
     this.usage = usage
     this.resolver.load(usage)
@@ -151,7 +153,7 @@ class Command {
     })
   }
 
-  _execCheck ({ msg, isPrivate }, responder) {
+  _execCheck ({ msg, isPrivate, admins }, responder) {
     const awaitID = msg.channel.id + msg.author.id
 
     if (this.cooldown > 0) {
@@ -171,6 +173,7 @@ class Command {
         }
       }
     }
+    if (this.adminOnly && !admins.includes(msg.author.id)) return false
     if (this.guildOnly && isPrivate) return false
     return true
   }

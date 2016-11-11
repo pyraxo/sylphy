@@ -10,14 +10,23 @@ class MultiCommand extends Command {
     this.userStates = new Map()
   }
 
-  _verify (options) {
-    super._verify(options)
-    const { types = {}, hasMain = false } = options
-    if (hasMain) types['default'] = 'default'
+  registerSubcommand (type) {
+    if (!type || typeof this.types === 'undefined') return
+    let resolver = this.resolvers[type]
+    if (typeof resolver === 'undefined') throw new Error(`${type} is an invalid type`)
+    this.resolver = resolver.resolver
+    this.type = resolver.name
+  }
+
+  registerSubcommands (types, defaultAction) {
+    if (defaultAction) {
+      if (typeof this[defaultAction] !== 'function') throw new Error(`${defaultAction} is not a function`)
+      types['default'] = defaultAction
+    }
     this.types = types
 
     let usage = { name: 'action', type: 'string', choices: Object.keys(types) }
-    if (hasMain) {
+    if (defaultAction) {
       usage.optional = true
       usage.default = 'default'
     }
@@ -25,7 +34,7 @@ class MultiCommand extends Command {
     this.resolver.load(usage)
 
     this.resolvers = {}
-    if (typeof types !== 'object') throw new Error(`${this.name} menu has invalid states`)
+    if (typeof types !== 'object') throw new Error(`${this.name} menu has invalid types`)
     for (let type in types) {
       let name = type
       let usage = []
@@ -52,18 +61,18 @@ class MultiCommand extends Command {
 
   handle (container, responder) {
     const type = container.args.action
-    const usage = this.resolvers[type]
-    usage.resolver.resolve(container.msg, container.rawArgs.slice(1), {
-      prefix: container.settings.prefix,
-      command: `${container.trigger} ${type}`
+    const resolver = this.type ? this.resolver : this.resolvers[type].resolver
+    const command = this.type ? container.trigger : `${container.trigger} ${type}`
+    resolver.resolve(container.msg, container.rawArgs.slice(1), {
+      prefix: container.settings.prefix, command
     }).then((args = {}) => {
       for (let key in args) {
         container.args[key] = args[key]
       }
       try {
-        this[usage.name](container, responder)
+        this[this.type || this.resolvers[type].name](container, responder)
       } catch (err) {
-        logger.error(`Failed to run ${this.labels[0]} ${type}`)
+        logger.error(`Failed to run ${command}`)
         logger.error(err)
       }
     }).catch(err => {

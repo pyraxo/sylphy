@@ -4,7 +4,7 @@ module.exports = async function evaluate (msg, bot) {
   const content = msg.d ? msg.d.content || true : true
   let resp
   try {
-    resp = eval(String(content).match(/^`?([^`]*)?`?$/)[1])
+    resp = eval(String(content))
   } catch (err) {
     resp = `${err.message}\n\n${err.stack}`
   }

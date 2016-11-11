@@ -34,10 +34,12 @@ class Engine extends EventEmitter {
   run () {
     this.loadAll()
 
+    const admins = process.env.ADMIN_IDS.split(', ')
     this.client.on('messageCreate', msg => {
       if (msg.author.id === this.client.id || msg.author.bot) return
       this.bridge.handle({
         msg,
+        admins,
         commander: this.commands,
         client: this.client,
         cache: this.cache.client,
