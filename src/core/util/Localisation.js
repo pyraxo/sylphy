@@ -10,12 +10,16 @@ class Localisation {
 
     this._leftWrapper = wrapper[0]
     this._rightWrapper = wrapper[1] || wrapper[0]
+
+    this.strings = new Collection()
   }
 
   init () {
     try {
       const data = requireAll(this._folder)
-      this.strings = new Collection().load(data)
+      for (let lang in data) {
+        this.strings.set(lang, data[lang])
+      }
     } catch (err) {
       logger.error(`Error loading ${this._folder} locale - ${err}`)
     }

@@ -63,9 +63,9 @@ class Command {
     this.usage = usage
     this.resolver.load(usage)
 
-    let title = this.labels[0]
-    let locales = this.i18n = new Localisation(path.join(this.bot.paths.resources, 'i18n', title))
-    locales.init()
+    // let title = this.labels[0]
+    // let locales = this.i18n = new Localisation(path.join(this.bot.paths.resources, 'i18n', title))
+    // locales.init()
   }
 
   _createResponder ({ msg, rawArgs, settings, client }) {
@@ -229,7 +229,7 @@ class Command {
     }
 
     if (Array.isArray(content)) content = content.join('\n')
-    content = this.i18n.parse(content, lang, tags)
+    // content = this.i18n.parse(content, lang, tags)
     content = content.match(/(.|[\r\n]){1,2000}/g)
 
     try {
