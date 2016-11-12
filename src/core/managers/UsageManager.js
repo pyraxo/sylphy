@@ -37,7 +37,7 @@ class UsageManager {
     }
   }
 
-  async resolve (message, rawArgs, data) {
+  async resolve (message, rawArgs, data = {}) {
     if (!this.usage.length) return {}
 
     const argsCount = rawArgs.length
@@ -45,12 +45,13 @@ class UsageManager {
     const optionalArgs = argsCount - requiredArgs
 
     if (argsCount < requiredArgs) {
-      throw new Error([
-        `Insufficient arguments - Expected at least **${requiredArgs}**, saw **${argsCount}**. \n`,
-        `**Correct usage**: \`${data.prefix}${data.command} ${(this.usage.length
+      let reply = `Insufficient arguments - Expected at least **${requiredArgs}**, saw **${argsCount}**.`
+      if (data.prefix && data.command) {
+        reply += `\n**Correct usage**: \`${data.prefix}${data.command} ${(this.usage.length
         ? this.usage.map(arg => arg.optional ? `[${arg.displayName}]` : `<${arg.name}>`).join(' ')
         : '')}\``
-      ].join('\n'))
+      }
+      throw new Error(reply)
     }
 
     let args = {}

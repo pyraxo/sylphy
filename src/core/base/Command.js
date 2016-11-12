@@ -68,7 +68,7 @@ class Command {
     locales.init()
   }
 
-  _createResponder ({ msg, rawArgs, settings }) {
+  _createResponder ({ msg, rawArgs, settings, client }) {
     let responder = (...args) => responder.send(...args)
 
     for (let method in this.responseMethods) {
@@ -108,25 +108,60 @@ class Command {
       return responder
     }
 
-    responder.prompt = (prompt, check, options = {}) => {
-      let method = options.method && this.responseMethods[options.method] ? options.method : 'send'
-      delete options.method
-      options.exit = options.exit || 'exit'
+    responder.dialog = async (dialogs, options = {}) => {
+      options.cancel = options.cancel || 'cancel'
+      const args = {}
+      let cancelled = false
+      for (const dialog of dialogs) {
+        let prompt = dialog.prompt
+        const input = new UsageManager(this.bot)
+        input.load(dialog.input)
 
-      // TODO: check if bot has delete perms, if yes send prompt message
-      return responder[method](prompt, options).then(qn => {
-        return this.prompt(msg, check, options, () => {
-          responder.error(
-            options.errorMsg ||
-            `that is an invalid response. Please try again or type **\`${options.exit}\`** to quit.`
-          )
-        }, qn).catch(err => {
-          if (!err) return null
-          throw err.message || err
-        })
-      }, err => {
-        logger.error(`Error sending prompt for ${this.labels[0]} - ${err}`)
-      })
+        if (Array.isArray(prompt) && prompt.length) {
+          prompt[0] = `**${prompt[0]}**`
+        } else {
+          prompt = `**${prompt}**`
+        }
+        let p1 = await responder(prompt)
+        const collector = this.bot.engine.bridge.collect(msg.channel.id, ans => (
+          ans.author.id === msg.author.id
+        ), { time: options.time || 60 })
+
+        const awaitMessage = async (msg) => {
+          let ans
+          try {
+            ans = await collector.next
+            if (ans.content.toLowerCase() === options.cancel) return Promise.reject()
+            try {
+              return await input.resolve(ans, [ans.cleanContent])
+            } catch (err) {
+              let p2 = await responder.format('emoji:fail').send(`${err.message || err}\n\nEnter \`${options.cancel}\` to exit the menu.`)
+              return awaitMessage(p2)
+            }
+          } catch (o) {
+            return Promise.reject(o.reason)
+          } finally {
+            msg.delete()
+            if (msg.channel.permissionsOf(client.user.id).has('manageMessages')) {
+              if (ans) ans.delete()
+            }
+          }
+        }
+
+        try {
+          Object.assign(args, await awaitMessage(p1))
+          collector.stop()
+        } catch (err) {
+          responder.success(err ? `the menu has closed: **${err}**.` : 'you have exited the menu.')
+          collector.stop()
+
+          cancelled = true
+          break
+        }
+      }
+
+      if (cancelled) return Promise.reject()
+      return Promise.resolve(args)
     }
 
     return responder
@@ -203,20 +238,6 @@ class Command {
     } catch (err) {
       throw err
     }
-  }
-
-  prompt (msg, check, opts, failcheck, prompt) {
-    const checkType = typeof check
-    if (checkType === 'undefined') {
-      throw new TypeError('Supplied check is not a function')
-    }
-    const checkMsg = checkType === 'string'
-    ? (msg) => msg.content === check
-    : checkType === 'number'
-    ? (msg) => parseInt(msg.content, 10) === check
-    : () => true
-    const id = msg.channel.id + msg.author.id
-    return this.bot.engine.bridge.collect(id, checkMsg, opts, failcheck, prompt)
   }
 
   // Utility

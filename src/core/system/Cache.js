@@ -43,32 +43,26 @@ class Cache extends EventEmitter {
     client.on('end', () => this.emit('end'))
   }
 
-  async unwrapValues (key, hash) {
+  store (key, value, time) {
+    return this.client.multi().set(key, value).expire(key, time).execAsync()
+  }
+
+  unwrapValues (key, hash) {
     let multi = this.client.multi()
     for (let field in hash) {
       if (!hash.hasOwnProperty(field)) continue
       multi.hset(key, field, hash[field])
     }
-    try {
-      let res = await multi.execAsync()
-      return res
-    } catch (err) {
-      throw err
-    }
+    return multi.execAsync()
   }
 
-  async unwrapScores (key, hash) {
+  unwrapScores (key, hash) {
     let multi = this.client.multi()
     for (let field in hash) {
       if (typeof hash[field] !== 'number') continue
       multi.zadd(key, hash[field], field)
     }
-    try {
-      let res = await multi.execAsync()
-      return res
-    } catch (err) {
-      throw err
-    }
+    return multi.execAsync()
   }
 }
 module.exports = Cache

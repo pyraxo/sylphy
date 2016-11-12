@@ -5,7 +5,6 @@ module.exports = {
   Collection: require('./Collection'),
   Localisation: require('./Localisation'),
   Parser: require('./Parser'),
-  Mixins: require('./Mixins'),
   Emojis: require('./Emojis'),
   padEnd,
   padStart

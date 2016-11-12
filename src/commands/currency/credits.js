@@ -56,13 +56,13 @@ class Credits extends MultiCommand {
   async claim ({ msg, cache, db }, responder) {
     const claimID = 'claims:' + msg.author.id
     try {
-      let res = await cache.pttlAsync(claimID)
+      let res = await cache.client.pttlAsync(claimID)
       switch (res) {
         case -1:
         case -2: {
           const amt = ~~Math.floor(Math.random() * 100) + 50
           await this.topup(db, msg.author.id, amt)
-          await cache.multi().set(claimID, 1).expire(claimID, 28800).execAsync()
+          await cache.store(claimID, 1, 28800)
           responder.format('emoji:credits').reply(`**${amt}** credits have been added to your account.`)
           break
         }
@@ -84,27 +84,34 @@ class Credits extends MultiCommand {
     const code = ~~(Math.random() * 8999) + 1000
     const amt = args.amount
 
-    responder.format('emoji:atm').prompt([
-      `you are transferring **${amt}** credits to **${user.username}#${user.discriminator}**\n`,
-      `__Current balance__: **\`$ ${credits}\`**`,
-      `__Balance after transfer__: **\`$ ${credits - amt}\`**\n`,
-      `➡  |  To confirm, enter **\`${code}\`** to proceed or **\`exit\`** to quit the menu.`
-    ].join('\n'), code, { method: 'reply' }).then(msg => {
-      if (msg === null) return responder.success('you have exited the menu.')
+    responder.format('emoji:atm').dialog([{
+      prompt: [
+        'Credits Transfer\n',
+        `**${msg.author.username}**, you are transferring **${amt}** credits to **${user.username}#${user.discriminator}**\n`,
+        `__Current balance__: **\`$ ${credits}\`**`,
+        `__Balance after transfer__: **\`$ ${credits - amt}\`**\n`,
+        `➡  |  To confirm, enter **\`${code}\`** to proceed or **\`exit\`** to quit the menu.`
+      ],
+      input: { type: 'int', name: 'code' }
+    }]).then(arg => {
+      if (arg.code !== code) {
+        responder.error('you have entered an invalid code. Your credits have **not** been transferred.')
+        return
+      }
       Promise.all([
         this.topup(db, msg.author.id, -amt),
         this.topup(db, user.id, amt)
-      ]).catch(err => {
-        logger.error('Error carrying out transaction')
-        logger.error(`S: ${msg.author.username} (${msg.author.id}) | T: ${user.username} (${user.id})`)
-        logger.error(err)
-      }).then(() => {
+      ]).then(() => {
         responder.format('emoji:credits').reply([
           `you have transferred **${amt}** credits to **${user.username}**'s account.\n`,
           `__Updated balance__: **\`$ ${credits - amt}\`**\n`
         ].join('\n'))
+      }, err => {
+        logger.error('Error carrying out transaction')
+        logger.error(`S: ${msg.author.username} (${msg.author.id}) | T: ${user.username} (${user.id})`)
+        logger.error(err)
       })
-    }).catch(err => responder.error(`the menu has closed: **${err}**.`))
+    })
   }
 }
 

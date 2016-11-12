@@ -4,7 +4,7 @@ const logger = require('winston')
 const Collection = require('./Collection')
 
 class Localisation {
-  constructor (folderpath, wrapper = '%') {
+  constructor (folderpath, wrapper = ['{{', '}}']) {
     if (typeof folderpath !== 'string') throw new TypeError('Invalid locale filepath')
     this._folder = folderpath
 
@@ -33,10 +33,18 @@ class Localisation {
     if (str === null) return str
     if (Object.keys(options).length > 0) {
       for (let tag in options) {
+        let val = options[tag]
+        const parsed = tag.split('.').slice(1)
+        if (parsed.length) {
+          for (let prop of parsed) {
+            if (typeof val[prop] === 'undefined') return
+            val = val[prop]
+          }
+        }
         if (str.indexOf(tag) > -1) {
           str = str.replace(new RegExp(
             `${this._leftWrapper}${tag}${this._rightWrapper}`, 'g'
-          ), options[tag])
+          ), val)
         }
       }
     }

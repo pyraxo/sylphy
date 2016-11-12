@@ -48,6 +48,7 @@ winston.add(winston.transports.DailyRotateFile, {
 winston.cli()
 
 process.on('unhandledRejection', (reason, promise) => {
+  if (typeof reason === 'undefined') return
   winston.error(`Unhandled rejection: ${reason} - ${util.inspect(promise)}`)
 })
 

@@ -41,8 +41,9 @@ class Engine extends EventEmitter {
         msg,
         admins,
         commander: this.commands,
+        modules: this.modules,
         client: this.client,
-        cache: this.cache.client,
+        cache: this.cache,
         db: this.db.models,
         data: this.db.data
       }).catch(err => {

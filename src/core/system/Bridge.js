@@ -1,8 +1,10 @@
+const MessageCollector = require('../util/MessageCollector')
+
 class Bridge {
   constructor (manager) {
     this.manager = manager
     this.tasks = []
-    this.bypass = {}
+    this.collectors = []
   }
 
   push (middleware) {
@@ -15,41 +17,11 @@ class Bridge {
     this.tasks.push(middleware.process)
   }
 
-  collect (id, check, { tries = 10, timeout = 60, exit = 'exit' } = {}, failcheck, prompt) {
-    return new Promise((resolve, reject) => {
-      const rej = setTimeout(() => reject(new Error(`Timeout after ${timeout}s`)), parseInt(timeout, 10) * 1000)
-      if (typeof check !== 'function') check = () => true
-      let times = 0
-      this.bypass[id] = {
-        checkExit: (msg) => msg.content === exit,
-        exit: (msg) => {
-          reject()
-          if (prompt && prompt.delete) prompt.delete()
-          this._cleanup(id, rej, msg)
-        },
-        check,
-        resolve: (msg) => {
-          resolve(msg)
-          if (prompt && prompt.delete) prompt.delete()
-          this._cleanup(id, rej, msg)
-        },
-        reject: (msg) => {
-          times++
-          if (times >= tries) {
-            reject(new Error(`Exceeded ${tries} incorrect tries`))
-            this._cleanup(id, rej, msg)
-            return
-          }
-          if (typeof failcheck === 'function') failcheck(times, tries)
-        }
-      }
-    })
-  }
-
-  _cleanup (id, timer, msg) {
-    delete this.bypass[id]
-    clearTimeout(timer)
-    msg.delete()
+  collect (channel, filter, { tries = 10, time = 60 }) {
+    let collector = new MessageCollector(channel, filter, { maxMatches: 2, max: tries })
+    this.collectors.push(collector)
+    collector.on('end', col => this.collectors.splice(this.collectors.indexOf(col), 1))
+    return collector
   }
 
   destroy () {
@@ -58,15 +30,10 @@ class Bridge {
 
   handle (container, idx = 0) {
     const { msg } = container
-    const bypass = this.bypass[msg.channel.id + msg.author.id]
     return new Promise((resolve, reject) => {
-      if (typeof bypass !== 'undefined') {
-        if (bypass.checkExit(msg)) {
-          bypass.exit(msg)
-        } else {
-          bypass[bypass.check(msg) ? 'resolve' : 'reject'](msg)
-        }
-        return resolve(container)
+      for (let collector of this.collectors) {
+        let res = collector.passMessage(msg)
+        if (res) return
       }
       if (idx === this.tasks.length) {
         try {
