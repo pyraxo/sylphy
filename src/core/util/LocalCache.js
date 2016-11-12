@@ -59,7 +59,7 @@ class LocalCache extends Collection {
 
   refresh (key) {
     this.clearTimer(key)
-    const timer = setTimeout(() => this.delete(key), this.ttl)
+    const timer = setTimeout(() => this.clear(key), this.ttl)
     this.timers.set(key, { timer, expiry: +moment() + this.ttl })
   }
 

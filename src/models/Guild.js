@@ -27,6 +27,7 @@ module.exports = function () {
       lang: string().default('en'),
       tz: string().default('utc')
     },
-    cache: true
+    cache: true,
+    expiry: 10
   }
 }

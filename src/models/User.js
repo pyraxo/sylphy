@@ -15,6 +15,6 @@ module.exports = function () {
       description: string().default('A simple wandering soul')
     },
     cache: true,
-    expiryTime: 300 * 1000
+    expiry: 300 * 1000
   }
 }
