@@ -12,8 +12,7 @@ class Guildmaster extends Module {
     })
   }
 
-  newGuild (msg) {
-    const guild = msg.guild
+  newGuild (guild) {
     logger.info(`New guild added: ${guild.name} (${guild.id})`)
     logger.info(`${chalk.cyan.bold('U:')} ${guild.members.size} | ${chalk.cyan.bold('S:')} ${guild.shard.id}`)
   }
