@@ -72,7 +72,7 @@ class Command {
     let responder = (...args) => responder.send(...args)
 
     for (let method in this.responseMethods) {
-      responder[method] = (response, options = {}, ...args) => {
+      responder[method] = (response = '', options = {}, ...args) => {
         if (Array.isArray(response)) response = response.join('\n')
         response = this.responseMethods[method](msg, response)
         const formats = responder._formats
@@ -103,9 +103,18 @@ class Command {
       return responder
     }
 
-    responder.file = (attachment, filename) => {
-      responder._file = { attachment, filename }
+    responder.file = (file, name) => {
+      responder._file = { file, name }
       return responder
+    }
+
+    responder.upload = (file, name) => {
+      let fileObj = { file, name }
+      if ((!file || !name) && responder._file) {
+        file = responder._file
+        delete responder._file
+      }
+      return this.client.createMessage(msg.channel.id, '', fileObj)
     }
 
     responder.dialog = async (dialogs, options = {}) => {
@@ -224,18 +233,17 @@ class Command {
     content = content.match(/(.|[\r\n]){1,2000}/g)
 
     try {
+      if (!content || !content.length) throw new Error('Cannot send empty string')
       let replies = await Promise.mapSeries(content, (c, idx) => {
         return channel.createMessage(c, idx === 0 ? file : null).then(m => {
-          if (deleteDelay) {
-            setTimeout(() => m.delete(), deleteDelay)
-          }
+          if (deleteDelay) setTimeout(() => m.delete(), deleteDelay)
           return m
         })
       })
       // TODO: resolve the array directly instead of checking if length is 1 then resolve first msg
       return replies.length > 1 ? replies : replies[0]
     } catch (err) {
-      throw err
+      logger.error(`Error sending message to ${channel.name} (${channel.id}) - ${err}`)
     }
   }
 

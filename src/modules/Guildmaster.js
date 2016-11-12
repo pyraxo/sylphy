@@ -5,7 +5,7 @@ const { Module } = require('../core')
 class Guildmaster extends Module {
   constructor (...args) {
     super(...args, {
-      name: 'Guilds',
+      name: 'guilds',
       events: {
         guildCreate: 'newGuild'
       }

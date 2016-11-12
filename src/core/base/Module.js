@@ -11,7 +11,6 @@ class Module {
   _verify ({ name, events = {} }) {
     if (typeof name === 'undefined') throw new Error(`${this.constructor.name} is not named`)
     if (typeof events !== 'object') throw new Error('Module event must be an object')
-    if (Object.keys(events).length === 0) throw new Error('Module must have registered events')
 
     for (let event in events) {
       if (typeof event !== 'string') {

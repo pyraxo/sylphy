@@ -10,16 +10,18 @@ class LocalCache extends Collection {
     this.model = model
     this.timers = new Collection()
 
-    model.changes().then(feed => {
-      feed.each((err, doc) => {
-        if (err) return logger.error(err)
-        if (doc.isSaved() === false) {
-          this.delete(doc.id)
-        } else {
-          this.store(doc.id, doc)
-        }
-      })
-    }).error(logger.error)
+    if (model) {
+      model.changes().then(feed => {
+        feed.each((err, doc) => {
+          if (err) return logger.error(err)
+          if (doc.isSaved() === false) {
+            this.delete(doc.id)
+          } else {
+            this.store(doc.id, doc)
+          }
+        })
+      }).error(logger.error)
+    }
   }
 
   async fetch (key) {
