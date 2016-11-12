@@ -27,7 +27,15 @@ class LocalCache extends Collection {
   async fetch (key) {
     let value = this.get(key)
     if (typeof value === 'undefined' && this.model) {
-      value = await this.model.get(key).run()
+      try {
+        value = await this.model.get(key).run()
+      } catch (err) {
+        if (err.name === 'DocumentNotFoundError') {
+          const Model = this.model
+          value = new Model({ id: key })
+          await value.save()
+        }
+      }
       this.store(key, value)
     }
     return value
