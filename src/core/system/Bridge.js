@@ -17,8 +17,8 @@ class Bridge {
     this.tasks.push(middleware.process)
   }
 
-  collect (channel, filter, { tries = 10, time = 60 }) {
-    let collector = new MessageCollector(channel, filter, { maxMatches: 2, max: tries })
+  collect (channel, filter, { tries = 10, time = 60, matches = 10 }) {
+    let collector = new MessageCollector(channel, filter, { maxMatches: matches, max: tries, time })
     this.collectors.push(collector)
     collector.on('end', col => this.collectors.splice(this.collectors.indexOf(col), 1))
     return collector

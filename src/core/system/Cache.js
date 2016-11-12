@@ -32,9 +32,7 @@ class Cache extends EventEmitter {
     }
 
     let pass = opts.password || process.env.REDIS_PASS
-    if (pass) {
-      options.password = pass
-    }
+    if (pass) options.password = pass
 
     let client = this.client = redis.createClient(options)
 

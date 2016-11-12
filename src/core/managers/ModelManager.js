@@ -2,7 +2,7 @@ const Thinky = require('thinky')
 const requireAll = require('require-all')
 const EventEmitter = require('eventemitter3')
 
-const { Collection } = require('../util')
+const { LocalCache } = require('../util')
 
 class ModelManager extends EventEmitter {
   constructor (options) {
@@ -22,7 +22,7 @@ class ModelManager extends EventEmitter {
     }
   }
 
-  load ({ tableName, schema, options = {}, cache = false }) {
+  load ({ tableName, schema, options = {}, cache = false, expiry }) {
     if (typeof tableName !== 'string') {
       this.emit('error', TypeError('Model found with invalid name'))
       return
@@ -43,32 +43,9 @@ class ModelManager extends EventEmitter {
     const modelID = tableName
     const model = this.thinky.createModel(modelID, schema, options)
 
-    if (cache) {
-      this.data[tableName] = new Collection()
-
-      model.changes().then(feed => {
-        feed.each((err, doc) => {
-          if (err) {
-            this.emit('error', err)
-            return
-          }
-          if (doc.isSaved() === false) {
-            this.data[tableName].delete(doc.id)
-          } else {
-            this.data[tableName].set(doc.id, doc)
-          }
-        })
-      }).error(err => this.emit('error', err))
-
-      model.run().then(models => {
-        models.forEach(m => this.data[tableName].set(m.id, m))
-        this.models[modelID] = model
-        this.emit('loaded', modelID)
-      }).catch(err => this.emit('error', err))
-    } else {
-      this.models[modelID] = model
-      this.emit('loaded', modelID)
-    }
+    this.models[modelID] = model
+    if (cache) this.data[modelID] = new LocalCache(model, expiry)
+    this.emit('loaded', modelID)
   }
 }
 

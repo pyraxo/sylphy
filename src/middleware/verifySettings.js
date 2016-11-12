@@ -8,7 +8,7 @@ module.exports = {
         container.settings = new db.Guild({ id: channel.id })
         return container
       }
-      let settings = data['Guild'].get(msg.guild.id)
+      let settings = await data.Guild.fetch(msg.guild.id)
       if (!settings) {
         settings = new db.Guild({ id: msg.guild.id })
         await settings.save()

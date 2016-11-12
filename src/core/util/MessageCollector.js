@@ -25,7 +25,7 @@ class MessageCollector extends EventEmitter {
       this.collected.set(message.id, message)
       this.emit('message', message, this)
       if (this.collected.size >= (this.options.maxMatches || Infinity)) {
-        this.stop(`Exceeded ${this.options.maxMatches} tries`)
+        this.stop(`Exceeded ${this.options.maxMatches} matches`)
       } else if (this.options.max && this.collected.size === (this.options.max || Infinity)) {
         this.stop(`Exceeded ${this.options.max} tries`)
       }

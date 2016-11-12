@@ -154,7 +154,6 @@ class Command {
         } catch (err) {
           responder.success(err ? `the menu has closed: **${err}**.` : 'you have exited the menu.')
           collector.stop()
-
           cancelled = true
           break
         }

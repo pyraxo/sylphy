@@ -22,12 +22,13 @@ class Credits extends MultiCommand {
     }, 'default')
   }
 
-  async getUser (db, id) {
+  async getUser (data, id) {
     try {
-      return await db.User.get(id).run()
+      return await data.User.fetch(id)
     } catch (err) {
       if (err.name === 'DocumentNotFoundError') {
-        let user = new db.User({ id })
+        const Model = data.User.model
+        let user = new Model({ id })
         await user.save()
         return user
       }
@@ -35,9 +36,9 @@ class Credits extends MultiCommand {
     }
   }
 
-  async topup (db, id, amt) {
+  async topup (data, id, amt) {
     try {
-      let user = await this.getUser(db, id)
+      let user = await this.getUser(data, id)
       user.credits += amt
       await user.save()
       return user
@@ -46,14 +47,14 @@ class Credits extends MultiCommand {
     }
   }
 
-  default ({ msg, db }, responder) {
-    this.getUser(db, msg.author.id).then(user => {
+  default ({ msg, data }, responder) {
+    this.getUser(data, msg.author.id).then(user => {
       responder.format('emoji:credits')
       .send(`${msg.author.username}'s account balance: **\`${user.credits}\`** credits.`)
     }).catch(this.logError)
   }
 
-  async claim ({ msg, cache, db }, responder) {
+  async claim ({ msg, cache, data }, responder) {
     const claimID = 'claims:' + msg.author.id
     try {
       let res = await cache.client.pttlAsync(claimID)
@@ -61,7 +62,7 @@ class Credits extends MultiCommand {
         case -1:
         case -2: {
           const amt = ~~Math.floor(Math.random() * 100) + 50
-          await this.topup(db, msg.author.id, amt)
+          await this.topup(data, msg.author.id, amt)
           await cache.store(claimID, 1, 28800)
           responder.format('emoji:credits').reply(`**${amt}** credits have been added to your account.`)
           break
@@ -78,8 +79,8 @@ class Credits extends MultiCommand {
     }
   }
 
-  async give ({ msg, cache, db, args }, responder) {
-    const credits = (await this.getUser(db, msg.author.id)).credits
+  async give ({ msg, cache, data, args }, responder) {
+    const credits = (await this.getUser(data, msg.author.id)).credits
     const user = args.member.user
     const code = ~~(Math.random() * 8999) + 1000
     const amt = args.amount
@@ -99,8 +100,8 @@ class Credits extends MultiCommand {
         return
       }
       Promise.all([
-        this.topup(db, msg.author.id, -amt),
-        this.topup(db, user.id, amt)
+        this.topup(data, msg.author.id, -amt),
+        this.topup(data, user.id, amt)
       ]).then(() => {
         responder.format('emoji:credits').reply([
           `you have transferred **${amt}** credits to **${user.username}**'s account.\n`,

@@ -13,6 +13,8 @@ module.exports = function () {
       deleted: bool().default(false),
       title: string().default('Commoner'),
       description: string().default('A simple wandering soul')
-    }
+    },
+    cache: true,
+    expiryTime: 300 * 1000
   }
 }
