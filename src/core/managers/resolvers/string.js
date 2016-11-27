@@ -1,22 +1,32 @@
 module.exports = {
   type: 'string',
-  resolve: async (content, { choices = [], categories = [], max = Infinity, min = 0, optional = false }) => {
+  resolve: (content, { choices = [], categories = [], max = Infinity, min = 0, optional = false }) => {
     if (typeof content === 'undefined') {
-      if (!optional) throw new Error('{arg} must be a string')
-      return content
+      if (!optional) {
+        return Promise.reject('string.NOT_STRING')
+      }
+      return Promise.resolve(content)
     }
     const num = content.length
-    if (num > max) throw new RangeError(`{arg} length cannot be more than ${max}`)
-    if (num < min) throw new RangeError(`{arg} length cannot be less than ${min}`)
+    if (num > max) {
+      return Promise.reject('string.MAX')
+    }
+    if (num < min) {
+      return Promise.reject('string.MIN')
+    }
     if (choices.length && !choices.includes(content)) {
-      throw new Error(`{arg} must be one of the following: ${choices.map(c => '`' + c + '`').join(', ')}`)
+      return Promise.reject({
+        message: `{{%resolver.string.ONE_OF}}: ${choices.map(c => '`' + c + '`').join(', ')}`
+      })
     }
     if (categories.length) {
       for (const [ cat, choice ] of Object.entries(categories)) {
-        if (choice.includes(content)) return cat
+        if (choice.includes(content)) return Promise.resolve(cat)
       }
-      throw new Error(`{arg} must be one of: ${Object.keys(categories).map(c => '`' + c + '`').join(', ')}`)
+      return Promise.reject({
+        message: `{{%resolver.string.ONE_OF}}: ${Object.keys(categories).map(c => '`' + c + '`').join(', ')}`
+      })
     }
-    return content
+    return Promise.resolve(content)
   }
 }

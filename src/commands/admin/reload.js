@@ -10,13 +10,14 @@ class Reload extends Command {
       cooldown: 0,
       usage: [
         { name: 'type', type: 'string', optional: true },
-        { name: 'group', type: 'string', optional: true }
+        { name: 'group', type: 'string', optional: true },
+        { name: 'file', type: 'string', optional: true }
       ]
     })
   }
 
-  handle ({ args }, responder) {
-    this.bot.engine.ipc.awaitResponse('reload', { type: args.type, group: args.group })
+  async handle ({ args }, responder) {
+    this.bot.engine.ipc.awaitResponse('reload', { type: args.type, group: args.group, file: args.file })
     .then(data => responder.format('code:js').send(data.map(d => util.inspect(d)).join('\n')))
     .catch(err => responder.format('code:js').send(err))
   }

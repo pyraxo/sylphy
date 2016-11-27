@@ -1,0 +1,44 @@
+{
+  "CHECK_PMS": "check your PMs!",
+  "ERROR": "an error has occurred! Please try again later.",
+  "COOLDOWN": "please cool down! ({{time}} seconds left)",
+  "menus": {
+    "EXIT": "Enter {{cancel}} to exit the menu.",
+    "ERRORED": "the menu has closed:",
+    "EXITED": "you have exited the menu."
+  },
+  "collector": {
+    "timeout": "Timeout after {{time}}s",
+    "max": "Exceeded {{max}} tries",
+    "maxMatches": "Exceeded {{maxMatches}} matches"
+  },
+  "resolver": {
+    "INSUFFICIENT_ARGS": "Insufficient arguments - Expected at least {{requiredArgs}}, saw {{argsCount}}",
+    "CORRECT_USAGE": "Correct usage",
+    "NO_END_QUOTE": "missing end quote",
+    "member": {
+      "NOT_FOUND": "member not found"
+    },
+    "command": {
+      "NOT_FOUND": "command not found"
+    },
+    "string": {
+      "NOT_STRING": "{{arg}} must be a string",
+      "MAX": "{{arg}} length cannot be more than {{max}}",
+      "MIN": "{{arg}} length cannot be less than {{min}}",
+      "ONE_OF": "{{arg}} must be one of the following"
+    },
+    "list": {
+      "MAX": "{{arg}} length cannot contain more than {{max}} items",
+      "MIN": "{{arg}} length cannot contain less than {{min}} items",
+      "MAX_LENGTH": "{{arg}} cannot contain items longer than {{maxLength}}",
+      "MIN_LENGTH": "{{arg}} cannot contain items longer than {{minLength}}",
+      "DUPES": "{{arg}} cannot contain duplicate values"
+    },
+    "int": {
+      "NOT_INT": "{{arg}} is not an integer",
+      "MAX": "{{arg}} must be <= than {{max}}",
+      "MIN": "{{arg}} must be >= than {{min}}"
+    }
+  }
+}

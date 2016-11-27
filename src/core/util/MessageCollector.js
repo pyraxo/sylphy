@@ -11,7 +11,7 @@ class MessageCollector extends EventEmitter {
     this.collected = new Collection()
 
     this.listener = message => this.verify(message)
-    if (options.time) setTimeout(() => this.stop(`Timeout after ${options.time}s`), options.time * 1000)
+    if (options.time) setTimeout(() => this.stop({ reason: 'timeout', arg: options.time }), options.time * 1000)
   }
 
   passMessage (message) {
@@ -25,9 +25,9 @@ class MessageCollector extends EventEmitter {
       this.collected.set(message.id, message)
       this.emit('message', message, this)
       if (this.collected.size >= (this.options.maxMatches || Infinity)) {
-        this.stop(`Exceeded ${this.options.maxMatches} matches`)
+        this.stop({ reason: 'maxMatches', arg: this.options.maxMatches })
       } else if (this.options.max && this.collected.size === (this.options.max || Infinity)) {
-        this.stop(`Exceeded ${this.options.max} tries`)
+        this.stop({ reason: 'max', arg: this.options.max })
       }
       return true
     }
@@ -37,7 +37,7 @@ class MessageCollector extends EventEmitter {
   get next () {
     return new Promise((resolve, reject) => {
       if (this.ended) {
-        reject({ collected: this.collected, reason: this.ended })
+        reject({ collected: this.collected, reason: this.ended.reason, arg: this.ended.arg })
         return
       }
 
@@ -61,10 +61,10 @@ class MessageCollector extends EventEmitter {
     })
   }
 
-  stop (reason = 'user') {
+  stop ({ reason = 'user', arg } = {}) {
     if (this.ended) return
-    this.ended = reason
-    this.emit('end', { collected: this.collected, reason })
+    this.ended = { reason, arg }
+    this.emit('end', { collected: this.collected, reason, arg })
   }
 }
 

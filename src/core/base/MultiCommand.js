@@ -10,7 +10,7 @@ class MultiCommand extends Command {
     this.userStates = new Map()
   }
 
-  registerSubcommand (type) {
+  registerSubcommand (type, localeKey) {
     if (!type || typeof this.types === 'undefined') return
     let resolver = this.resolvers[type]
     if (typeof resolver === 'undefined') throw new Error(`${type} is an invalid type`)
@@ -59,25 +59,24 @@ class MultiCommand extends Command {
     }
   }
 
-  handle (container, responder) {
+  async handle (container, responder) {
     const type = container.args.action
     const resolver = this.type ? this.resolver : this.resolvers[type].resolver
     const command = this.type ? container.trigger : `${container.trigger} ${type}`
-    resolver.resolve(container.msg, container.rawArgs.slice(1), {
-      prefix: container.settings.prefix, command
-    }).then((args = {}) => {
-      for (let key in args) {
-        container.args[key] = args[key]
-      }
+    try {
+      const args = await resolver.resolve(container.msg, container.rawArgs.slice(this.type ? 0 : 1), {
+        prefix: container.settings.prefix, command
+      })
+      Object.assign(container.args, args)
       try {
         this[this.type || this.resolvers[type].name](container, responder)
       } catch (err) {
         logger.error(`Failed to run ${command}`)
         logger.error(err)
       }
-    }).catch(err => {
-      return responder.format('emoji:fail').send(err.message || err)
-    })
+    } catch (err) {
+      return responder.error(err.message || err.err || err, err)
+    }
   }
 }
 

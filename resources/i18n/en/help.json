@@ -1,0 +1,15 @@
+{
+  "header_1": "To run a command, invoke it with {{prefix}}",
+  "header_1_alt": "or the default {{defaultPrefix}}",
+  "header_2": "To get more help on a command, call {{helpCommand}}",
+  "header_3": "For example: {{exampleCommand}}",
+  "definitions": {
+    "usage": "Usage",
+    "aliases": "Aliases"
+  },
+  "footer_group": [
+    "`[]` refers to __**optional**__ arguments",
+    "`<>` refers to __**required**__ arguments",
+    "Omit `<>` or `[]` when invoking a command"
+  ]
+}

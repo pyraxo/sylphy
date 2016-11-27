@@ -1,10 +1,16 @@
 module.exports = {
   type: 'int',
-  resolve: async (content, { min = 0, max = Infinity }) => {
+  resolve: (content, { min = 0, max = Infinity }) => {
     const num = parseInt(content, 10)
-    if (isNaN(num)) throw new Error('{arg} is not an integer')
-    if (num > max) throw new RangeError(`{arg} must be <= than ${max}`)
-    if (num < min) throw new RangeError(`{arg} must be >= than ${min}`)
-    return num
+    if (isNaN(num)) {
+      return Promise.reject('int.NOT_INT')
+    }
+    if (num > max) {
+      return Promise.reject('int.MAX')
+    }
+    if (num < min) {
+      return Promise.reject('int.MIN')
+    }
+    return Promise.resolve(num)
   }
 }

@@ -11,8 +11,7 @@ class ModelManager extends EventEmitter {
     this.data = {}
 
     const thinky = this.thinky = new Thinky(options)
-    thinky.dbReady()
-    .then(() => this.emit('ready'))
+    thinky.dbReady().then(() => this.emit('ready'))
   }
 
   loadFolder (folder) {
@@ -20,9 +19,11 @@ class ModelManager extends EventEmitter {
     for (let model in models) {
       this.load(models[model].call(this))
     }
+    this.relate(models)
   }
 
-  load ({ tableName, schema, options = {}, cache = false, expiry }) {
+  load (model) {
+    const { tableName, schema, options = {}, cache = false, expiry } = model
     if (typeof tableName !== 'string') {
       this.emit('error', TypeError('Model found with invalid name'))
       return
@@ -41,11 +42,26 @@ class ModelManager extends EventEmitter {
     }
 
     const modelID = tableName
-    const model = this.thinky.createModel(modelID, schema, options)
+    const Model = this.thinky.createModel(modelID, schema, options)
 
-    this.models[modelID] = model
-    if (cache) this.data[modelID] = new LocalCache(model, expiry)
+    this.models[modelID] = Model
+    if (cache) {
+      this.data[modelID] = new LocalCache(Model, model, expiry)
+    }
     this.emit('loaded', modelID)
+  }
+
+  relate (models) {
+    for (let modelID in models) {
+      let { relations } = models[modelID]
+      if (typeof relations === 'undefined') continue
+      for (let relation in relations) {
+        const Model = this.models[modelID]
+        const Sub = this.models[relations[relation][0]]
+        if (!Model || !Sub) continue
+        Model[relation](...relations[relation].slice(1))
+      }
+    }
   }
 }
 

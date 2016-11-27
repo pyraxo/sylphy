@@ -12,36 +12,31 @@ class HelpMenu extends Command {
     })
   }
 
-  handle ({ msg, commander, settings, args }, responder) {
+  async handle ({ msg, commander, settings, args }, responder) {
     const prefix = settings.prefix
     if (args.command) {
       const command = args.command.cmd
+      const name = command.labels[0]
+      const description = this.i18n.get(`descriptions.${name}`, settings.lang) || command.description
       let reply = [
-        `**\`${prefix}${command.labels[0]}\`**  __\`${command.description}\`__\n`,
-        `**Usage**: ${prefix}${command.labels[0]} ${Object.keys(command.resolver.usage).map(usage => {
+        `**\`${prefix}${name}\`**  __\`${description}\`__\n`,
+        `**{{definitions.usage}}**: ${prefix}${command.labels[0]} ${Object.keys(command.resolver.usage).map(usage => {
           usage = command.resolver.usage[usage]
           return usage.optional ? `[${usage.displayName}]` : `<${usage.displayName}>`
         }).join(' ')}`
       ]
       if (command.labels.length > 1) {
-        reply.push(`\n**Aliases**: \`${command.labels.slice(1).join(' ')}\``)
+        reply.push(`\n**{{definitions.aliases}}**: \`${command.labels.slice(1).join(' ')}\``)
       }
-      reply.push(
-        '\n`[]` refers to __**optional**__ arguments',
-        '`<>` refers to __**required**__ arguments',
-        'Omit `<>` or `[]` when invoking a command'
-      )
+      reply.push('\n{{footer_group}}')
       responder.send(reply.join('\n'))
       return
     }
     let commands = {}
     let reply = [
-      `To run a command, invoke it with \`${prefix}\` ${
-        prefix === process.env.CLIENT_PREFIX
-        ? `or the default ${process.env.CLIENT_PREFIX}` : ''
-      }`,
-      `To get more help on a command, call \`${prefix}help <command>\``,
-      `For example: \`${prefix}help credits\``,
+      `{{header_1}} ${prefix === process.env.CLIENT_PREFIX ? '' : '{{header_1_alt}}'}`,
+      '{{header_2}}',
+      '{{header_3}}',
       '**```glsl'
     ]
     let maxPad = 10
@@ -62,7 +57,13 @@ class HelpMenu extends Command {
       ].join('\n'))
     }
     reply.push('```**')
-    responder.send(reply.join('\n'), { DM: true })
+    responder.send(reply.join('\n'), {
+      DM: true,
+      prefix: `\`${prefix}\``,
+      defaultPrefix: `\`${process.env.CLIENT_PREFIX}\``,
+      helpCommand: `\`${prefix}help <command>\``,
+      exampleCommand: `\`${prefix}help credits\``
+    })
     .then(m => {
       if (msg.guild) {
         responder.format('emoji:inbox').reply('check your PMs!')

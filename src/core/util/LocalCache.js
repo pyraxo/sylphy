@@ -3,11 +3,10 @@ const moment = require('moment')
 const Collection = require('./Collection')
 
 class LocalCache extends Collection {
-  constructor (model, ttl = 3600 * 1000) {
+  constructor (model, ttl = 3600) {
     super()
 
-    this.ttl = ttl
-    this.model = model
+    this.ttl = ttl * 1000
     this.timers = new Collection()
 
     if (model) {
@@ -21,6 +20,7 @@ class LocalCache extends Collection {
           }
         })
       }).error(logger.error)
+      this.model = model
     }
   }
 
@@ -41,10 +41,36 @@ class LocalCache extends Collection {
     return value
   }
 
+  async fetchJoin (key, options) {
+    let value = await this.fetch(key)
+    for (let type in options) {
+      if (options[type] === true && typeof value[type] === 'undefined') {
+        try {
+          if (!this.model) return
+          value = await this.model.get(key).getJoin(options).run()
+        } catch (err) {
+          if (err.name === 'DocumentNotFoundError') {
+            const Model = this.model
+            value = new Model({ id: key })
+            await value.save()
+          }
+        }
+        this.store(key, value)
+        return value
+      }
+    }
+    return value
+  }
+
   async update (key, newValue) {
     let oldValue = await this.fetch(key)
     this.store(key, newValue)
     return oldValue
+  }
+
+  clearAll () {
+    this.clear()
+    this.timers.clear()
   }
 
   clear (key) {

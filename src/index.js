@@ -14,12 +14,11 @@ if (cluster.isMaster) {
   shardManager.createShards()
 } else {
   winstonCluster.bindTransport()
-  const processCount = parseInt(process.env.CLIENT_PROCESSES, 10)
   const processShards = parseInt(process.env.CLIENT_SHARDS_PER_PROCESS, 10)
-
   const firstShardID = parseInt(process.env.BASE_SHARD_ID, 10) * processShards
   const lastShardID = firstShardID + processShards - 1
-  const maxShards = processCount * processShards
+  const maxShards = parseInt(process.env.CLIENT_PROCESSES, 10) * processShards
+
   const automaton = new Automaton({ firstShardID, lastShardID, maxShards })
 
   automaton.once('ready', () => {

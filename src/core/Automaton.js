@@ -43,7 +43,7 @@ class Automaton extends EventEmitter {
   }
 
   loadClient () {
-    let client = new Client(process.env.CLIENT_TOKEN, {
+    let client = this.client = new Client(process.env.CLIENT_TOKEN, {
       messageLimit: 0,
       getAllUsers: true,
       disableEveryone: true,
@@ -62,26 +62,19 @@ class Automaton extends EventEmitter {
     client.on('error', err => this.emit('error', err))
     client.on('shardReady', id => this.emit('shardReady', id))
     client.on('disconnect', () => this.emit('disconnect'))
-
-    this.client = client
   }
 
   loadEngine () {
-    let engine = new Engine(this)
+    let engine = this.engine = new Engine(this)
 
     engine.on('loaded:commands', count => logger.info(`Loaded ${count} commands`))
     engine.on('loaded:middleware', count => logger.info(`Loaded ${count} middleware`))
     engine.on('loaded:modules', count => logger.info(`Loaded ${count} modules`))
 
-    engine.on('reload:commands', count => logger.info(`Reloading ${count} commands`))
-    engine.on('reload:middleware', count => logger.info(`Reloading ${count} middleware`))
-    engine.on('reload:modules', count => logger.info(`Reloading ${count} modules`))
-
-    engine.on('register:ipc', command => logger.info(`Registering IPC command '${command}'`))
-    engine.on('register:db', id => logger.info(`Registering DB model '${id}'`))
+    engine.on('register:ipc', command => logger.debug(`Registering IPC command '${command}'`))
+    engine.on('register:db', id => logger.debug(`Registering DB model '${id}'`))
 
     engine.run()
-    this.engine = engine
   }
 
   run () {

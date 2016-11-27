@@ -42,7 +42,7 @@ class Cache extends EventEmitter {
   }
 
   store (key, value, time) {
-    return this.client.multi().set(key, value).expire(key, time).execAsync()
+    return this.client.setexAsync(key, time, value)
   }
 
   unwrapValues (key, hash) {
