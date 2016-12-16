@@ -10,7 +10,7 @@
     <br>
     <a href="http://forthebadge.com/"><img src="http://forthebadge.com/images/badges/built-with-love.svg" alt="Built with ❤"></a>
     <br>
-    <a href="https://discord.gg/bBqpAKw"><img src="https://discordapp.com/api/guilds/247727924889911297/embed.png" alt="Tatsumaki's Server"></a>
+    <a href="https://discord.gg/bBqpAKw"><img src="https://discordapp.com/api/guilds/247727924889911297/embed.png" alt="Studio 777"></a>
   </p>
 </div>
 
