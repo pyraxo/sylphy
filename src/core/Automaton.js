@@ -1,17 +1,25 @@
 const { Client } = require('eris')
 const path = require('path')
 const logger = require('winston')
-const EventEmitter = require('eventemitter3')
 
 const Engine = require('./system/Engine')
 
-class Automaton extends EventEmitter {
+class Automaton extends Client {
   constructor (options) {
-    super()
-
-    this.firstShardID = options.firstShardID
-    this.lastShardID = options.lastShardID
-    this.maxShards = options.maxShards
+    super(process.env.CLIENT_TOKEN, {
+      messageLimit: 0,
+      getAllUsers: true,
+      disableEveryone: true,
+      firstShardID: options.firstShardID,
+      lastShardID: options.lastShardID,
+      maxShards: options.maxShards,
+      disableEvents: {
+        TYPING_START: true,
+        MESSAGE_UPDATE: true,
+        MESSAGE_DELETE: true,
+        MESSAGE_DELETE_BULK: true
+      }
+    })
 
     this.shardIDs = []
     for (let i = this.firstShardID; i <= this.lastShardID; i++) {
@@ -38,62 +46,28 @@ class Automaton extends EventEmitter {
   }
 
   init () {
-    this.loadClient()
-    this.loadEngine()
-  }
-
-  loadClient () {
-    let client = new Client(process.env.CLIENT_TOKEN, {
-      messageLimit: 0,
-      getAllUsers: true,
-      disableEveryone: true,
-      firstShardID: this.firstShardID,
-      lastShardID: this.lastShardID,
-      maxShards: this.maxShards,
-      disableEvents: {
-        TYPING_START: true,
-        MESSAGE_UPDATE: true,
-        MESSAGE_DELETE: true,
-        MESSAGE_DELETE_BULK: true
-      }
-    })
-
-    client.on('ready', () => this.emit('ready'))
-    client.on('error', err => this.emit('error', err))
-    client.on('shardReady', id => this.emit('shardReady', id))
-    client.on('disconnect', () => this.emit('disconnect'))
-
-    this.client = client
-  }
-
-  loadEngine () {
-    let engine = new Engine(this)
+    let engine = this.engine = new Engine(this)
 
     engine.on('loaded:commands', count => logger.info(`Loaded ${count} commands`))
     engine.on('loaded:middleware', count => logger.info(`Loaded ${count} middleware`))
     engine.on('loaded:modules', count => logger.info(`Loaded ${count} modules`))
 
-    engine.on('reload:commands', count => logger.info(`Reloading ${count} commands`))
-    engine.on('reload:middleware', count => logger.info(`Reloading ${count} middleware`))
-    engine.on('reload:modules', count => logger.info(`Reloading ${count} modules`))
-
-    engine.on('register:ipc', command => logger.info(`Registering IPC command '${command}'`))
-    engine.on('register:db', id => logger.info(`Registering DB model '${id}'`))
+    engine.on('register:ipc', command => logger.debug(`Registering IPC command '${command}'`))
+    engine.on('register:db', id => logger.debug(`Registering DB model '${id}'`))
 
     engine.run()
-    this.engine = engine
   }
 
   run () {
     this.emit('connecting')
-    this.client.connect()
+    this.connect()
   }
 
   fetchCounts () {
     return {
-      guilds: this.client.guilds.size,
-      channels: Object.keys(this.client.channelGuildMap).length,
-      users: this.client.users.size
+      guilds: this.guilds.size,
+      channels: Object.keys(this.channelGuildMap).length,
+      users: this.users.size
     }
   }
 }

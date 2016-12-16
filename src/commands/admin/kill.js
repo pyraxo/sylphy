@@ -5,13 +5,15 @@ class Kill extends Command {
   constructor (...args) {
     super(...args, {
       name: 'kill',
-      description: 'Kills the bot',
-      adminOnly: true
+      description: 'Kills all processes',
+      options: {
+        adminOnly: true
+      }
     })
   }
 
   handle (container, responder) {
-    this.bot.engine.ipc.awaitResponse('kill')
+    return this.bot.engine.ipc.awaitResponse('kill')
     .then(data => responder.format('code:js').send(data.map(d => util.inspect(d)).join('\n')))
     .catch(err => responder.format('code:js').send(err))
   }

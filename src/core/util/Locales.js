@@ -1,19 +1,15 @@
 const requireAll = require('require-all')
 const Collection = require('./Collection')
 
-class Parser {
+class Locales {
   constructor (folderpath) {
+    if (typeof folderpath !== 'string') throw new TypeError('Invalid locale filepath')
     this._folder = folderpath
 
-    if (typeof this._folder === 'string') {
-      this.reload()
-    }
+    this.reload()
   }
 
   reload () {
-    if (typeof this._folder !== 'string') {
-      throw new TypeError('Invalid locale filepath')
-    }
     Object.keys(require.cache).forEach(filepath => {
       if (!filepath.startsWith(this._folder)) return
       delete require.cache[require.resolve(filepath)]
@@ -23,8 +19,15 @@ class Parser {
   }
 
   locate (fullkey, obj) {
-    const val = fullkey.split('.').reduce((o, i) => o === null ? o : o[i] || null, obj)
-    return Array.isArray(val) ? val.join('\n') : val
+    let keys = fullkey.split('.')
+    let val = obj[keys.shift()]
+    if (!val) return null
+    for (let key of keys) {
+      if (!val[key]) return val
+      val = val[key]
+      if (Array.isArray(val)) return val.join('\n')
+    }
+    return val || null
   }
 
   get (key = 'common', locale = 'en') {
@@ -45,12 +48,13 @@ class Parser {
     if (!string) return string
     return string.split(' ').map(str => (
       str.replace(/\{\{(.+)\}\}/gi, (matched, key) => {
-        const fullKey = key.startsWith('%') ? `common.${key.substr(1)}` : `${group}.${key}`
-        let val = this.get(fullKey, locale) || this.get(`common.${key}`, locale)
+        const g = key.startsWith('%') ? 'common.' : group + '.'
+        key = key.startsWith('%') ? key.substr(1) : key
+        let val = this.get(`${g}${key}`, locale)
         return typeof val === 'string' ? this.shift(val, options) : matched
       })
     )).join(' ')
   }
 }
 
-module.exports = Parser
+module.exports = Locales

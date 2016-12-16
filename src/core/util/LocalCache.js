@@ -3,11 +3,10 @@ const moment = require('moment')
 const Collection = require('./Collection')
 
 class LocalCache extends Collection {
-  constructor (model, ttl = 3600 * 1000) {
+  constructor (model, ttl = 3600) {
     super()
 
-    this.ttl = ttl
-    this.model = model
+    this.ttl = ttl * 1000
     this.timers = new Collection()
 
     if (model) {
@@ -16,17 +15,18 @@ class LocalCache extends Collection {
           if (err) return logger.error(err)
           if (doc.isSaved() === false) {
             this.delete(doc.id)
-          } else {
+          } else if (this.has(doc.id)) {
             this.store(doc.id, doc)
           }
         })
       }).error(logger.error)
+      this.model = model
     }
   }
 
-  async fetch (key) {
+  async fetch (key, pure = false) {
     let value = this.get(key)
-    if (typeof value === 'undefined' && this.model) {
+    if (this.model && (typeof value === 'undefined' && this.model) || pure) {
       try {
         value = await this.model.get(key).run()
       } catch (err) {
@@ -34,9 +34,34 @@ class LocalCache extends Collection {
           const Model = this.model
           value = new Model({ id: key })
           await value.save()
+        } else {
+          logger.error(`Could not fetch ${key} from ${this.model.getTableName()}`)
+          logger.error(err)
         }
       }
       this.store(key, value)
+    }
+    return value
+  }
+
+  async fetchJoin (key, options) {
+    let value = await this.fetch(key)
+    for (let type in options) {
+      if (this.model && (options[type] === true && typeof value[type] === 'undefined')) {
+        try {
+          value = await this.model.get(key).getJoin(options).run()
+        } catch (err) {
+          if (err.name === 'DocumentNotFoundError') {
+            const Model = this.model
+            value = new Model({ id: key })
+            await value.save()
+          } else {
+            logger.error(`Could not fetch joined ${key} from ${this.model.getTableName()}`)
+            logger.error(err)
+          }
+        }
+        this.store(key, value)
+      }
     }
     return value
   }
@@ -45,6 +70,11 @@ class LocalCache extends Collection {
     let oldValue = await this.fetch(key)
     this.store(key, newValue)
     return oldValue
+  }
+
+  clearAll () {
+    this.clear()
+    this.timers.clear()
   }
 
   clear (key) {
@@ -62,8 +92,8 @@ class LocalCache extends Collection {
   }
 
   clearTimer (key) {
-    if (!this.timers.has(key)) return
     const timer = this.timers.get(key)
+    if (!timer) return
     clearTimeout(timer.timer)
   }
 

@@ -2,44 +2,65 @@ const logger = require('winston')
 const { Collection } = require('../util')
 
 class Router extends Collection {
-  constructor (client, context) {
+  constructor (bot) {
     super()
-    this._context = context
-    this.client = client
-    this.events = new Collection()
+    this.bot = bot
+    this.events = {}
   }
 
   attach (group, Module) {
-    const module = new Module(this._context)
+    const module = new Module(this.bot)
     this.set(module.name, module)
     for (const event in module.events) {
+      if (typeof this.events[event] === 'undefined') {
+        this.register(event)
+      }
+
       const listener = module.events[event]
       if (typeof module[listener] !== 'function') {
         throw new TypeError(`${listener} is an invalid handler`)
       }
 
-      let events = this.events.get(event) || []
-      events.push({ module: module.name, name: listener })
-      this.events.set(event, events)
+      let events = this.events[event] || {}
+      events[module.name] = listener
+      this.events[event] = events
     }
   }
 
-  setup () {
-    for (let [event, listeners] of this.events) {
-      const groupListener = this._listen(listeners)
-      this.client.removeListener(event, groupListener)
-      this.client.on(event, groupListener)
-    }
+  register (event) {
+    this.bot.on(event, (...args) => {
+      const events = this.events[event] || {}
+      for (const name in events) {
+        const module = this.get(name)
+        if (!module) continue
+        try {
+          module[events[name]](...args)
+        } catch (err) {
+          logger.error(`Error executing ${event} in ${name}`)
+          logger.error(err)
+        }
+      }
+    })
   }
 
-  _listen (listeners) {
-    return (...args) => {
-      listeners.forEach(listener => {
-        const module = this.get(listener.module)
-        if (!module) return
-        module[listener.name](...args)
-      })
+  initAll () {
+    this.forEach(module => {
+      if (typeof module.init === 'function') {
+        module.init()
+      }
+    })
+  }
+
+  destroy () {
+    for (const event in this.events) {
+      this.events[event] = {}
     }
+    this.forEach(module => {
+      if (typeof module.unload === 'function') {
+        module.unload()
+      }
+    })
+    this.clear()
   }
 }
 

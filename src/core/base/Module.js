@@ -1,14 +1,20 @@
-class Module {
+const Base = require('./Base')
+
+class Module extends Base {
   constructor (bot, options) {
+    super(bot)
     if (this.constructor === Module) {
       throw new Error('Must extend abstract Module')
     }
 
     this._verify(options)
-    this.bot = bot
   }
 
-  _verify ({ name, events = {} }) {
+  init () {}
+
+  unload () {}
+
+  _verify ({ name, events = {}, localeKey } = {}) {
     if (typeof name === 'undefined') throw new Error(`${this.constructor.name} is not named`)
     if (typeof events !== 'object') throw new Error('Module event must be an object')
 
@@ -24,6 +30,7 @@ class Module {
 
     this.name = name
     this.events = events
+    this.localeKey = localeKey
   }
 }
 

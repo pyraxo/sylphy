@@ -1,27 +1,30 @@
 module.exports = {
   type: 'member',
-  resolve: async (content, arg, msg) => {
+  resolve: (content, { bot = false }, msg) => {
     const guild = msg.guild
-    if (typeof content === 'undefined') {
-      throw new Error('No query supplied')
-    }
     content = String(content).toLowerCase()
     let user = content.match(/^<@!?(\d{17,18})>$/) || content.match(/^(\d{17,18})$/)
     if (!user) {
       let members = guild.members.filter(m => {
-        return m.user.username === content || m.nick === content ||
-        `${m.user.username}#${m.user.discriminator}` === content ||
-        `${m.nick}#${m.user.discriminator}` === content
+        if (!bot && m.user.bot) return
+        const name = m.user.username.toLowerCase()
+        const nick = m.nick ? m.nick.toLowerCase() : name
+        const discrim = m.user.discriminator
+        return name === content || nick === content ||
+        `${name}#${discrim}` === content ||
+        `${nick}#${discrim}` === content ||
+        name.includes(content) ||
+        nick.includes(content)
       })
       if (members.length) {
-        return members
+        return Promise.resolve(members)
       } else {
-        throw new Error('{arg} not found')
+        return Promise.reject('member.NOT_FOUND')
       }
     } else {
       let member = guild.members.get(user[1])
-      if (!member) throw new Error('{arg} not found')
-      return member
+      if (!member) return Promise.reject('member.NOT_FOUND')
+      return Promise.resolve([member])
     }
   }
 }

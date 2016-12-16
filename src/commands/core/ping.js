@@ -6,12 +6,12 @@ class Ping extends Command {
     super(...args, {
       name: 'ping',
       description: 'Pong!',
-      hidden: true
+      options: { hidden: true }
     })
   }
 
   handle ({ msg }, responder) {
-    responder.format('emoji:info').send('Pong!').then(m => {
+    return responder.format('emoji:info').send('Pong!').then(m => {
       m.edit(`${m.content} - Time taken: **${m.timestamp - msg.timestamp}ms**`)
       .catch(logger.error)
     })
