@@ -9,7 +9,8 @@ const colours = {
   pink: '#E33C96',
   gold: '#d5a500',
   silver: '#b7b7b7',
-  bronze: '#a17419'
+  bronze: '#a17419',
+  orange: '#c96941'
 }
 
 class Base {
@@ -19,7 +20,6 @@ class Base {
     }
 
     this.bot = bot
-    this.client = bot.client
     this.i18n = bot.engine.i18n
 
     this.colours = {}
@@ -51,12 +51,13 @@ class Base {
     return false
   }
 
-  hasPermissions (guild, user, ...perms) {
-    const member = guild.members.get(user.id)
-    for (const perm of perms) {
-      if (!member.permission.has(perm)) return false
-    }
-    return true
+  hasPermissions (channel, user, ...perms) {
+    const member = channel.guild.members.get(user.id)
+
+    if (!perms.every(p => member.permission.has(p))) return false
+    return perms.every(perm => (
+      !channel.permissionOverwrites.find(p => (member.roles.includes(p.id) || p.id === user.id) && p.json[perm] === false)
+    ))
   }
 
   t (content = '', lang = 'en', tags = {}) {
@@ -65,29 +66,41 @@ class Base {
   }
 
   async send (channel, content, options = {}) {
-    if (typeof channel === 'string') channel = this.client.getChannel(channel)
-    let { file = {}, lang, delay = 0, deleteDelay = 0, embed = {} } = options
+    if (typeof channel === 'string') {
+      channel = this.bot.getChannel(channel)
+    }
+    if (!channel) return null
+
+    let { file = null, lang, delay = 0, deleteDelay = 0, embed } = options
+    if (channel.guild) {
+      const guild = channel.guild
+      if (!this.hasPermissions(channel, this.bot.user, 'sendMessages')) {
+        logger.error(`Channel ${channel.name} (${channel.id}) in ${guild.name} (${guild.id}) denies message sending`)
+        return Promise.reject('403_SEND_MSG')
+      }
+    }
+
     if (delay) {
       await Promise.delay(delay)
     }
 
-    if (!lang && channel.guild) {
-      lang = (await this.bot.engine.db.data.Guild.fetch(channel.guild.id)).lang
-    } else {
-      lang = 'en'
-    }
+    lang = !lang && channel.guild ? (await this.bot.engine.db.data.Guild.fetch(channel.guild.id)).lang : 'en'
 
     if (Array.isArray(content)) content = content.join('\n')
     content = this.t(content, lang, options)
-    content = content.replace(/:(\S+):/gi, (matched, name) => {
-      return this.i18n.locate(name, Emojis) || emoji.get(name) || matched
-    })
+    content = content.replace(/:(\S+):/gi, (matched, name) => (
+      this.i18n.locate(name, Emojis) || emoji.get(name) || matched
+    ))
     content = content.match(/(.|[\r\n]){1,2000}/g)
 
     try {
       if (!content || !content.length) {
         let msg = await channel.createMessage({ embed, content: '' }, file)
-        if (deleteDelay) setTimeout(() => msg.delete(), deleteDelay)
+        if (deleteDelay) {
+          setTimeout(() => {
+            msg.delete().catch(err => logger.error(`Could not delete message ${msg.id} - ${err}`))
+          }, deleteDelay)
+        }
         return msg
       }
       let replies = await Promise.mapSeries(content, (c, idx) => {
@@ -98,12 +111,38 @@ class Base {
       })
       return replies[0]
     } catch (err) {
-      logger.error(`Error sending message to ${channel.name} (${channel.id}) - ${err}`)
+      logger.error(`Error sending message to ${channel.name} (${channel.id})`)
+      if (err.response) {
+        logger.error(JSON.parse(err.response).message)
+        return
+      }
+      throw err
     }
   }
 
-  deleteMessages (msgs) {
-    const id = this.client.user.id
+  async edit (msg, content, options) {
+    let { lang, delay = 0 } = options
+    if (delay) {
+      await Promise.delay(delay)
+    }
+
+    if (!lang && msg.channel.guild) {
+      lang = (await this.bot.engine.db.data.Guild.fetch(msg.channel.guild.id)).lang
+    } else {
+      lang = 'en'
+    }
+
+    if (Array.isArray(content)) content = content.join('\n')
+    content = this.t(content, lang, options)
+    content = content.replace(/:(\S+):/gi, (matched, name) => {
+      return this.i18n.locate(name, Emojis) || emoji.get(name) || matched
+    })
+
+    return msg.edit(content)
+  }
+
+  deleteMessages (...msgs) {
+    const id = this.bot.user.id
     for (let msg of msgs.filter(m => m)) {
       if (msg.author.id === id || msg.channel.permissionsOf(id).has('manageMessages')) {
         msg.delete()

@@ -7,11 +7,12 @@ const { LocalCache } = require('../util')
 class ModelManager extends EventEmitter {
   constructor (options) {
     super()
-    this.models = {}
-    this.data = {}
 
     const thinky = this.thinky = new Thinky(options)
     thinky.dbReady().then(() => this.emit('ready'))
+
+    this.models = { r: thinky.r }
+    this.data = {}
   }
 
   loadFolder (folder) {

@@ -34,15 +34,18 @@ node_modules
 .node_repl_history
 
 # Configuration
-config/*.json
-!config/*.example.json
-config/*.txt
-!config/*.example.txt
+resources/config
 .env
 
 # Databases / Storage
-resources/avatars
+resources/i18n
+resources/scripts
+resources/images
 .cache
+
+src/modules
+src/commands
+src/models
 
 # Documentation
 docs

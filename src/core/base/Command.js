@@ -1,19 +1,23 @@
 const logger = require('winston')
 const moment = require('moment')
 
-const { Responder } = require('../util')
-const UsageManager = require('../managers/UsageManager')
+const { Responder, Collection } = require('../util')
+const Resolver = require('../managers/Resolver')
 const Base = require('./Base')
 
 class Command extends Base {
-  constructor (bot, options, ...args) {
+  constructor (bot, group, ...args) {
     super(bot)
     if (this.constructor === Command) {
       throw new Error('Cannot instantiate abstract Command')
     }
 
-    this.resolver = new UsageManager(bot)
+    this.group = group
+    this.resolver = new Resolver(bot)
     this.responder = new Responder(this)
+    this.subcommands = new Collection()
+
+    const options = args.reduce((p, c) => Object.assign(c, p), {})
     this._verify(options, ...args)
 
     this.timers = new Map()
@@ -22,14 +26,11 @@ class Command extends Base {
   _verify ({
     name,
     aliases = [],
-    description = 'No description',
-    guildOnly = false,
-    adminOnly = false,
-    hidden = false,
     cooldown = 5,
     usage = [],
-    enableLocales = true,
-    localeKey
+    options = {},
+    subcommands = {},
+    subcommand
   } = {}) {
     this.labels = typeof name === 'string'
     ? [name].concat(aliases)
@@ -38,65 +39,50 @@ class Command extends Base {
     if (this.labels.length === 0) {
       throw new Error(`${this.constructor.name} command is not named`)
     }
-    this.description = String(description)
-    this.guildOnly = guildOnly
-    this.adminOnly = adminOnly
     this.cooldown = cooldown
-    this.hidden = hidden
-    this.localeKey = localeKey
-
-    this.usage = usage
-    this.resolver.load(usage)
-  }
-
-  createResponder ({ msg, rawArgs, settings, client }) {
-    let responder = (...args) => responder.send(...args)
-    const lang = settings.lang
-
-    for (let method in this.responseMethods) {
-      responder[method] = (response = '', options = {}) => {
-        if (Array.isArray(response)) response = response.join('\n')
-        response = this.responseMethods[method](msg, response)
-        const formats = responder._formats
-        if (formats) {
-          for (let format of formats) {
-            format = format.split(':')
-            if (this.formatMethods[format[0]]) {
-              response = this.formatMethods[format[0]](response, format[1])
-            }
-          }
-        }
-        if (responder._file) options.file = responder._file
-        if (responder._embed) options.embed = responder._embed
-
-        delete responder._formats
-        delete responder._file
-        delete responder._embed
-        options.lang = lang
-
-        let prom = (options.DM ? this.client.getDMChannel(msg.author.id) : Promise.resolve(msg.channel))
-        .then(channel => this.send(channel, response, options))
-
-        prom.catch(err => logger.error(`${this.labels[0]} command failed to call ${method} - ${err}`))
-
-        return prom
-      }
+    this.options = options
+    if (this.options.modOnly) {
+      this.options.permissions = (this.options.permissions || []).concat('manageGuild')
     }
 
-    return responder
+    this.usage = usage
+    this.localeKey = options.localeKey
+    this.resolver.load(usage)
+
+    for (const command in subcommands) {
+      const name = subcommands[command].name || command
+      for (const alias of [name].concat(subcommands[command].aliases || [])) {
+        this.subcommands.set(alias, {
+          usage: subcommands[command].usage || [], name
+        })
+      }
+    }
+    this.subcommand = subcommand
   }
 
   _execute (container) {
-    const responder = this.responder.create(container.msg, container.settings)
+    const responder = this.responder.create(container)
+
+    let usage = this.usage
+    let process = 'handle'
+
+    const subcmd = this.subcommand ? this.subcommand : container.rawArgs[0]
+    const cmd = this.subcommands.get(subcmd)
+    if (cmd) {
+      usage = cmd.usage
+      process = cmd.name
+      container.rawArgs = container.rawArgs.slice(this.subcommand ? 0 : 1)
+      container.trigger += ' ' + subcmd
+    }
 
     if (!this._execCheck(container, responder)) return
 
     this.resolver.resolve(container.msg, container.rawArgs, {
       prefix: container.settings.prefix,
       command: container.trigger
-    }).then((args = {}) => {
+    }, usage).then((args = {}) => {
       container.args = args
-      this.handle(container, responder).catch(err => {
+      this[process](container, responder).catch(err => {
         logger.error(`Rejection from ${this.labels[0]}`)
         logger.error(err)
       })
@@ -105,16 +91,35 @@ class Command extends Base {
     })
   }
 
-  _execCheck ({ msg, isPrivate, admins }, responder) {
-    const awaitID = msg.channel.id + msg.author.id
+  _execCheck ({ msg, isPrivate, admins, client }, responder) {
+    const isAdmin = admins.includes(msg.author.id)
+    const { adminOnly, guildOnly, permissions = [], botPerms = [] } = this.options
+    if (adminOnly === true && !isAdmin) return false
+    if (guildOnly === true && isPrivate) return false
 
+    if (permissions.length && !this.hasPermissions(msg.channel, msg.author, ...permissions)) {
+      responder.error('{{%NO_PERMS}}', {
+        perms: permissions.map(p => `\`${p}\``).join(', ')
+      })
+      return false
+    }
+
+    if (botPerms.length && !this.hasPermissions(msg.channel, client.user, ...botPerms)) {
+      responder.error('{{%NO_PERMS_BOT}}', {
+        perms: botPerms.map(p => `\`${p}\``).join(', ')
+      })
+      return false
+    }
+
+    if (isAdmin) return true
+    const awaitID = msg.channel.id + msg.author.id
     if (this.cooldown > 0) {
       if (!this.timers.has(awaitID)) {
         this.timers.set(awaitID, +moment())
       } else {
         const diff = moment().diff(moment(this.timers.get(awaitID)), 'seconds')
         if (diff < this.cooldown) {
-          responder.reply('{{%COOLDOWN}}', {
+          responder.error('{{%COOLDOWN}}', {
             delay: 0,
             deleteDelay: 5000,
             time: `**${this.cooldown - diff}**`
@@ -126,8 +131,6 @@ class Command extends Base {
         }
       }
     }
-    if (this.adminOnly && !admins.includes(msg.author.id)) return false
-    if (this.guildOnly && isPrivate) return false
     return true
   }
 
@@ -135,6 +138,10 @@ class Command extends Base {
 
   logError (err) {
     logger.error(`Error running ${this.labels[0]} command: ${err}`)
+  }
+
+  get permissionNode () {
+    return `${this.group}.${this.labels[0]}`
   }
 }
 

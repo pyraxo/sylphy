@@ -8,7 +8,7 @@ class Commander extends Collection {
   }
 
   attach (group, Command) {
-    const command = new Command(this.bot)
+    const command = new Command(this.bot, group)
     for (let label of command.labels) {
       if (this.has(label)) throw new Error(`Duplicate command: ${label}`)
       this.set(label.toLowerCase(), { cmd: command, group, label })
@@ -26,7 +26,8 @@ class Commander extends Collection {
       try {
         e.cmd._execute(...args)
       } catch (err) {
-        logger.error(`Error running command ${label}: ${err}`)
+        logger.error(`Error running command ${label}`)
+        logger.error(err)
       }
     }
   }

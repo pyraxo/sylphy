@@ -12,14 +12,16 @@ require('dotenv-safe').config({
   path: path.join(__dirname, '.env'),
   allowEmptyValues: true
 })
+require('moment-duration-format')
 
 const processShards = parseInt(process.env.CLIENT_SHARDS_PER_PROCESS, 10)
 const firstShardID = parseInt(process.env.BASE_SHARD_ID, 10) * processShards
 const lastShardID = firstShardID + processShards - 1
+const debugMode = process.env.CLIENT_DEBUG === 'true'
 
 winston.remove(winston.transports.Console)
 winston.add(winston.transports.Console, {
-  level: process.env.CLIENT_DEBUG === 'true' ? 'silly' : 'verbose',
+  level: debugMode ? 'silly' : 'verbose',
   colorize: true,
   label: process.env.BASE_SHARD_ID
   ? processShards > 1
@@ -31,7 +33,7 @@ winston.add(winston.transports.Console, {
   }
 })
 winston.add(winston.transports.DailyRotateFile, {
-  level: process.env.CLIENT_DEBUG === 'true' ? 'silly' : 'verbose',
+  level: debugMode ? 'silly' : 'verbose',
   colorize: false,
   datePattern: '.yyyy-MM-dd',
   filename: path.join(__dirname, 'logs/application.log'),
@@ -52,4 +54,9 @@ process.on('unhandledRejection', (reason, promise) => {
   winston.error(`Unhandled rejection: ${reason} - ${util.inspect(promise)}`)
 })
 
-require('./src')
+if (debugMode) {
+  winston.debug('Running in debug mode')
+  require('./src')
+} else {
+  require('./build')
+}

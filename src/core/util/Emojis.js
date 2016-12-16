@@ -1,7 +1,7 @@
 module.exports = {
   // Common
   success: '✅',
-  fail: '❎',
+  error: '❎',
   info: 'ℹ',
   search: '🔍',
   inbox: '📥',

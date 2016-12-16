@@ -3,20 +3,19 @@ const logger = require('winston')
 const EventEmitter = require('eventemitter3')
 const requireAll = require('require-all')
 
-const Cache = require('./Cache')
 const Bridge = require('./Bridge')
 const Commander = require('./Commander')
 const Router = require('./Router')
 
-const IPC = require('../managers/IPCManager')
+const IPC = require('../managers/Transmitter')
 const ModelManager = require('../managers/ModelManager')
-const { Locales, readdirRecursive } = require('../util')
+const { Parser, Cache, readdirRecursive } = require('../util')
 
 class Engine extends EventEmitter {
   constructor (bot) {
     super()
 
-    this.client = bot.client
+    this.bot = bot
     this.paths = bot.paths
 
     let ipc = this.ipc = new IPC(bot.shardIDs, bot)
@@ -24,9 +23,9 @@ class Engine extends EventEmitter {
     let cache = this.cache = new Cache()
 
     this.commands = new Commander(bot)
-    this.modules = new Router(bot.client, bot)
+    this.modules = new Router(bot)
     this.bridge = new Bridge(this.commands)
-    this.i18n = new Locales(path.join(bot.paths.resources, 'i18n'))
+    this.i18n = new Parser(path.join(bot.paths.resources, 'i18n'))
 
     ipc.on('registered', command => this.emit('register:ipc', command))
     db.on('loaded', id => this.emit('register:db', id))
@@ -37,14 +36,14 @@ class Engine extends EventEmitter {
     this.loadAll()
 
     const admins = process.env.ADMIN_IDS.split(', ')
-    this.client.on('messageCreate', msg => {
-      if (msg.author.id === this.client.id || msg.author.bot) return
+    this.bot.on('messageCreate', msg => {
+      if (msg.author.id === this.bot.user.id || msg.author.bot) return
       this.bridge.handle({
         msg,
         admins,
         commander: this.commands,
         modules: this.modules,
-        client: this.client,
+        client: this.bot,
         cache: this.cache,
         db: this.db.models,
         data: this.db.data
@@ -107,6 +106,8 @@ class Engine extends EventEmitter {
   }
 
   loadModules (group = '.', file) {
+    this.modules.destroy()
+
     let count = 0
     readdirRecursive(this.paths.modules, group).then(mod => {
       if (typeof file === 'string') mod = mod.filter(m => path.basename(m).startsWith(file))

@@ -5,7 +5,9 @@ class Eval extends Command {
     super(...args, {
       name: 'eval',
       description: 'Evaluates an expression',
-      adminOnly: true,
+      options: {
+        adminOnly: true
+      },
       cooldown: 0
     })
   }
@@ -34,18 +36,20 @@ class Eval extends Command {
   }
 
   async handle (container, responder) {
-    const { msg, settings } = container
+    const { rawArgs } = container
     let resp
     try {
-      resp = eval(msg.content.substr(settings.prefix.length).split(' ').slice(1).join(' '))
+      resp = eval(rawArgs.join(' '))
     } catch (err) {
       resp = err
     }
 
     const success = !(resp instanceof Error)
-    const isPromise = (resp instanceof Promise)
+    const isPromise = typeof resp === 'function' && (resp.then ? resp.then : false)
 
-    const message = await responder.embed(this.createEmbed(isPromise ? null : success, isPromise, resp.message || resp)).send()
+    const message = await responder.embed(
+      this.createEmbed(isPromise ? null : success, isPromise, (resp && resp.message) ? resp.message : resp)
+    ).send()
 
     if (!isPromise) return
 
@@ -60,7 +64,9 @@ class FullEval extends Command {
     super(...args, {
       name: 'fulleval',
       description: 'Evaluates an expression across processes',
-      adminOnly: true,
+      options: {
+        adminOnly: true
+      },
       cooldown: 0
     })
   }

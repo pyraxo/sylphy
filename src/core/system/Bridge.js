@@ -63,7 +63,7 @@ class Bridge {
   }
 
   destroy () {
-    this.tasks.length = 0
+    this.tasks = []
   }
 
   handle (container, idx = 0) {
