@@ -33,19 +33,10 @@ node_modules
 # Optional REPL history
 .node_repl_history
 
-# Configuration
-resources/config
+# Assets
+resources
 .env
-
-# Databases / Storage
-resources/i18n
-resources/scripts
-resources/images
 .cache
-
-src/modules
-src/commands
-src/models
 
 # Documentation
 docs

@@ -1,12 +1,10 @@
 {
   "name": "iris",
-  "version": "2.2.0",
-  "private": true,
+  "version": "3.0.0",
   "description": "The better Discord bot base",
   "main": "index.js",
   "scripts": {
     "start": "node --harmony_async_await index.js",
-    "lint": "standard --fix",
     "gendocs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose"
   },
   "engines": {
@@ -24,7 +22,6 @@
   "dependencies": {
     "bluebird": "^3.4.6",
     "chalk": "^1.1.3",
-    "dotenv-safe": "^2.3.2",
     "eris": "github:abalabahaha/eris#dev",
     "eventemitter3": "^2.0.1",
     "longjohn": "^0.2.11",
@@ -34,7 +31,6 @@
     "redis": "^2.6.1",
     "require-all": "^2.0.0",
     "superagent": "^2.2.0",
-    "superagent-xml2jsparser": "^0.1.1",
     "thinky": "^2.3.7",
     "winston": "^2.2.0",
     "winston-cluster": "0.0.4",
