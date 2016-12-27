@@ -16,7 +16,7 @@
 
 ### Used by
 * [Tatsumaki](https://tatsumaki.xyz), a multi-purpose social Discord bot
-* [haru](https://pyraxo.com/haru), everyone's favourite idol and part-time bot
+* [haru](https://pyraxo.moe/haru), everyone's favourite idol and part-time bot
 
 **iris** is an advanced, efficient and highly customisable base for Discord command bots written in Node.js
 
