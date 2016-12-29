@@ -1,7 +1,7 @@
-const Eris = require('eris').client
+const Eris = require('eris').Client
 
-const { Commander, Router, Bridge } = require('./core/engine')
-const { Collection } = require('./util')
+const { Commander, Router, Bridge } = require('./engine')
+const { Collection } = require('../util')
 
 /**
  * Interface between the Discord client and plugins

@@ -5,5 +5,7 @@ npm-debug.log*
 node_modules
 .npm
 
+test/auth.json
+
 assets
 docs
