@@ -4,18 +4,6 @@ const { Commander, Router, Bridge } = require('./core/engine')
 const { Collection } = require('./util')
 
 /**
- * The Eris client
- * @external "Eris.Client"
- * @see {@link https://abal.moe/Eris/docs/Client|Eris.Client}
- */
-
-/**
- * The Eris message object
- * @external "Eris.Message"
- * @see {@link https://abal.moe/Eris/docs/Message|Eris.Message}
- */
-
-/**
  * Interface between the Discord client and plugins
  * @version 3.0.0
  * @extends Eris.Client
@@ -125,3 +113,33 @@ class Client extends Eris {
 }
 
 module.exports = Client
+
+/**
+ * The Eris client
+ * @external "Eris.Client"
+ * @see {@link https://abal.moe/Eris/docs/Client|Eris.Client}
+ */
+
+/**
+ * The Eris message object
+ * @external "Eris.Message"
+ * @see {@link https://abal.moe/Eris/docs/Message|Eris.Message}
+ */
+
+/**
+ * The Eris guild object
+ * @external "Eris.Guild"
+ * @see {@link https://abal.moe/Eris/docs/Guild|Eris.Guild}
+ */
+
+/**
+ * The Eris role object
+ * @external "Eris.Role"
+ * @see {@link https://abal.moe/Eris/docs/Role|Eris.Role}
+ */
+
+/**
+ * The Eris member object
+ * @external "Eris.Member"
+ * @see {@link https://abal.moe/Eris/docs/Member|Eris.Member}
+ */
