@@ -13,7 +13,7 @@ const { Collection } = require('./util')
 class Client extends Eris {
   /**
    * Creates a new Client instance
-   * @arg {Object} options An object containing iris's and/or Eris client options
+   * @arg {Object} options An object containing sylphy's and/or Eris client options
    * @arg {String} options.token Discord bot token
    * @arg {String} [options.commands] Relative path to commands folder
    * @arg {String} [options.modules] Relative path to modules folder
