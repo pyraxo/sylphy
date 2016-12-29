@@ -18,11 +18,13 @@ class Client extends Eris {
    * @arg {String} [options.commands] Relative path to commands folder
    * @arg {String} [options.modules] Relative path to modules folder
    * @arg {String} [options.middleware] Relative path to middleware folder
-   * @arg {String} [options.suppressWarnings] Option to suppress console warnings
+   * @arg {Boolean} [options.suppressWarnings=false] Option to suppress console warnings
+   * @arg {Boolean} [options.noDefaults=false] Option to not use built-in plugins
    */
   constructor (options = {}) {
     super(options.token, options)
     this.suppressWarnings = options.suppressWarnings
+    this.noDefaults = options.noDefaults
 
     this.plugins = new Collection()
 
