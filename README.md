@@ -14,27 +14,28 @@
   </p>
 </div>
 
-## Used by
+### Used by
 * [Tatsumaki](https://tatsumaki.xyz), a multi-purpose social Discord bot
 * [haru](https://pyraxo.moe/haru), everyone's favourite idol and part-time bot
 
 **iris** is an advanced, efficient and highly customisable framework for Discord command bots written in Node.js
 
-# Requirements
+# Getting Started
+## Requirements
 * **Node.js 6+**
 
 A firm grasp of **ES6 + async/await** syntax is optional but recommended.
 
 As the bot framework extends the [Eris](https://github.com/abalabahaha/Eris) client, please refer to the docs [here](https://abal.moe/Eris/docs).
 
-# Usage
+## Usage
 ```bash
 $ npm install --save pyraxo/iris
 ```
 
 If you don't want to use any built-in plugins, you may run the above command with the `--no-optional` flag.
 
-## Example
+### Example
 ```js
 const Bot = require('iris')
 
