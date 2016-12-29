@@ -1,7 +1,7 @@
 <div align="center">
   <h1>
     <br>
-    iris
+    sylphy
     <br>
   </h1>
   <h4>The better Discord bot framework</h4>
