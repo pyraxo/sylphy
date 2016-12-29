@@ -1,24 +1,7 @@
-<div align="center">
-  <h1>
-    <br>
-    sylphy
-    <br>
-  </h1>
-  <h4>The better Discord bot framework</h4>
-  <p>
-    <a href="https://github.com/feross/standard"><img src="https://cdn.rawgit.com/feross/standard/master/badge.svg"></a>
-    <br>
-    <a href="http://forthebadge.com/"><img src="http://forthebadge.com/images/badges/built-with-love.svg" alt="Built with ❤"></a>
-    <br>
-    <a href="https://discord.gg/0xyZL4m5TyYTzVGY"><img src="https://discordapp.com/api/guilds/247727924889911297/embed.png" alt="Studio 777"></a>
-  </p>
-</div>
+# Sylphy
+<img src="https://discordapp.com/api/guilds/247727924889911297/embed.png" alt="Studio 777"></a> [![npm](https://img.shields.io/npm/v/sylphy.svg)](https://www.npmjs.com/package/sylphy)
 
-### Used by
-* [Tatsumaki](https://tatsumaki.xyz), a multi-purpose social Discord bot
-* [haru](https://pyraxo.moe/haru), everyone's favourite idol and part-time bot
-
-**iris** is an advanced, efficient and highly customisable framework for Discord command bots written in Node.js
+**Sylphy** is an advanced, efficient and highly customisable framework for Discord command bots written in Node.js
 
 # Getting Started
 ## Requirements
@@ -30,14 +13,14 @@ As the bot framework extends the [Eris](https://github.com/abalabahaha/Eris) cli
 
 ## Usage
 ```bash
-$ npm install --save pyraxo/iris
+$ npm install --save sylphy
 ```
 
 If you don't want to use any built-in plugins, you may run the above command with the `--no-optional` flag.
 
 ### Example
 ```js
-const Bot = require('iris')
+const Bot = require('sylphy')
 
 const client = new Bot({
   token: 'your token here'
