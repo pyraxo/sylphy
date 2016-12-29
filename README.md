@@ -14,27 +14,27 @@
   </p>
 </div>
 
-### Used by
+## Used by
 * [Tatsumaki](https://tatsumaki.xyz), a multi-purpose social Discord bot
 * [haru](https://pyraxo.moe/haru), everyone's favourite idol and part-time bot
 
 **iris** is an advanced, efficient and highly customisable framework for Discord command bots written in Node.js
 
-### Requirements
+# Requirements
 * **Node.js 6+**
 
 A firm grasp of **ES6 + async/await** syntax is optional but recommended.
 
 As the bot framework extends the [Eris](https://github.com/abalabahaha/Eris) client, please refer to the docs [here](https://abal.moe/Eris/docs).
 
-### Usage
+# Usage
 ```bash
 $ npm install --save pyraxo/iris
 ```
 
 If you don't want to use any built-in plugins, you may run the above command with the `--no-optional` flag.
 
-#### Example
+## Example
 ```js
 const Bot = require('iris')
 
@@ -47,12 +47,12 @@ client.register('commands', 'path/to/commands')
 client.run()
 ```
 
-### Plugins
+# Plugins
 The framework consists of plugins that extend the functionality of the Discord client.
 
 Plugins can be added via external modules; several have already been included in the framework.
 
-#### Commander
+## Commander
 The **Commander** plugin allows **Commands** to be executed. When a successful command is called, the Commander will execute the corresponding command functions.
 
 Example usage:
@@ -86,7 +86,7 @@ client
 .register('commands', filepath)
 ```
 
-#### Router
+## Router
 The **Router** plugin takes care of **Modules** by routing event arguments to the corresponding modules' methods.
 
 Example usage:
@@ -117,7 +117,7 @@ const modules = [
 client.register('modules', modules)
 ```
 
-#### Bridge
+## Bridge
 The **Bridge** plugin maintains a chain of **Middleware**, passing messages through each middleware function and resolving a **Container** object.
 
 Example usage:
@@ -132,7 +132,7 @@ client.register('middleware', [{
 }])
 ```
 
-#### Registering Components into Built-in Plugins
+## Registering Components into Built-in Plugins
 As shown in the examples above, to fully utilise the plugins, the components have to be registered into the appropriate plugin with the `register()` method.
 
 The 1st argument should take in the plugin type, while the 2nd argument should **not** receive the raw component, but instead should be an array or object containing the components.
@@ -152,7 +152,7 @@ client
 client.register('commands', SomeCommand)
 ```
 
-#### Custom Plugins
+## Custom Plugins
 Custom plugin support is available as long as the added plugins follow certain criteria:
 * Must be a class
 * Must contain the `register()` and `unregister()` methods, to which any number of arguments can be passed
@@ -169,12 +169,12 @@ const plugin = client.plugins.get('pluginType')
 
 The plugin's `register` method will be called when `client.register()` is called with the first argument matching the corresponding plugin type.
 
-### Components
+# Components
 Plugins handle certain components that players can choose to add. For example, the **Commander** plugin makes use of **Commands**, which could be a class, function or object depending on the user's preference.
 
 **All built-in components have a built-in utility class containing various special methods. Do read the docs.**
 
-#### Commands
+## Commands
 Text commands are specially formatted messages that Discord users can send. Bots will then carry out tasks according to the issued command. Most commands follow this format:
 
 ```
@@ -189,7 +189,7 @@ Commands must include:
 * `execute` - A function that should accept a **Container** object as the first argument
 * `group` - An *optional* string referencing the group of the command
 
-#### Modules
+## Modules
 **Modules** are classes or objects containing methods that listen to specific events the client emits.
 
 Modules must include:
@@ -209,7 +209,7 @@ Example module object:
 }
 ```
 
-#### Middleware
+## Middleware
 **Middleware** are objects that receive a **Container** object, insert or modify its elements, and resolve the container. Middleware are chained together and executed according to their priority number.
 
 Middleware must include:
@@ -217,7 +217,7 @@ Middleware must include:
 * `priority` - A number referencing the priority to run the middleware. A lower number means it will be run earlier.
 * `process` - A function that should a **Container** object as the first argument.
 
-#### Container
+## Container
 **Containers** are special objects containing properties that are passed around as a context. Among the default plugins, the **Commander** and **Bridge** plugins use them, and the **Commands** and **Middleware** components will be passed a **Container** as an argument, where they can modify and add properties to the container.
 
 A default unmodified container contains:
@@ -227,7 +227,7 @@ A default unmodified container contains:
 * `modules` - A **Router** instance
 * `middleware` - A **Bridge** instance
 
-### License
+# License
 Copyright (C) 2017  Pyraxo
 
 This program is free software: you can redistribute it and/or modify
