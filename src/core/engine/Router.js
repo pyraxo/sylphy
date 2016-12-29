@@ -1,8 +1,8 @@
 const path = require('path')
 const fs = require('fs')
-const requireAll = require('require-all')
 
 const Collection = require('../../util/Collection')
+const { readdirRecursive, isDir } = require('../../util')
 
 /**
  * Router class for event routing
@@ -48,7 +48,7 @@ class Router extends Collection {
         if (!fs.existsSync(filepath)) {
           throw new Error(`Folder path ${filepath} does not exist`)
         }
-        const mods = fs.statSync(filepath).isDirectory() ? requireAll(filepath) : require(filepath)
+        const mods = isDir(filepath) ? readdirRecursive(filepath) : require(filepath)
         return this.registerModules(mods)
       }
       case 'object': {

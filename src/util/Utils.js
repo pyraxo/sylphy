@@ -25,30 +25,6 @@ class Utils {
   }
 
   /**
-   * Reads a directory recursively and returns an array of paths
-   * @arg {...String} paths Folder path(s)
-   */
-  static async readdirRecursive (...paths) {
-    const dir = path.join(...paths)
-    let list = []
-    if (!fs.existsSync(dir)) return list
-    let files = fs.readdirSync(dir)
-    let dirs
-
-    dirs = files.filter(this.constructor.isDir)
-    files = files.filter(file => !Utils.isDir(this.constructor))
-    .map(file => path.join(dir, file)).filter(file => !path.basename(file).startsWith('.'))
-    list = list.concat(files)
-
-    while (dirs.length) {
-      let d = path.join(dir, dirs.shift())
-      list = list.concat(await this.constructor.readdirRecursive(d))
-    }
-
-    return list
-  }
-
-  /**
    * Checks if a path is a directory
    * @arg {String} filename The path to check
    */
@@ -87,7 +63,7 @@ class Utils {
    */
   static getColour (colour) {
     if (!colours[colour]) return
-    return this.constructor.parseInt(String(colours[colour] || colour).replace('#', ''), 16) || null
+    return parseInt(String(colours[colour] || colour).replace('#', ''), 16) || null
   }
 
   /**
@@ -111,6 +87,32 @@ class Utils {
       const r = guild.roles.get(id)
       return r.position > role.position
     })
+  }
+
+  /**
+   * Reads a directory recursively and returns an array of paths
+   * @arg {String} dir Directory path
+   * @returns {Array}
+   */
+  static readdirRecursive (dir) {
+    return fs.readdirSync(dir).reduce((arr, file) => {
+      const filepath = path.join(dir, file)
+      arr.push(this.isDir(filepath) ? this.readdirRecursive(filepath) : require(filepath))
+      return arr
+    }, [])
+  }
+
+  /**
+   * Reads a directory recursively and returns an object mapping the required files to the folder
+   * @arg {String} dir Directory path
+   * @returns {Object}
+   */
+  static requireAll (dir) {
+    return fs.readdirSync(dir).reduce((obj, file) => {
+      const filepath = path.join(dir, file)
+      obj[file] = this.isDir(filepath) ? this.requireAll(filepath) : require(filepath)
+      return obj
+    }, {})
   }
 }
 

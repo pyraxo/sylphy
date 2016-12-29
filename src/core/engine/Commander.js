@@ -1,8 +1,8 @@
 const path = require('path')
 const fs = require('fs')
-const requireAll = require('require-all')
 
 const Collection = require('../../util/Collection')
+const { requireAll, isDir } = require('../../util')
 
 /**
  * Commander class for command processing
@@ -29,7 +29,7 @@ class Commander extends Collection {
         if (!fs.existsSync(filepath)) {
           throw new Error(`Folder path ${filepath} does not exist`)
         }
-        const cmds = fs.statSync(filepath).isDirectory() ? requireAll(filepath) : require(filepath)
+        const cmds = isDir(filepath) ? requireAll(filepath) : require(filepath)
         return this.registerCommands(cmds)
       }
       case 'object': {

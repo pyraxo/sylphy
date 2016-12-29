@@ -1,6 +1,7 @@
 const path = require('path')
 const fs = require('fs')
-const requireAll = require('require-all')
+
+const { readdirRecursive, isDir } = require('../../util')
 
 /**
  * Middleware manager for commands
@@ -30,7 +31,7 @@ class Bridge {
         if (!fs.existsSync(filepath)) {
           throw new Error(`Folder path ${filepath} does not exist`)
         }
-        const middleware = fs.statSync(filepath).isDirectory() ? requireAll(filepath) : require(filepath)
+        const middleware = isDir(filepath) ? readdirRecursive(filepath) : require(filepath)
         return this.register(middleware)
       }
       case 'object': {
@@ -56,7 +57,7 @@ class Bridge {
    * @typedef {Object} Middleware
    * @prop {String} name Name of middleware
    * @prop {Number} priority Priority level of the middleware
-   * @prop {Promise(Container)} Middleware process
+   * @prop {Promise(Container)} process Middleware process
    */
 
   /**
