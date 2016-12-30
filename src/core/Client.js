@@ -28,14 +28,16 @@ class Client extends Eris {
 
     this.plugins = new Collection()
 
-    this
-    .createPlugin('commands', Commander)
-    .createPlugin('modules', Router)
-    .createPlugin('middleware', Bridge)
+    if (!this.noDefaults) {
+      this
+      .createPlugin('commands', Commander)
+      .createPlugin('modules', Router)
+      .createPlugin('middleware', Bridge)
 
-    if (options.commands) this.register('commands', options.commands)
-    if (options.modules) this.register('modules', options.modules)
-    if (options.middleware) this.register('middleware', options.middleware)
+      if (options.commands) this.register('commands', options.commands)
+      if (options.modules) this.register('modules', options.modules)
+      if (options.middleware) this.register('middleware', options.middleware)
+    }
   }
 
   /**
