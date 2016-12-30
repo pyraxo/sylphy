@@ -1,8 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 
-const Collection = require('../../util/Collection')
-const { readdirRecursive, isDir } = require('../../util')
+const { readdirRecursive, isDir, Collection } = require('../../util')
 
 /**
  * Router class for event routing
@@ -16,6 +15,7 @@ class Router extends Collection {
   constructor (client) {
     super()
     this._client = client
+    this._cached = []
     this.events = {}
   }
 
@@ -38,18 +38,19 @@ class Router extends Collection {
 
    /**
     * Registers modules
-    * @param {String|Object|Array} modules An object, array or relative path to a folder or file to load modules from
+    * @arg {String|Object|Array} modules An object, array or relative path to a folder or file to load modules from
     * @returns {Client}
     */
   register (modules) {
     switch (typeof modules) {
       case 'string': {
-        const filepath = path.join(__dirname, modules)
+        const filepath = path.join(process.cwd(), modules)
         if (!fs.existsSync(filepath)) {
           throw new Error(`Folder path ${filepath} does not exist`)
         }
         const mods = isDir(filepath) ? readdirRecursive(filepath) : require(filepath)
-        return this.registerModules(mods)
+        this._cached.push(filepath)
+        return this.register(mods)
       }
       case 'object': {
         if (Array.isArray(modules)) {
@@ -149,6 +150,19 @@ class Router extends Collection {
       }
     })
     this.clear()
+    return this
+  }
+
+  /**
+   * Reloads module files (only those that have been added from by file path)
+   * @returns {Client}
+   */
+  reload () {
+    for (const filepath of this._cached) {
+      this._client.unload(filepath)
+      this._cached.shift()
+      this.register(filepath)
+    }
     return this
   }
 

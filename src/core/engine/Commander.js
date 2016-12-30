@@ -1,8 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 
-const Collection = require('../../util/Collection')
-const { requireAll, isDir } = require('../../util')
+const { requireAll, isDir, Collection } = require('../../util')
 
 /**
  * Commander class for command processing
@@ -15,22 +14,24 @@ class Commander extends Collection {
   constructor (client) {
     super()
     this._client = client
+    this._cached = []
   }
 
   /**
    * Registers commands
-   * @param {String|Object|Array} commands An object, array or relative path to a folder or file to load commands from
+   * @arg {String|Object|Array} commands An object, array or relative path to a folder or file to load commands from
    * @returns {Client}
    */
   register (commands) {
     switch (typeof commands) {
       case 'string': {
-        const filepath = path.join(__dirname, commands)
+        const filepath = path.join(process.cwd(), commands)
         if (!fs.existsSync(filepath)) {
           throw new Error(`Folder path ${filepath} does not exist`)
         }
         const cmds = isDir(filepath) ? requireAll(filepath) : require(filepath)
-        return this.registerCommands(cmds)
+        this._cached.push(filepath)
+        return this.register(cmds)
       }
       case 'object': {
         if (Array.isArray(commands)) {
@@ -162,6 +163,19 @@ class Commander extends Collection {
      * @prop {Number} count Number of ejected commands
      */
     this._client.emit('commander:ejectedGroup', { group, count })
+    return this
+  }
+
+  /**
+   * Reloads command files (only those that have been added from by file path)
+   * @returns {Client}
+   */
+  reload () {
+    for (const filepath of this._cached) {
+      this._client.unload(filepath)
+      this._cached.shift()
+      this.register(filepath)
+    }
     return this
   }
 

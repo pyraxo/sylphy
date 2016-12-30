@@ -13,7 +13,7 @@ class Collection extends Map {
 
   /**
    * Executes a function on all values
-   * @param {function} func forEach function
+   * @arg {function} func forEach function
    */
   forEach (...args) {
     return this.toArray().forEach(...args)
@@ -21,7 +21,7 @@ class Collection extends Map {
 
   /**
    * Filter values by function
-   * @param {function} func filter function
+   * @arg {function} func filter function
    * @returns {Array} Array of filtered values
    */
   filter (...args) {
@@ -30,7 +30,7 @@ class Collection extends Map {
 
   /**
    * Find values by function
-   * @param {function} func find function
+   * @arg {function} func find function
    * @returns {*} Value that was found
    */
   find (...args) {
@@ -39,7 +39,7 @@ class Collection extends Map {
 
   /**
    * Map values by function
-   * @param {function} func map function
+   * @arg {function} func map function
    * @returns {Array} Array of mapped values
    */
   map (...args) {
@@ -48,7 +48,7 @@ class Collection extends Map {
 
   /**
    * Reduce values by function
-   * @param {function} func reduce function
+   * @arg {function} func reduce function
    * @returns {Array} Array of reduced values
    */
   reduce (...args) {
@@ -57,7 +57,7 @@ class Collection extends Map {
 
   /**
    * Pluck values with key by function
-   * @param {String} key The matching key
+   * @arg {String} key The matching key
    * @returns {Array} Array of keyed values
    */
   pluck (key) {
@@ -70,7 +70,7 @@ class Collection extends Map {
 
   /**
    * Group values by key
-   * @param {String} key The matching key
+   * @arg {String} key The matching key
    * @returns {Object} Object containing grouped values
    */
   groupBy (key) {

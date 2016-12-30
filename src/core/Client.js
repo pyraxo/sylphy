@@ -1,3 +1,4 @@
+const path = require('path')
 const Eris = require('eris').Client
 
 const { Commander, Router, Bridge } = require('./engine')
@@ -91,6 +92,21 @@ class Client extends Eris {
   }
 
   /**
+   * Unloads files from the require cache
+   * @arg {String} filepath A relative or absolute directory path, file path or file name
+   * @returns {Client}
+   */
+  unload (filepath) {
+    Object.keys(require.cache).forEach(file => {
+      const str = path.isAbsolute(filepath) ? filepath : path.join(process.cwd(), filepath)
+      if (str === file || file.startsWith(str)) {
+        delete require.cache[require.resolve(file)]
+      }
+    })
+    return this
+  }
+
+  /**
    * Runs the bot
    * @returns {Client}
    */
@@ -146,4 +162,16 @@ module.exports = Client
  * The Eris member object
  * @external "Eris.Member"
  * @see {@link https://abal.moe/Eris/docs/Member|Eris.Member}
+ */
+
+/**
+ * The Eris user object
+ * @external "Eris.User"
+ * @see {@link https://abal.moe/Eris/docs/User|Eris.User}
+ */
+
+/**
+ * The Eris channel object
+ * @external "Eris.GuildChannel"
+ * @see {@link https://abal.moe/Eris/docs/GuildChannel|Eris.GuildChannel}
  */

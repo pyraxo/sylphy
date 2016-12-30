@@ -16,21 +16,23 @@ class Bridge {
   constructor (commander) {
     this.tasks = []
     this.collectors = []
+    this._cached = []
     this._commander = commander
   }
 
   /**
    * Registers middleware
-   * @param {String|Object|Array} middleware An object, array or relative path to a folder or file to load middleware from
+   * @arg {String|Object|Array} middleware An object, array or relative path to a folder or file to load middleware from
    * @returns {Client}
    */
   register (middleware) {
     switch (typeof middleware) {
       case 'string': {
-        const filepath = path.join(__dirname, middleware)
+        const filepath = path.isAbsolute(middleware) ? middleware : path.join(process.cwd(), middleware)
         if (!fs.existsSync(filepath)) {
           throw new Error(`Folder path ${filepath} does not exist`)
         }
+        this._cached.push(filepath)
         const middleware = isDir(filepath) ? readdirRecursive(filepath) : require(filepath)
         return this.register(middleware)
       }
@@ -177,6 +179,19 @@ class Bridge {
     if (!middleware) return null
     this.tasks.splice(this.tasks.indexOf(middleware, 1))
     return middleware
+  }
+
+  /**
+   * Reloads middleware files (only those that have been added from by file path)
+   * @returns {Client}
+   */
+  reload () {
+    for (const filepath of this._cached) {
+      this._client.unload(filepath)
+      this._cached.shift()
+      this.register(filepath)
+    }
+    return this
   }
 
   /**
