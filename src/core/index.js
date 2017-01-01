@@ -1,7 +1,7 @@
-const extensions = require('./base')
-const util = require('./util')
-
-module.exports = Object.assign({
-  ShardManager: require('./managers/ShardManager'),
-  Automaton: require('./Automaton')
-}, extensions, util)
+module.exports = {
+  Bridge: require('./Bridge'),
+  Commander: require('./Commander'),
+  Interpreter: require('./Interpreter'),
+  Logger: require('./Logger'),
+  Router: require('./Router')
+}

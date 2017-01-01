@@ -1,0 +1,24 @@
+{
+  "errors": {
+    "INSUFFICIENT_ARGS": "insufficient arguments supplied - {{requiredArgs}} expected, but only {{argsCount}} found.",
+    "NO_END_QUOTE": "you have a missing end quote.",
+    "ON_COOLDOWN": "please cool down! ({{time}} seconds left)",
+    "NO_PERMS": "you need the permissions {{perms}} to run this command!",
+    "NO_PERMS_BOT": "I need the permissions {{perms}} to run this command!",
+    "NO_PMS": "this command can't be run in PMs."
+  },
+  "menus": {
+    "EXIT": "Enter {{cancel}} to exit the menu.",
+    "ERRORED": "the menu has closed:",
+    "EXITED": "you have exited the menu.",
+    "SELECTION": "Selection Menu",
+    "ERROR": "Unknown Error",
+    "INPUT": "Type the number of your choice into chat or '{{cancel}}' to cancel.",
+    "MORE_RESULTS": "And {{num}} more..."
+  },
+  "collector": {
+    "timeout": "Timeout after {{time}}s",
+    "max": "Exceeded {{max}} tries",
+    "maxMatches": "Exceeded {{maxMatches}} matches"
+  }
+}

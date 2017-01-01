@@ -1,15 +1,15 @@
 module.exports = {
+  name: 'parseMessage',
   priority: 10,
   process: container => {
-    const { settings, msg, commander } = container
-    const { prefix } = settings
-    const defPrefix = process.env.CLIENT_PREFIX
+    const { msg, client, commands } = container
 
-    const chk = msg.content.startsWith(prefix)
-    const rawArgs = msg.content.substring((chk ? prefix : defPrefix).length).split(' ')
+    if (!msg.content.startsWith(client.prefix)) return Promise.resolve()
+
+    const rawArgs = msg.content.substring(client.prefix.length).split(' ')
     container.trigger = rawArgs[0].toLowerCase()
-    container.isCommand = commander.has(container.trigger)
-    container.rawArgs = rawArgs.slice(1).filter(v => !!v)
+    container.isCommand = commands.has(container.trigger)
+    container.rawArgs = rawArgs.slice(1).filter(v => v)
     return Promise.resolve(container)
   }
 }

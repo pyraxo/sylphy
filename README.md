@@ -1,41 +1,51 @@
-<div align="center">
-  <h1>
-    <br>
-    iris
-    <br>
-  </h1>
-  <h4>The better Discord bot base</h4>
-  <p>
-    <a href="https://github.com/feross/standard"><img src="https://cdn.rawgit.com/feross/standard/master/badge.svg"></a>
-    <br>
-    <a href="http://forthebadge.com/"><img src="http://forthebadge.com/images/badges/built-with-love.svg" alt="Built with ❤"></a>
-    <br>
-    <a href="https://discord.gg/bBqpAKw"><img src="https://discordapp.com/api/guilds/247727924889911297/embed.png" alt="Studio 777"></a>
-  </p>
-</div>
+# Sylphy
+<img src="https://discordapp.com/api/guilds/247727924889911297/embed.png" alt="Studio 777"></a> [![npm](https://img.shields.io/npm/v/sylphy.svg)](https://www.npmjs.com/package/sylphy)
 
-### Used by
-* [Tatsumaki](https://tatsumaki.xyz), a multi-purpose social Discord bot
-* [haru](https://pyraxo.moe/haru), everyone's favourite idol and part-time bot
+<a href="https://nodei.co/npm/sylphy/"><img src="https://nodei.co/npm/sylphy.png?downloads=true&stars=true" alt="NPM info" /></a>
 
-**iris** is an advanced, efficient and highly customisable base for Discord command bots written in Node.js
+**Sylphy** is an advanced, efficient and highly customisable framework for Discord command bots written in Node.js
 
+## Getting Started
 ### Requirements
-* Redis
-* Rethinkdb
-* **Node.js 7+**
+* **Node.js 6+**
 
-A firm grasp of **ES6 + async/await** syntax is recommended.
+A firm grasp of **ES6 + async/await** syntax is optional but recommended.
 
-### Installation
+As the bot framework extends the [Eris](https://github.com/abalabahaha/Eris) client, please refer to the docs [here](https://abal.moe/Eris/docs).
+
+### Usage
 ```bash
-$ git clone https://github.com/pyraxo/iris
-$ cd iris
-$ npm i
-$ npm start
+$ npm install --save sylphy
 ```
 
-### Configuration
-Create a new `.env` file from `.env.example` and edit the values as desired. Follow `.env` instructions [here](https://www.npmjs.com/package/dotenv-safe)
+If you don't want to use any built-in plugins, you may run the above command with the `--no-optional` flag.
 
-As the bot base uses the [Eris](https://github.com/abalabahaha/Eris) library, please refer to the docs [here](https://abal.moe/ErisDev/docs.html).
+#### Example
+```js
+const Bot = require('sylphy')
+
+const client = new Bot({
+  token: 'your token here',
+  modules: 'path/to/modules'
+})
+
+client.register('commands', 'path/to/commands')
+
+client.run()
+```
+
+### Documentation
+To view the API, please visit the [wiki](https://github.com/pyraxo/sylphy/wiki).
+
+## License
+Copyright (C) 2017  Pyraxo
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.

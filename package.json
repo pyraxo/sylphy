@@ -1,48 +1,46 @@
 {
-  "name": "iris",
-  "version": "2.2.0",
-  "private": true,
-  "description": "The better Discord bot base",
-  "main": "index.js",
+  "name": "sylphy",
+  "version": "0.1.0",
+  "description": "The better Discord bot framework",
+  "main": "build/index.js",
   "scripts": {
-    "start": "node --harmony_async_await index.js",
-    "lint": "standard --fix",
-    "gendocs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose"
+    "docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
+    "pub": "gulp && npm publish",
+    "install": "gulp",
+    "test": "gulp && node test/bot.js"
   },
   "engines": {
-    "node": ">=7.0.0"
+    "node": ">=6.0.0"
+  },
+  "repository": {
+    "url": "git+https://github.com/pyraxo/sylphy.git",
+    "type": "git"
   },
   "keywords": [
-    "Discord",
-    "Chat",
-    "Bot",
-    "Commands",
-    "Base"
+    "discord",
+    "bot",
+    "framework",
+    "eris",
+    "core",
+    "base",
+    "es6",
+    "plugins",
+    "commands",
+    "modules",
+    "middleware",
+    "chat"
   ],
   "author": "pyraxo <pyraxo@pyraxo.moe> (https://pyraxo.moe)",
   "license": "AGPL-3.0",
   "dependencies": {
-    "bluebird": "^3.4.6",
-    "chalk": "^1.1.3",
-    "dotenv-safe": "^2.3.2",
-    "eris": "github:abalabahaha/eris#dev",
-    "eventemitter3": "^2.0.1",
-    "longjohn": "^0.2.11",
-    "moment": "^2.13.0",
-    "moment-timezone": "^0.5.5",
-    "node-opus": "^0.2.4",
-    "redis": "^2.6.1",
-    "require-all": "^2.0.0",
-    "superagent": "^2.2.0",
-    "superagent-xml2jsparser": "^0.1.1",
-    "thinky": "^2.3.7",
-    "winston": "^2.2.0",
-    "winston-cluster": "0.0.4",
-    "winston-daily-rotate-file": "^1.3.1"
+    "eris": "github:abalabahaha/eris#dev"
   },
   "devDependencies": {
-    "jsdoc": "^3.4.0",
-    "minami": "^1.1.1",
-    "standard": "^8.1.0"
+    "babel-plugin-transform-async-to-generator": "^6.16.0",
+    "docdash": "^0.4.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "jsdoc": "^3.4.3",
+    "jsdoc-strip-async-await": "^0.1.0"
   }
 }
