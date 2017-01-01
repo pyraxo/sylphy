@@ -1,7 +1,8 @@
 const path = require('path')
 const fs = require('fs')
+const util = require('util')
 
-const { requireAll, isDir, Collection } = require('../../util')
+const { requireAll, isDir, Collection } = require('../util')
 
 /**
  * Commander class for command processing
@@ -36,12 +37,12 @@ class Commander extends Collection {
       case 'object': {
         if (Array.isArray(commands)) {
           for (const command of commands) {
-            this.commands.attach(command)
+            this.attach(command)
           }
           return this
         }
         for (const group in commands) {
-          this.commands.attach(commands[group], group)
+          this.attach(commands[group], group)
         }
         return this
       }
@@ -67,9 +68,9 @@ class Commander extends Collection {
    * @returns {Commander}
    */
   attach (Command, group) {
-    let command = typeof Command === 'function' ? new Command(this._client) : command
-    if (!command.triggers) {
-      this._client.throwOrEmit('commander:error', new Error(`Invalid command - ${command}`))
+    let command = typeof Command === 'function' ? new Command(this._client) : Command
+    if (!command.triggers || !command.triggers.length) {
+      this._client.throwOrEmit('commander:error', new Error(`Invalid command - ${util.inspect(command)}`))
       return this
     }
     for (const trigger of command.triggers) {

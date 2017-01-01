@@ -1,5 +1,6 @@
 const path = require('path')
 const fs = require('fs')
+const emojis = require('../../res/emoji')
 
 const colours = {
   blue: '#117ea6',
@@ -21,7 +22,7 @@ class Utils {
    * @arg {Client} client Client instance
    */
   constructor (client) {
-    this._client = client
+    Utils._client = client
   }
 
   /**
@@ -30,6 +31,10 @@ class Utils {
    */
   static isDir (fname) {
     return fs.existsSync(fname) ? fs.statSync(fname).isDirectory() : false
+  }
+
+  static get emojis () {
+    return emojis
   }
 
   /**
@@ -97,7 +102,7 @@ class Utils {
   static readdirRecursive (dir) {
     return fs.readdirSync(dir).reduce((arr, file) => {
       const filepath = path.join(dir, file)
-      arr.push(this.isDir(filepath) ? this.readdirRecursive(filepath) : require(filepath))
+      arr.push(Utils.isDir(filepath) ? Utils.readdirRecursive(filepath) : require(filepath))
       return arr
     }, [])
   }
@@ -110,9 +115,19 @@ class Utils {
   static requireAll (dir) {
     return fs.readdirSync(dir).reduce((obj, file) => {
       const filepath = path.join(dir, file)
-      obj[file] = this.isDir(filepath) ? this.requireAll(filepath) : require(filepath)
+      obj[file.substring(0, path.basename(filepath, path.extname(filepath)).length)] = Utils.isDir(filepath)
+      ? Utils.requireAll(filepath) : require(filepath)
       return obj
     }, {})
+  }
+
+  /**
+   * Delay Promise
+   * @arg {Number} time Time to delay
+   * @returns {Promise}
+   */
+  static delay (time) {
+    return new Promise((resolve) => setTimeout(() => resolve(), time))
   }
 }
 

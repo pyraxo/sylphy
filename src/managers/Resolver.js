@@ -1,8 +1,6 @@
 const { readdirRecursive, Collection } = require('../util')
 
-/**
- * Resolver manager for resolving usages
- */
+/** Resolver manager for resolving usages */
 class Resolver extends Collection {
   /**
    * Creates a new Resolver instance
@@ -107,7 +105,7 @@ class Resolver extends Collection {
   resolve (message, rawArgs, data, rawUsage = this.usage) {
     let args = {}
 
-    const usage = this.verify(usage)
+    const usage = this.verify(rawUsage)
     if (!usage.length) return Promise.resolve(args)
 
     const argsCount = rawArgs.length
@@ -168,7 +166,7 @@ class Resolver extends Collection {
       if (!resolver) {
         return Promise.resolve({ err: 'Invalid resolver type' })
       }
-      return resolver.resolve(rawArg, arg, message, this.bot)
+      return resolver.resolve(rawArg, arg, message, this._client)
       .catch(err => Object.assign(arg, {
         arg: `**\`${arg.name || 'argument'}\`**`,
         err: err

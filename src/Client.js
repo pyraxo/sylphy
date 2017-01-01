@@ -1,8 +1,8 @@
 const path = require('path')
 const Eris = require('eris').Client
 
-const { Commander, Router, Bridge } = require('./engine')
-const { Collection } = require('../util')
+const { Commander, Router, Bridge, Interpreter, Logger } = require('./core')
+const { Collection } = require('./util')
 
 /**
  * Interface between the Discord client and plugins
@@ -16,16 +16,21 @@ class Client extends Eris {
    * Creates a new Client instance
    * @arg {Object} options An object containing sylphy's and/or Eris client options
    * @arg {String} options.token Discord bot token
+   * @arg {String} [options.prefix='!'] Default prefix for commands
+   * @arg {String} [options.admins=[]] Array of admin IDs
    * @arg {String} [options.commands] Relative path to commands folder
    * @arg {String} [options.modules] Relative path to modules folder
    * @arg {String} [options.middleware] Relative path to middleware folder
+   * @arg {String} [options.locales] Relative path to locales folder
    * @arg {Boolean} [options.suppressWarnings=false] Option to suppress console warnings
    * @arg {Boolean} [options.noDefaults=false] Option to not use built-in plugins
    */
   constructor (options = {}) {
     super(options.token, options)
+    this.prefix = options.prefix || '!'
     this.suppressWarnings = options.suppressWarnings
     this.noDefaults = options.noDefaults
+    this.admins = Array.isArray(options.admins) ? options.admins : []
 
     this.plugins = new Collection()
 
@@ -34,10 +39,18 @@ class Client extends Eris {
       .createPlugin('commands', Commander)
       .createPlugin('modules', Router)
       .createPlugin('middleware', Bridge)
+      .createPlugin('i18n', Interpreter)
+      .createPlugin('logger', Logger)
+
+      this.logger = this.plugins.get('logger')
+
+      this.register('i18n', path.join(__dirname, '..', 'res/i18n'))
+      this.register('middleware', path.join(__dirname, 'middleware'))
 
       if (options.commands) this.register('commands', options.commands)
       if (options.modules) this.register('modules', options.modules)
       if (options.middleware) this.register('middleware', options.middleware)
+      if (options.locales) this.register('i18n', options.locales)
     }
   }
 
@@ -68,7 +81,7 @@ class Client extends Eris {
     if (!plugin) {
       throw new Error(`Plugin type ${type} not found`)
     }
-    plugin.register(...args)
+    if (typeof plugin.register === 'function') plugin.register(...args)
     return this
   }
 
@@ -87,7 +100,7 @@ class Client extends Eris {
     if (!plugin) {
       throw new Error(`Plugin type ${type} not found`)
     }
-    plugin.unregister(...args)
+    if (typeof plugin.unregister === 'function') plugin.unregister(...args)
     return this
   }
 
@@ -114,6 +127,9 @@ class Client extends Eris {
     if (typeof this.token !== 'string') {
       throw new TypeError('No bot token supplied')
     }
+    this.plugins.forEach(plugin => {
+      if (typeof plugin.run === 'function') plugin.run()
+    })
     this.connect()
     return this
   }
@@ -125,7 +141,7 @@ class Client extends Eris {
    * @private
    */
   throwOrEmit (event, error) {
-    if (!this.listeners(event, true)) {
+    if (!this.listeners(event).length) {
       throw error
     }
     this.emit(event, error)

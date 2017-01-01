@@ -5,15 +5,16 @@
   "main": "build/index.js",
   "scripts": {
     "docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
-    "prepublish": "gulp",
+    "pub": "gulp && npm publish",
+    "install": "gulp",
     "test": "gulp && node test/bot.js"
   },
   "engines": {
     "node": ">=6.0.0"
   },
   "repository": {
-    "type": "git",
-    "url": "git+https://github.com/pyraxo/sylphy.git"
+    "url": "git+https://github.com/pyraxo/sylphy.git",
+    "type": "git"
   },
   "keywords": [
     "discord",

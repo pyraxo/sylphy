@@ -1,11 +1,9 @@
 const path = require('path')
 const fs = require('fs')
 
-const { requireAll, isDir, Collection } = require('../../util')
+const { requireAll, isDir, Collection } = require('../util')
 
-/**
- * Locale manager and string parser
- */
+/** Locale manager and string parser */
 class Interpreter extends Collection {
   /**
    * Creates a new Localisations instance
@@ -37,16 +35,16 @@ class Interpreter extends Collection {
         if (Array.isArray(strings)) {
           for (const pair of strings) {
             if (typeof pair[0] !== 'string') continue
-            this.set(pair[0], pair[1])
+            this.set(pair[0], Object.assign(this.get(pair[0]) || {}, pair[1]))
           }
           return this
         }
         if (!loc) {
           for (const lang in strings) {
-            this.set(lang, strings[lang])
+            this.set(lang, Object.assign(this.get(lang) || {}, strings[lang]))
           }
         } else {
-          this.set(loc, strings)
+          this.set(loc, Object.assign(this.get(loc) || {}, strings))
         }
         return this
       }
@@ -93,9 +91,9 @@ class Interpreter extends Collection {
    * @arg {String} [locale='en'] The locale to find
    * @returns {?String}
    */
-  get (key = 'common', locale = 'en') {
-    if (!this.strings.has(locale)) locale = 'en'
-    return this.locate(key, this.strings.get(locale))
+  getStrings (key = 'common', locale = 'en') {
+    if (!this.has(locale)) locale = 'en'
+    return this.locate(key, this.get(locale))
   }
 
   /**
@@ -116,18 +114,18 @@ class Interpreter extends Collection {
   /**
    * Parses a string, converting keys to the matching locale string, with interpolation
    * @arg {String} string The string to parse
-   * @arg {String} [group='common'] The string group to use
+   * @arg {String} [group='default'] The string group to use
    * @arg {String} [locale='en'] The locale to use
    * @arg {Object} [options] Object containing tags to interpolate into the string
    * @returns {String}
    */
-  parse (string, group = 'common', locale = 'en', options = {}) {
+  parse (string, group = 'default', locale = 'en', options = {}) {
     if (!string) return string
     return string.split(' ').map(str => (
       str.replace(/\{\{(.+)\}\}/gi, (matched, key) => {
-        const g = key.startsWith('%') ? 'common.' : group + '.'
+        const g = key.startsWith('%') ? 'default.' : group + '.'
         key = key.startsWith('%') ? key.substr(1) : key
-        let val = this.get(`${g}${key}`, locale)
+        let val = this.getStrings(`${g}${key}`, locale)
         return typeof val === 'string' ? this.shift(val, options) : matched
       })
     )).join(' ')

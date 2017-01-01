@@ -1,7 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 
-const { readdirRecursive, isDir } = require('../../util')
+const { readdirRecursive, isDir } = require('../util')
 
 /**
  * Middleware manager for commands
@@ -11,13 +11,14 @@ const { readdirRecursive, isDir } = require('../../util')
 class Bridge {
   /**
    * Creates a new Bridge instance
-   * @arg {Commander} commander Commander instance
+   * @arg {Client} client Client instance
    */
-  constructor (commander) {
+  constructor (client) {
     this.tasks = []
     this.collectors = []
     this._cached = []
-    this._commander = commander
+    this._client = client
+    this._commander = client.plugins.get('commands')
   }
 
   /**
@@ -33,8 +34,8 @@ class Bridge {
           throw new Error(`Folder path ${filepath} does not exist`)
         }
         this._cached.push(filepath)
-        const middleware = isDir(filepath) ? readdirRecursive(filepath) : require(filepath)
-        return this.register(middleware)
+        const mw = isDir(filepath) ? readdirRecursive(filepath) : require(filepath)
+        return this.register(mw)
       }
       case 'object': {
         if (Array.isArray(middleware)) {
@@ -66,12 +67,10 @@ class Bridge {
    * Inserts new middleware to the task queue according to ascending priority (lower numbers are earlier in queue)
    * @arg {Middleware} middleware Middleware object
    */
-  push (middleware) {
-    const priority = middleware.priority || this.tasks.length
-    if (!middleware.process || !middleware.process.then) {
-      throw new Error('Middleware must be a promise')
-    }
-    this.tasks.splice(priority, 0, middleware)
+  push (Middleware) {
+    const middleware = typeof Middleware === 'function' ? new Middleware(this) : Middleware
+    this.tasks.push(middleware)
+    this.tasks.sort((a, b) => a.priority - b.priority)
   }
 
   /**
@@ -194,6 +193,31 @@ class Bridge {
     return this
   }
 
+  /** Starts running the bridge */
+  run () {
+    this._client.on('messageCreate', msg => {
+      if (msg.author.id === this._client.user.id || msg.author.bot) return
+      this.handle({
+        msg: msg,
+        client: this._client,
+        logger: this._client.logger,
+        admins: this._client.admins,
+        commands: this._commander,
+        modules: this._client.plugins.get('modules'),
+        middleware: this
+      }).catch(err => {
+        if (err && this._client.logger) {
+          this._client.logger.error('Failed to handle message in Bridge -', err)
+        }
+      })
+    })
+  }
+
+  /** Stops running the bridge */
+  stop () {
+    this._client.removeAllListeners('messageCreate')
+  }
+
   /**
    * Context container holding a message object along with added properties and objects
    * @typedef {Object} Container
@@ -216,7 +240,7 @@ class Bridge {
     }
     for (const task of this.tasks) {
       try {
-        const result = await task(container)
+        const result = await task.process(container)
         if (!result) return Promise.reject()
         container = result
       } catch (err) {

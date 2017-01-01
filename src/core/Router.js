@@ -1,7 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 
-const { readdirRecursive, isDir, Collection } = require('../../util')
+const { readdirRecursive, isDir, Collection } = require('../util')
 
 /**
  * Router class for event routing
@@ -55,12 +55,12 @@ class Router extends Collection {
       case 'object': {
         if (Array.isArray(modules)) {
           for (const module of modules) {
-            this.modules.attach(module)
+            this.attach(module)
           }
           return this
         }
         for (const key in modules) {
-          this.modules.attach(modules[key])
+          this.attach(modules[key])
         }
         return this
       }
@@ -100,7 +100,7 @@ class Router extends Collection {
    * @returns {Router}
    */
   record (event) {
-    this.bot.on(event, (...args) => {
+    this._client.on(event, (...args) => {
       const events = this.events[event] || {}
       for (const name in events) {
         const module = this.get(name)

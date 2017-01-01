@@ -1,6 +1,12 @@
+const Client = require('./Client')
 const Core = require('./core')
-const Client = function Client (opts) {
-  return new Core.Client(opts)
+
+function Sylphy (opts) {
+  return new Client(opts)
 }
 
-module.exports = Object.assign(Client, Core, require('./util'))
+module.exports = Object.assign(Sylphy, Core,
+  require('./util'),
+  require('./structures'),
+  require('./managers')
+)
