@@ -22,6 +22,7 @@ class Client extends Eris {
    * @arg {String} [options.modules] Relative path to modules folder
    * @arg {String} [options.middleware] Relative path to middleware folder
    * @arg {String} [options.locales] Relative path to locales folder
+   * @arg {String} [options.resolvers] Relative path to resolvers folder
    * @arg {Boolean} [options.suppressWarnings=false] Option to suppress console warnings
    * @arg {Boolean} [options.noDefaults=false] Option to not use built-in plugins
    */
@@ -31,6 +32,8 @@ class Client extends Eris {
     this.suppressWarnings = options.suppressWarnings
     this.noDefaults = options.noDefaults
     this.admins = Array.isArray(options.admins) ? options.admins : []
+
+    this._resolvers = options.resolvers
 
     this.plugins = new Collection()
 

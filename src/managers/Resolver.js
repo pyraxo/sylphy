@@ -1,4 +1,4 @@
-const { readdirRecursive, Collection } = require('../util')
+const { requireRecursive, Collection } = require('../util')
 
 /** Resolver manager for resolving usages */
 class Resolver extends Collection {
@@ -24,15 +24,13 @@ class Resolver extends Collection {
    * @returns {Promise<ResolverObject>}
    */
   loadResolvers (path) {
-    return readdirRecursive(path).then(resolvers => {
-      resolvers = resolvers.map(r => require(r))
-      for (const name in resolvers) {
-        const resolver = resolvers[name]
-        if (!resolver.resolve || !resolver.type) continue
-        this.set(resolver.type, resolver)
-      }
-      return resolvers
-    })
+    const resolvers = requireRecursive(path)
+    for (const name in resolvers) {
+      const resolver = resolvers[name]
+      if (!resolver.resolve || !resolver.type) continue
+      this.set(resolver.type, resolver)
+    }
+    return resolvers
   }
 
   /**

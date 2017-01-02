@@ -1,3 +1,5 @@
+const path = require('path')
+
 const { Collection } = require('../util')
 const { Responder, Resolver } = require('../managers')
 const Base = require('./Base')
@@ -23,7 +25,14 @@ class Command extends Base {
       throw new Error('Must extend abstract Command')
     }
 
-    this.resolver = new Resolver(client)
+    const resolver = this.resolver = new Resolver(client)
+    if (!client.noDefaults) {
+      resolver.loadResolvers(path.join(__dirname, '..', 'resolvers'))
+    }
+    if (client._resolvers) {
+      resolver.loadResolvers(client._resolvers)
+    }
+
     this.responder = new Responder(this)
     this.subcommands = new Collection()
 

@@ -99,10 +99,10 @@ class Utils {
    * @arg {String} dir Directory path
    * @returns {Array}
    */
-  static readdirRecursive (dir) {
+  static requireRecursive (dir) {
     return fs.readdirSync(dir).reduce((arr, file) => {
       const filepath = path.join(dir, file)
-      arr.push(Utils.isDir(filepath) ? Utils.readdirRecursive(filepath) : require(filepath))
+      arr.push(Utils.isDir(filepath) ? Utils.requireRecursive(filepath) : require(filepath))
       return arr
     }, [])
   }
