@@ -1,3 +1,12 @@
+let Promise
+try {
+  Promise = require('bluebird')
+} catch (err) {
+  Promise = global.Promise
+}
+
+const child = require('child_process')
+
 /**
  * Shard cluster structure
  * @prop {ChildProcess} worker The child process being handled
@@ -9,7 +18,7 @@ class Cluster {
    * @arg {Number} id ID of the cluster
    */
   constructor (file, id) {
-    this.worker = require('child_process').fork(file)
+    this.worker = child.fork(file)
     this.id = id
   }
 

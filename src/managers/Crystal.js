@@ -1,27 +1,42 @@
-const { Collection } = require('../util')
-const { Cluster } = require('../structures')
+let Promise
+let EventEmitter
+try {
+  Promise = require('bluebird')
+} catch (err) {
+  Promise = global.Promise
+}
+try {
+  EventEmitter = require('eventemitter3')
+} catch (err) {
+  EventEmitter = require('events')
+}
+
+const path = require('path')
+
+const { Collection, delay } = require('../util')
 
 /**
  * Shard cluster manager
  * @prop {Collection} clusters Collection of clusters
  */
-class Crystal {
+class Crystal extends EventEmitter {
   /**
    * Creates a new Crystal instance
-   * @arg {String} file Path to file to run
+   * @arg {String} file Relative or absolute path to file to run
    * @arg {Number} [count] Number of clusters to create, defaults to number of CPU cores
    */
   constructor (file, count = require('os').cpus().length) {
+    super()
     this.clusters = new Collection()
     this._count = count
-    this._file = file
+    this._file = path.isAbsolute(file) ? file : path.join(process.cwd(), file)
   }
 
   /** Spawns new clusters */
   async createClusters () {
-    for (let i = 0; i < this.processCount; i++) {
+    for (let i = 0; i < this._count; i++) {
       this.createCluster(i)
-      await Promise.delay(6000)
+      await delay(6000)
     }
   }
 
@@ -30,10 +45,10 @@ class Crystal {
    * @arg {Number} id Cluster ID
    */
   createCluster (id) {
-    const cluster = new Cluster(this._file, id)
-    cluster.on('exit', this.onExit.bind(this, cluster.worker))
-    cluster.on('online', this.onReady.bind(this, cluster.worker))
-    cluster.on('message', this.onMessage.bind(this, cluster.worker))
+    const cluster = new (require('../structures')).Cluster(this._file, id)
+    const worker = cluster.worker
+    worker.on('exit', this.onExit.bind(this, worker))
+    worker.on('message', this.onMessage.bind(this, worker))
     this.clusters.set(cluster.id, cluster)
   }
 
@@ -47,14 +62,9 @@ class Crystal {
 
   onExit (worker) {
     const cluster = this.getCluster(worker)
-    console.log(`WORKER ${worker.pid} EXITED: Process ${cluster.id}`)
+    this.emit('clusterExit', worker.pid, cluster.id)
     this.clusters.delete(cluster.id)
     this.createCluster(cluster.id)
-  }
-
-  onReady (worker) {
-    const cluster = this.getCluster(worker)
-    console.log(`WORKER ${worker.pid} ONLINE: Process ${cluster.id}`)
   }
 
   onMessage (worker, message) {

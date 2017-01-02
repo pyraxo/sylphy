@@ -1,3 +1,10 @@
+let Promise
+try {
+  Promise = require('bluebird')
+} catch (err) {
+  Promise = global.Promise
+}
+
 const { requireRecursive, Collection } = require('../util')
 
 /** Resolver manager for resolving usages */

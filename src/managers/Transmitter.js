@@ -1,3 +1,10 @@
+let Promise
+try {
+  Promise = require('bluebird')
+} catch (err) {
+  Promise = global.Promise
+}
+
 const crypto = require('crypto')
 
 const Collection = require('../util/Collection')
