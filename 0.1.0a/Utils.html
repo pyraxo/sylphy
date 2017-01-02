@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Utils - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Base.html">Base</a><ul class='methods'><li data-type='method'><a href="Base.html#deleteMessages">deleteMessages</a></li><li data-type='method'><a href="Base.html#edit">edit</a></li><li data-type='method'><a href="Base.html#hasPermissions">hasPermissions</a></li><li data-type='method'><a href="Base.html#send">send</a></li><li data-type='method'><a href="Base.html#t">t</a></li></ul></li><li><a href="Bridge.html">Bridge</a><ul class='methods'><li data-type='method'><a href="Bridge.html#collect">collect</a></li><li data-type='method'><a href="Bridge.html#destroy">destroy</a></li><li data-type='method'><a href="Bridge.html#handle">handle</a></li><li data-type='method'><a href="Bridge.html#push">push</a></li><li data-type='method'><a href="Bridge.html#register">register</a></li><li data-type='method'><a href="Bridge.html#reload">reload</a></li><li data-type='method'><a href="Bridge.html#run">run</a></li><li data-type='method'><a href="Bridge.html#stop">stop</a></li><li data-type='method'><a href="Bridge.html#unregister">unregister</a></li></ul></li><li><a href="Client.html">Client</a><ul class='methods'><li data-type='method'><a href="Client.html#createPlugin">createPlugin</a></li><li data-type='method'><a href="Client.html#register">register</a></li><li data-type='method'><a href="Client.html#run">run</a></li><li data-type='method'><a href="Client.html#unload">unload</a></li><li data-type='method'><a href="Client.html#unregister">unregister</a></li></ul></li><li><a href="Collection.html">Collection</a><ul class='methods'><li data-type='method'><a href="Collection.html#filter">filter</a></li><li data-type='method'><a href="Collection.html#find">find</a></li><li data-type='method'><a href="Collection.html#forEach">forEach</a></li><li data-type='method'><a href="Collection.html#groupBy">groupBy</a></li><li data-type='method'><a href="Collection.html#map">map</a></li><li data-type='method'><a href="Collection.html#pluck">pluck</a></li><li data-type='method'><a href="Collection.html#reduce">reduce</a></li><li data-type='method'><a href="Collection.html#toArray">toArray</a></li><li data-type='method'><a href="Collection.html#unique">unique</a></li></ul></li><li><a href="Command.html">Command</a><ul class='methods'><li data-type='method'><a href="Command.html#_verify">_verify</a></li><li data-type='method'><a href="Command.html#check">check</a></li><li data-type='method'><a href="Command.html#deleteMessages">deleteMessages</a></li><li data-type='method'><a href="Command.html#edit">edit</a></li><li data-type='method'><a href="Command.html#execute">execute</a></li><li data-type='method'><a href="Command.html#handle">handle</a></li><li data-type='method'><a href="Command.html#hasPermissions">hasPermissions</a></li><li data-type='method'><a href="Command.html#send">send</a></li><li data-type='method'><a href="Command.html#t">t</a></li></ul></li><li><a href="Commander.html">Commander</a><ul class='methods'><li data-type='method'><a href="Commander.html#attach">attach</a></li><li data-type='method'><a href="Commander.html#eject">eject</a></li><li data-type='method'><a href="Commander.html#ejectGroup">ejectGroup</a></li><li data-type='method'><a href="Commander.html#execute">execute</a></li><li data-type='method'><a href="Commander.html#register">register</a></li><li data-type='method'><a href="Commander.html#reload">reload</a></li><li data-type='method'><a href="Commander.html#unregister">unregister</a></li></ul></li><li><a href="Database.html">Database</a></li><li><a href="Interpreter.html">Interpreter</a><ul class='methods'><li data-type='method'><a href="Interpreter.html#getStrings">getStrings</a></li><li data-type='method'><a href="Interpreter.html#locate">locate</a></li><li data-type='method'><a href="Interpreter.html#parse">parse</a></li><li data-type='method'><a href="Interpreter.html#register">register</a></li><li data-type='method'><a href="Interpreter.html#reload">reload</a></li><li data-type='method'><a href="Interpreter.html#shift">shift</a></li></ul></li><li><a href="Logger.html">Logger</a><ul class='methods'><li data-type='method'><a href="Logger.html#debug">debug</a></li><li data-type='method'><a href="Logger.html#error">error</a></li><li data-type='method'><a href="Logger.html#info">info</a></li><li data-type='method'><a href="Logger.html#log">log</a></li><li data-type='method'><a href="Logger.html#supportsColours">supportsColours</a></li><li data-type='method'><a href="Logger.html#warn">warn</a></li></ul></li><li><a href="Permitter.html">Permitter</a><ul class='methods'><li data-type='method'><a href="Permitter.html#.allow">allow</a></li><li data-type='method'><a href="Permitter.html#.deny">deny</a></li><li data-type='method'><a href="Permitter.html#.grant">grant</a></li><li data-type='method'><a href="Permitter.html#.verifyMessage">verifyMessage</a></li><li data-type='method'><a href="Permitter.html#check">check</a></li></ul></li><li><a href="Resolver.html">Resolver</a><ul class='methods'><li data-type='method'><a href="Resolver.html#getUsage">getUsage</a></li><li data-type='method'><a href="Resolver.html#load">load</a></li><li data-type='method'><a href="Resolver.html#loadResolvers">loadResolvers</a></li><li data-type='method'><a href="Resolver.html#resolve">resolve</a></li><li data-type='method'><a href="Resolver.html#verify">verify</a></li></ul></li><li><a href="Router.html">Router</a><ul class='methods'><li data-type='method'><a href="Router.html#attach">attach</a></li><li data-type='method'><a href="Router.html#destroy">destroy</a></li><li data-type='method'><a href="Router.html#initAll">initAll</a></li><li data-type='method'><a href="Router.html#record">record</a></li><li data-type='method'><a href="Router.html#register">register</a></li><li data-type='method'><a href="Router.html#reload">reload</a></li><li data-type='method'><a href="Router.html#unregister">unregister</a></li></ul></li><li><a href="Transmitter.html">Transmitter</a><ul class='methods'><li data-type='method'><a href="Transmitter.html#awaitResponse">awaitResponse</a></li><li data-type='method'><a href="Transmitter.html#register">register</a></li><li data-type='method'><a href="Transmitter.html#send">send</a></li><li data-type='method'><a href="Transmitter.html#unregister">unregister</a></li></ul></li><li><a href="Utils.html">Utils</a><ul class='methods'><li data-type='method'><a href="Utils.html#.delay">delay</a></li><li data-type='method'><a href="Utils.html#.getColour">getColour</a></li><li data-type='method'><a href="Utils.html#.hasRoleHierarchy">hasRoleHierarchy</a></li><li data-type='method'><a href="Utils.html#.isDir">isDir</a></li><li data-type='method'><a href="Utils.html#.padEnd">padEnd</a></li><li data-type='method'><a href="Utils.html#.padStart">padStart</a></li><li data-type='method'><a href="Utils.html#.parseNumber">parseNumber</a></li><li data-type='method'><a href="Utils.html#.readdirRecursive">readdirRecursive</a></li><li data-type='method'><a href="Utils.html#.requireAll">requireAll</a></li></ul></li></ul><h3>Externals</h3><ul><li><a href="external-_Eris.Client_.html">Eris.Client</a></li><li><a href="external-_Eris.Guild_.html">Eris.Guild</a></li><li><a href="external-_Eris.GuildChannel_.html">Eris.GuildChannel</a></li><li><a href="external-_Eris.Member_.html">Eris.Member</a></li><li><a href="external-_Eris.Message_.html">Eris.Message</a></li><li><a href="external-_Eris.Role_.html">Eris.Role</a></li><li><a href="external-_Eris.User_.html">Eris.User</a></li></ul><h3>Events</h3><ul><li><a href="Client.html#event:commander:commandError">commander:commandError</a></li><li><a href="Client.html#event:commander:ejected">commander:ejected</a></li><li><a href="Client.html#event:commander:ejectedGroup">commander:ejectedGroup</a></li><li><a href="Client.html#event:commander:error">commander:error</a></li><li><a href="Client.html#event:commander:registered">commander:registered</a></li><li><a href="Client.html#event:ipc:error">ipc:error</a></li><li><a href="Client.html#event:router:error">router:error</a></li><li><a href="Client.html#event:router:runError">router:runError</a></li></ul><h3>Namespaces</h3><ul><li><a href="Collector.html">Collector</a><ul class='methods'><li data-type='method'><a href="Collector.html#.collector.next">collector.next</a></li><li data-type='method'><a href="Collector.html#.collector.passMessage">collector.passMessage</a></li><li data-type='method'><a href="Collector.html#.collector.stop">collector.stop</a></li></ul></li><li><a href="CommandUsage.html">CommandUsage</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Utils</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+        Utils
+        </h2>
+        
+            <div class="class-description"><p>Utility class</p></div>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+    <h2>Constructor</h2>
+    
+
+    <h4 class="name" id="Utils"><span class="type-signature"></span>new Utils<span class="signature">(client)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util_Utils.js.html">util/Utils.js</a>, <a href="util_Utils.js.html#line19">line 19</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Creates a new Utils instance</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>client</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Client.html">Client</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Client instance</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id=".delay"><span class="type-signature">(static) </span>delay<span class="signature">(time)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util_Utils.js.html">util/Utils.js</a>, <a href="util_Utils.js.html#line129">line 129</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Delay Promise</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>time</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Time to delay</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".getColour"><span class="type-signature">(static) </span>getColour<span class="signature">(colour)</span><span class="type-signature"> &rarr; (nullable) {Number}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util_Utils.js.html">util/Utils.js</a>, <a href="util_Utils.js.html#line69">line 69</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Gets the integer of a colour</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>colour</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Hex colour code or name of colour</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Number</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".hasRoleHierarchy"><span class="type-signature">(static) </span>hasRoleHierarchy<span class="signature">(member, role)</span><span class="type-signature"> &rarr; {Boolean}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util_Utils.js.html">util/Utils.js</a>, <a href="util_Utils.js.html#line89">line 89</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Determines if a member has a role that is higher than the given role</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>member</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="external-_Eris.Member_.html">external:"Eris.Member"</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Member to check</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>role</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="external-_Eris.Role_.html">external:"Eris.Role"</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Role to check</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".isDir"><span class="type-signature">(static) </span>isDir<span class="signature">(filename)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util_Utils.js.html">util/Utils.js</a>, <a href="util_Utils.js.html#line32">line 32</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Checks if a path is a directory</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>filename</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The path to check</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".padEnd"><span class="type-signature">(static) </span>padEnd<span class="signature">(String<span class="signature-attributes">opt</span>, length<span class="signature-attributes">opt</span>, chars<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util_Utils.js.html">util/Utils.js</a>, <a href="util_Utils.js.html#line46">line 46</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Pads a string on the right if it's shorter than the padding length</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>String</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>''</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>The string to pad</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>length</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>0</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>The padding length</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>chars</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>' '</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>The string used as padding</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".padStart"><span class="type-signature">(static) </span>padStart<span class="signature">(String<span class="signature-attributes">opt</span>, length<span class="signature-attributes">opt</span>, chars<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util_Utils.js.html">util/Utils.js</a>, <a href="util_Utils.js.html#line58">line 58</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Pads a string on the left if it's shorter than the padding length</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>String</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>''</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>The string to pad</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>length</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>0</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>The padding length</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>chars</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>' '</code>
+                
+                </td>
+            
+
+            <td class="description last"><p>The string used as padding</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".parseNumber"><span class="type-signature">(static) </span>parseNumber<span class="signature">(num)</span><span class="type-signature"> &rarr; {String}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util_Utils.js.html">util/Utils.js</a>, <a href="util_Utils.js.html#line79">line 79</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Format a number with grouped thousands</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>num</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Number to Format</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">String</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".readdirRecursive"><span class="type-signature">(static) </span>readdirRecursive<span class="signature">(dir)</span><span class="type-signature"> &rarr; {Array}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util_Utils.js.html">util/Utils.js</a>, <a href="util_Utils.js.html#line102">line 102</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Reads a directory recursively and returns an array of paths</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dir</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Directory path</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".requireAll"><span class="type-signature">(static) </span>requireAll<span class="signature">(dir)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util_Utils.js.html">util/Utils.js</a>, <a href="util_Utils.js.html#line115">line 115</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Reads a directory recursively and returns an object mapping the required files to the folder</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dir</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Directory path</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Mon Jan 02 2017 18:08:58 GMT+0800 (SGT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Client.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Base.html">Base</a><ul class='methods'><li data-type='method'><a href="Base.html#deleteMessages">deleteMessages</a></li><li data-type='method'><a href="Base.html#edit">edit</a></li><li data-type='method'><a href="Base.html#hasPermissions">hasPermissions</a></li><li data-type='method'><a href="Base.html#send">send</a></li><li data-type='method'><a href="Base.html#t">t</a></li></ul></li><li><a href="Bridge.html">Bridge</a><ul class='methods'><li data-type='method'><a href="Bridge.html#collect">collect</a></li><li data-type='method'><a href="Bridge.html#destroy">destroy</a></li><li data-type='method'><a href="Bridge.html#handle">handle</a></li><li data-type='method'><a href="Bridge.html#push">push</a></li><li data-type='method'><a href="Bridge.html#register">register</a></li><li data-type='method'><a href="Bridge.html#reload">reload</a></li><li data-type='method'><a href="Bridge.html#run">run</a></li><li data-type='method'><a href="Bridge.html#stop">stop</a></li><li data-type='method'><a href="Bridge.html#unregister">unregister</a></li></ul></li><li><a href="Client.html">Client</a><ul class='methods'><li data-type='method'><a href="Client.html#createPlugin">createPlugin</a></li><li data-type='method'><a href="Client.html#register">register</a></li><li data-type='method'><a href="Client.html#run">run</a></li><li data-type='method'><a href="Client.html#unload">unload</a></li><li data-type='method'><a href="Client.html#unregister">unregister</a></li></ul></li><li><a href="Collection.html">Collection</a><ul class='methods'><li data-type='method'><a href="Collection.html#filter">filter</a></li><li data-type='method'><a href="Collection.html#find">find</a></li><li data-type='method'><a href="Collection.html#forEach">forEach</a></li><li data-type='method'><a href="Collection.html#groupBy">groupBy</a></li><li data-type='method'><a href="Collection.html#map">map</a></li><li data-type='method'><a href="Collection.html#pluck">pluck</a></li><li data-type='method'><a href="Collection.html#reduce">reduce</a></li><li data-type='method'><a href="Collection.html#toArray">toArray</a></li><li data-type='method'><a href="Collection.html#unique">unique</a></li></ul></li><li><a href="Command.html">Command</a><ul class='methods'><li data-type='method'><a href="Command.html#_verify">_verify</a></li><li data-type='method'><a href="Command.html#check">check</a></li><li data-type='method'><a href="Command.html#deleteMessages">deleteMessages</a></li><li data-type='method'><a href="Command.html#edit">edit</a></li><li data-type='method'><a href="Command.html#execute">execute</a></li><li data-type='method'><a href="Command.html#handle">handle</a></li><li data-type='method'><a href="Command.html#hasPermissions">hasPermissions</a></li><li data-type='method'><a href="Command.html#send">send</a></li><li data-type='method'><a href="Command.html#t">t</a></li></ul></li><li><a href="Commander.html">Commander</a><ul class='methods'><li data-type='method'><a href="Commander.html#attach">attach</a></li><li data-type='method'><a href="Commander.html#eject">eject</a></li><li data-type='method'><a href="Commander.html#ejectGroup">ejectGroup</a></li><li data-type='method'><a href="Commander.html#execute">execute</a></li><li data-type='method'><a href="Commander.html#register">register</a></li><li data-type='method'><a href="Commander.html#reload">reload</a></li><li data-type='method'><a href="Commander.html#unregister">unregister</a></li></ul></li><li><a href="Database.html">Database</a></li><li><a href="Interpreter.html">Interpreter</a><ul class='methods'><li data-type='method'><a href="Interpreter.html#getStrings">getStrings</a></li><li data-type='method'><a href="Interpreter.html#locate">locate</a></li><li data-type='method'><a href="Interpreter.html#parse">parse</a></li><li data-type='method'><a href="Interpreter.html#register">register</a></li><li data-type='method'><a href="Interpreter.html#reload">reload</a></li><li data-type='method'><a href="Interpreter.html#shift">shift</a></li></ul></li><li><a href="Logger.html">Logger</a><ul class='methods'><li data-type='method'><a href="Logger.html#debug">debug</a></li><li data-type='method'><a href="Logger.html#error">error</a></li><li data-type='method'><a href="Logger.html#info">info</a></li><li data-type='method'><a href="Logger.html#log">log</a></li><li data-type='method'><a href="Logger.html#supportsColours">supportsColours</a></li><li data-type='method'><a href="Logger.html#warn">warn</a></li></ul></li><li><a href="Permitter.html">Permitter</a><ul class='methods'><li data-type='method'><a href="Permitter.html#.allow">allow</a></li><li data-type='method'><a href="Permitter.html#.deny">deny</a></li><li data-type='method'><a href="Permitter.html#.grant">grant</a></li><li data-type='method'><a href="Permitter.html#.verifyMessage">verifyMessage</a></li><li data-type='method'><a href="Permitter.html#check">check</a></li></ul></li><li><a href="Resolver.html">Resolver</a><ul class='methods'><li data-type='method'><a href="Resolver.html#getUsage">getUsage</a></li><li data-type='method'><a href="Resolver.html#load">load</a></li><li data-type='method'><a href="Resolver.html#loadResolvers">loadResolvers</a></li><li data-type='method'><a href="Resolver.html#resolve">resolve</a></li><li data-type='method'><a href="Resolver.html#verify">verify</a></li></ul></li><li><a href="Router.html">Router</a><ul class='methods'><li data-type='method'><a href="Router.html#attach">attach</a></li><li data-type='method'><a href="Router.html#destroy">destroy</a></li><li data-type='method'><a href="Router.html#initAll">initAll</a></li><li data-type='method'><a href="Router.html#record">record</a></li><li data-type='method'><a href="Router.html#register">register</a></li><li data-type='method'><a href="Router.html#reload">reload</a></li><li data-type='method'><a href="Router.html#unregister">unregister</a></li></ul></li><li><a href="Transmitter.html">Transmitter</a><ul class='methods'><li data-type='method'><a href="Transmitter.html#awaitResponse">awaitResponse</a></li><li data-type='method'><a href="Transmitter.html#register">register</a></li><li data-type='method'><a href="Transmitter.html#send">send</a></li><li data-type='method'><a href="Transmitter.html#unregister">unregister</a></li></ul></li><li><a href="Utils.html">Utils</a><ul class='methods'><li data-type='method'><a href="Utils.html#.delay">delay</a></li><li data-type='method'><a href="Utils.html#.getColour">getColour</a></li><li data-type='method'><a href="Utils.html#.hasRoleHierarchy">hasRoleHierarchy</a></li><li data-type='method'><a href="Utils.html#.isDir">isDir</a></li><li data-type='method'><a href="Utils.html#.padEnd">padEnd</a></li><li data-type='method'><a href="Utils.html#.padStart">padStart</a></li><li data-type='method'><a href="Utils.html#.parseNumber">parseNumber</a></li><li data-type='method'><a href="Utils.html#.readdirRecursive">readdirRecursive</a></li><li data-type='method'><a href="Utils.html#.requireAll">requireAll</a></li></ul></li></ul><h3>Externals</h3><ul><li><a href="external-_Eris.Client_.html">Eris.Client</a></li><li><a href="external-_Eris.Guild_.html">Eris.Guild</a></li><li><a href="external-_Eris.GuildChannel_.html">Eris.GuildChannel</a></li><li><a href="external-_Eris.Member_.html">Eris.Member</a></li><li><a href="external-_Eris.Message_.html">Eris.Message</a></li><li><a href="external-_Eris.Role_.html">Eris.Role</a></li><li><a href="external-_Eris.User_.html">Eris.User</a></li></ul><h3>Events</h3><ul><li><a href="Client.html#event:commander:commandError">commander:commandError</a></li><li><a href="Client.html#event:commander:ejected">commander:ejected</a></li><li><a href="Client.html#event:commander:ejectedGroup">commander:ejectedGroup</a></li><li><a href="Client.html#event:commander:error">commander:error</a></li><li><a href="Client.html#event:commander:registered">commander:registered</a></li><li><a href="Client.html#event:ipc:error">ipc:error</a></li><li><a href="Client.html#event:router:error">router:error</a></li><li><a href="Client.html#event:router:runError">router:runError</a></li></ul><h3>Namespaces</h3><ul><li><a href="Collector.html">Collector</a><ul class='methods'><li data-type='method'><a href="Collector.html#.collector.next">collector.next</a></li><li data-type='method'><a href="Collector.html#.collector.passMessage">collector.passMessage</a></li><li data-type='method'><a href="Collector.html#.collector.stop">collector.stop</a></li></ul></li><li><a href="CommandUsage.html">CommandUsage</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Client.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const path = require('path')
+const Eris = require('eris').Client
+
+const { Commander, Router, Bridge, Interpreter, Logger } = require('./core')
+const { Collection } = require('./util')
+
+/**
+ * Interface between the Discord client and plugins
+ * @version 3.0.0
+ * @extends Eris.Client
+ * @prop {Collection} plugins A Collection of plugins
+ * @see {@link https://abal.moe/Eris/docs/Client|Eris.Client}
+ */
+class Client extends Eris {
+  /**
+   * Creates a new Client instance
+   * @arg {Object} options An object containing sylphy's and/or Eris client options
+   * @arg {String} options.token Discord bot token
+   * @arg {String} [options.prefix='!'] Default prefix for commands
+   * @arg {String} [options.admins=[]] Array of admin IDs
+   * @arg {String} [options.commands] Relative path to commands folder
+   * @arg {String} [options.modules] Relative path to modules folder
+   * @arg {String} [options.middleware] Relative path to middleware folder
+   * @arg {String} [options.locales] Relative path to locales folder
+   * @arg {Boolean} [options.suppressWarnings=false] Option to suppress console warnings
+   * @arg {Boolean} [options.noDefaults=false] Option to not use built-in plugins
+   */
+  constructor (options = {}) {
+    super(options.token, options)
+    this.prefix = options.prefix || '!'
+    this.suppressWarnings = options.suppressWarnings
+    this.noDefaults = options.noDefaults
+    this.admins = Array.isArray(options.admins) ? options.admins : []
+
+    this.plugins = new Collection()
+
+    if (!this.noDefaults) {
+      this
+      .createPlugin('commands', Commander)
+      .createPlugin('modules', Router)
+      .createPlugin('middleware', Bridge)
+      .createPlugin('i18n', Interpreter)
+      .createPlugin('logger', Logger)
+
+      this.logger = this.plugins.get('logger')
+
+      this.register('i18n', path.join(__dirname, '..', 'res/i18n'))
+      this.register('middleware', path.join(__dirname, 'middleware'))
+
+      if (options.commands) this.register('commands', options.commands)
+      if (options.modules) this.register('modules', options.modules)
+      if (options.middleware) this.register('middleware', options.middleware)
+      if (options.locales) this.register('i18n', options.locales)
+    }
+  }
+
+  /**
+   * Creates a plugin
+   * @arg {String} type The type of plugin
+   * @arg {Plugin} Plugin Plugin class
+   * @returns {Client}
+   */
+  createPlugin (type, Plugin) {
+    const plugin = new Plugin(this)
+    this.plugins.set(type, plugin)
+    return this
+  }
+
+  /**
+   * Registers plugins
+   * @arg {String} type The type of plugin&lt;br />
+   * Defaults: `commands`, `modules`, `middleware`, `resolvers`, `ipc`
+   * @arg {...*} args Arguments supplied to the plugin
+   * @returns {Client}
+   */
+  register (type, ...args) {
+    if (typeof type !== 'string') {
+      throw new Error('Invalid type supplied to register')
+    }
+    const plugin = this.plugins.get(type)
+    if (!plugin) {
+      throw new Error(`Plugin type ${type} not found`)
+    }
+    if (typeof plugin.register === 'function') plugin.register(...args)
+    return this
+  }
+
+  /**
+   * Unregisters plugins
+   * @arg {String} type The type of plugin&lt;br />
+   * Defaults: `commands`, `modules`, `middleware`, `resolvers`, `ipc`
+   * @arg {...*} args Arguments supplied to the plugin
+   * @returns {Client}
+   */
+  unregister (type, ...args) {
+    if (typeof type !== 'string') {
+      throw new Error('Invalid type supplied to register')
+    }
+    const plugin = this.plugins.get(type)
+    if (!plugin) {
+      throw new Error(`Plugin type ${type} not found`)
+    }
+    if (typeof plugin.unregister === 'function') plugin.unregister(...args)
+    return this
+  }
+
+  /**
+   * Unloads files from the require cache
+   * @arg {String} filepath A relative or absolute directory path, file path or file name
+   * @returns {Client}
+   */
+  unload (filepath) {
+    Object.keys(require.cache).forEach(file => {
+      const str = path.isAbsolute(filepath) ? filepath : path.join(process.cwd(), filepath)
+      if (str === file || file.startsWith(str)) {
+        delete require.cache[require.resolve(file)]
+      }
+    })
+    return this
+  }
+
+  /**
+   * Runs the bot
+   * @returns {Client}
+   */
+  run () {
+    if (typeof this.token !== 'string') {
+      throw new TypeError('No bot token supplied')
+    }
+    this.plugins.forEach(plugin => {
+      if (typeof plugin.run === 'function') plugin.run()
+    })
+    this.connect()
+    return this
+  }
+
+  /**
+   * Emits an error or throws when there are no listeners
+   * @arg {String} event Event name
+   * @arg {Error} error Thrown or emitted error
+   * @private
+   */
+  throwOrEmit (event, error) {
+    if (!this.listeners(event).length) {
+      throw error
+    }
+    this.emit(event, error)
+  }
+}
+
+module.exports = Client
+
+/**
+ * The Eris client
+ * @external "Eris.Client"
+ * @see {@link https://abal.moe/Eris/docs/Client|Eris.Client}
+ */
+
+/**
+ * The Eris message object
+ * @external "Eris.Message"
+ * @see {@link https://abal.moe/Eris/docs/Message|Eris.Message}
+ */
+
+/**
+ * The Eris guild object
+ * @external "Eris.Guild"
+ * @see {@link https://abal.moe/Eris/docs/Guild|Eris.Guild}
+ */
+
+/**
+ * The Eris role object
+ * @external "Eris.Role"
+ * @see {@link https://abal.moe/Eris/docs/Role|Eris.Role}
+ */
+
+/**
+ * The Eris member object
+ * @external "Eris.Member"
+ * @see {@link https://abal.moe/Eris/docs/Member|Eris.Member}
+ */
+
+/**
+ * The Eris user object
+ * @external "Eris.User"
+ * @see {@link https://abal.moe/Eris/docs/User|Eris.User}
+ */
+
+/**
+ * The Eris channel object
+ * @external "Eris.GuildChannel"
+ * @see {@link https://abal.moe/Eris/docs/GuildChannel|Eris.GuildChannel}
+ */
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Mon Jan 02 2017 18:08:57 GMT+0800 (SGT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
