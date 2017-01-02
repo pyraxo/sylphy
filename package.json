@@ -1,12 +1,11 @@
 {
   "name": "sylphy",
-  "version": "0.1.0",
+  "version": "0.1.0a",
   "description": "The better Discord bot framework",
   "main": "build/index.js",
   "scripts": {
     "docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
     "pub": "gulp && npm publish",
-    "install": "gulp",
     "test": "gulp && node test/bot.js"
   },
   "engines": {

@@ -6,6 +6,7 @@ function Sylphy (opts) {
 }
 
 module.exports = Object.assign(Sylphy, Core,
+  { Client },
   require('./util'),
   require('./structures'),
   require('./managers')
