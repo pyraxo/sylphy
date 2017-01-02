@@ -20,7 +20,7 @@ class Command extends Base {
   constructor (client, ...args) {
     super(client)
     if (this.constructor === Command) {
-      throw new Error('Cannot instantiate abstract Command')
+      throw new Error('Must extend abstract Command')
     }
 
     this.resolver = new Resolver(client)
@@ -36,6 +36,7 @@ class Command extends Base {
   /**
    * Verifies the options passed to the constructor
    * @arg {Object} args Options passed to the Command constructor
+   * @private
    */
   _verify (args = {}) {
     const { name, group = 'none', aliases = [], cooldown = 5, usage = [], options = {}, subcommands = {}, subcommand } = args
