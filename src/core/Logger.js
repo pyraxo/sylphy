@@ -3,13 +3,13 @@ class Logger {
   /**
    * Creates a new Logger instance
    * @arg {Object} [options] Logger options
-   * @arg {String} [options.name] Option for a prefix before logging
+   * @arg {String} [options.loggerPrefix] Option for a prefix before logging
    * @arg {Boolean} [options.suppressWarnings=false] Option to suppress warnings
    * @arg {Boolean} [options.timestamps=true] Option to show timestamps
    */
-  constructor ({ name, suppressWarnings, timestamps = true } = {}) {
+  constructor ({ loggerPrefix, suppressWarnings, timestamps = true } = {}) {
     this.timestamps = timestamps
-    this.name = name ? `- [${name}] ` : ''
+    this._name = loggerPrefix ? `- [${loggerPrefix}] ` : ''
 
     this.styles = {}
     for (const code in this.codes) {
@@ -19,11 +19,20 @@ class Logger {
   }
 
   /**
+   * Register a new Logger instance
+   * @arg {Object} options Logger options
+   * @returns {Logger}
+   */
+  register (options) {
+    return new this.constructor(options)
+  }
+
+  /**
    * Logs to console
    * @arg {...String} args Strings to log to console
    */
   log (...args) {
-    console.log(this.timestamp + this.name + args.join(' '))
+    console.log(this.timestamp + this._name + args.join(' '))
   }
 
   /**
@@ -31,7 +40,7 @@ class Logger {
    * @arg {...String} args Strings to log to console
    */
   info (...args) {
-    console.log(`${this.timestamp}${this.name}${this.styles.green('info')} - ${args.join(' ')}`)
+    console.log(`${this.timestamp}${this._name}${this.styles.green('info')} - ${args.join(' ')}`)
   }
 
   /**
@@ -39,7 +48,7 @@ class Logger {
    * @arg {...String} args Strings to log to console
    */
   warn (...args) {
-    console.log(`${this.timestamp}${this.name}${this.styles.yellow('warn')} - ${args.join(' ')}`)
+    console.log(`${this.timestamp}${this._name}${this.styles.yellow('warn')} - ${args.join(' ')}`)
   }
 
   /**
@@ -47,7 +56,7 @@ class Logger {
    * @arg {...(String|Error)} args Strings or errors to log to console
    */
   error (...args) {
-    console.log(`${this.timestamp}${this.name}${this.styles.red('error')} - ${args.map(e => e instanceof Error ? e.stack : e).join(' ')}`)
+    console.log(`${this.timestamp}${this._name}${this.styles.red('error')} - ${args.map(e => e instanceof Error ? e.stack : e).join(' ')}`)
   }
 
   /**
@@ -55,7 +64,7 @@ class Logger {
    * @arg {...String} args Strings to log to console
    */
   debug (...args) {
-    console.log(`${this.timestamp}${this.name}${this.styles.grey('debug')} - ${args.join(' ')}`)
+    console.log(`${this.timestamp}${this._name}${this.styles.grey('debug')} - ${args.join(' ')}`)
   }
 
   get codes () {
