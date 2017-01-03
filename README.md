@@ -1,5 +1,5 @@
 # Sylphy
-<img src="https://discordapp.com/api/guilds/247727924889911297/embed.png" alt="Studio 777"></a> [![npm](https://img.shields.io/npm/v/sylphy.svg)](https://www.npmjs.com/package/sylphy)
+[![Studio 777](https://discordapp.com/api/guilds/247727924889911297/embed.png)](https://discord.gg/bBqpAKw) [![NPM version](https://img.shields.io/npm/v/sylphy.svg?style=flat-square)](https://www.npmjs.com/package/sylphy) [![Dependency Status](https://img.shields.io/david/abalabahaha/eris.svg?style=flat-square)](https://david-dm.org/abalabahaha/eris)
 
 <a href="https://nodei.co/npm/sylphy/"><img src="https://nodei.co/npm/sylphy.png?downloads=true&stars=true" alt="NPM info" /></a>
 
