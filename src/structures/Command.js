@@ -1,3 +1,5 @@
+const path = require('path')
+
 const { Collection } = require('../util')
 const { Responder, Resolver } = require('../managers')
 const Base = require('./Base')
@@ -20,10 +22,17 @@ class Command extends Base {
   constructor (client, ...args) {
     super(client)
     if (this.constructor === Command) {
-      throw new Error('Cannot instantiate abstract Command')
+      throw new Error('Must extend abstract Command')
     }
 
-    this.resolver = new Resolver(client)
+    const resolver = this.resolver = new Resolver(client)
+    if (!client.noDefaults) {
+      resolver.loadResolvers(path.join(__dirname, '..', 'resolvers'))
+    }
+    if (client._resolvers) {
+      resolver.loadResolvers(client._resolvers)
+    }
+
     this.responder = new Responder(this)
     this.subcommands = new Collection()
 
@@ -36,6 +45,7 @@ class Command extends Base {
   /**
    * Verifies the options passed to the constructor
    * @arg {Object} args Options passed to the Command constructor
+   * @private
    */
   _verify (args = {}) {
     const { name, group = 'none', aliases = [], cooldown = 5, usage = [], options = {}, subcommands = {}, subcommand } = args

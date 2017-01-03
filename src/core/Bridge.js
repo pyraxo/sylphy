@@ -1,7 +1,14 @@
+let Promise
+try {
+  Promise = require('bluebird')
+} catch (err) {
+  Promise = global.Promise
+}
+
 const path = require('path')
 const fs = require('fs')
 
-const { readdirRecursive, isDir } = require('../util')
+const { requireRecursive, isDir } = require('../util')
 
 /**
  * Middleware manager for commands
@@ -34,7 +41,7 @@ class Bridge {
           throw new Error(`Folder path ${filepath} does not exist`)
         }
         this._cached.push(filepath)
-        const mw = isDir(filepath) ? readdirRecursive(filepath) : require(filepath)
+        const mw = isDir(filepath) ? requireRecursive(filepath) : require(filepath)
         return this.register(mw)
       }
       case 'object': {

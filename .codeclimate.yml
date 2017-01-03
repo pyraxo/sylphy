@@ -1,0 +1,11 @@
+---
+engines:
+  duplication:
+    enabled: false
+  eslint:
+    enabled: false
+ratings:
+  paths:
+  - "**.js"
+exclude_paths:
+- test/
