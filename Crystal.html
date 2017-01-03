@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>managers/Transmitter.js - Documentation</title>
+    <title>Crystal - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -27,143 +27,842 @@
 
 <div id="main">
     
-    <h1 class="page-title">managers/Transmitter.js</h1>
+    <h1 class="page-title">Crystal</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>let Promise
-try {
-  Promise = require('bluebird')
-} catch (err) {
-  Promise = global.Promise
-}
+        <h2>
+        Crystal
+        </h2>
+        
+            <div class="class-description"><p>Shard cluster manager</p></div>
+        
+    
+</header>
 
-const crypto = require('crypto')
+<article>
+    <div class="container-overview">
+    
+        
 
-const Collection = require('../util/Collection')
+    
+    <h2>Constructor</h2>
+    
 
-/**
- * Manager class for inter-process communication
- * @prop {String} pid Process ID
- * @prop {Map} commands IPC commands
- */
-class Transmitter extends Collection {
-  /**
-   * Creates a new Transmitter instance
-   * @arg {Client} client Client instance
-   */
-  constructor (client) {
-    super()
+    <h4 class="name" id="Crystal"><span class="type-signature"></span>new Crystal<span class="signature">(file, count<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
-    this.pid = process.pid
-    this._client = client
+    
 
-    process.on('message', this.onMessage.bind(this))
-  }
 
-  /**
-   * Sends a message to the master IPC process
-   * @arg {String} event Event name
-   * @arg {*} data Attached data
-   */
-  send (event, data) {
-    process.send({
-      op: event,
-      d: data
-    })
-  }
 
-  onMessage (message) {
-    if (!message.op) {
-      if (!this._client.suppressWarnings) {
-        this._logger.warn('Received IPC message with no op')
-      }
-      return
-    }
 
-    if (['resp', 'broadcast'].includes(message.op)) return
+<dl class="details">
 
-    if (this[message.op]) {
-      return this[message.op](message)
-    }
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="managers_Crystal.js.html">managers/Crystal.js</a>, <a href="managers_Crystal.js.html#line22">line 22</a>
+    </li></ul></dd>
+    
 
-    const command = this.get(message.op)
-    if (command) {
-      return command(message, this._bot)
-    }
-  }
+    
 
-  /**
-   * Awaits for a certain response
-   * @arg {String} op op code
-   * @arg {*} d Attached data
-   * @returns {Promise&lt;*>}
-   */
-  async awaitResponse (op, d) {
-    const code = crypto.randomBytes(64).toString('hex')
-    return new Promise((resolve, reject) => {
-      const awaitListener = (msg) => {
-        if (!['resp', 'error'].includes(msg.op)) return
-        process.removeListener('message', awaitListener)
-        if (msg.op === 'resp' &amp;&amp; msg.code === code) return resolve(msg.d)
-        if (msg.op === 'error') return reject(msg.d)
-      }
+    
 
-      const payload = { op, code }
-      if (d) payload.d = d
+    
 
-      process.on('message', awaitListener)
-      process.send(payload)
+    
 
-      setTimeout(() => {
-        process.removeListener('message', awaitListener)
-        return reject('IPC timed out after 2000ms')
-      }, 2000)
-    })
-  }
+    
 
-  /**
-   * Registers an IPC command
-   * @arg {function} command Command function
-   * @arg {String} command.name Name of the IPC command
-   * @returns {Transmitter}
-   */
-  register (command) {
-    if (!command || !command.name) {
-      this._client.throwOrEmit('ipc:error', new TypeError(`Invalid command - ${command}`))
-      return
-    }
-    this.set(command.name, command)
-    return this
-  }
+    
 
-  /**
-   * Unregisters an IPC command by name
-   * @arg {String} name Name of the IPC command
-   * @returns {Transmitter}
-   */
-  unregister (name) {
-    this.delete(name)
-    return this
-  }
+    
 
-  /**
-   * Fires when an error occurs in Transmitter
-   * @event Client#ipc:error
-   * @type {Error}
-   */
-}
+    
 
-module.exports = Transmitter
-</code></pre>
-        </article>
-    </section>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>clusters</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Collection.html">Collection</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Collection of clusters</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<div class="description">
+    <p>Creates a new Crystal instance</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>file</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Relative or absolute path to file to run</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>count</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Number of clusters to create, defaults to number of CPU cores</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="createCluster"><span class="type-signature"></span>createCluster<span class="signature">(id)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="managers_Crystal.js.html">managers/Crystal.js</a>, <a href="managers_Crystal.js.html#line47">line 47</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Spawns a cluster</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Cluster ID</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="createClusters"><span class="type-signature"></span>createClusters<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="managers_Crystal.js.html">managers/Crystal.js</a>, <a href="managers_Crystal.js.html#line36">line 36</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Spawns new clusters</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="getCluster"><span class="type-signature"></span>getCluster<span class="signature">(pid)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="managers_Crystal.js.html">managers/Crystal.js</a>, <a href="managers_Crystal.js.html#line59">line 59</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Fetches a cluster</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>pid</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Process ID to find</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id="restart"><span class="type-signature"></span>restart<span class="signature">(message<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="managers_Crystal.js.html">managers/Crystal.js</a>, <a href="managers_Crystal.js.html#line107">line 107</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Restarts all clusters, or a specific one</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>message</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The message sent</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>d</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>The cluster ID to restart</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

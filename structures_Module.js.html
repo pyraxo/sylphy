@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>managers/Transmitter.js - Documentation</title>
+    <title>structures/Module.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -27,7 +27,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">managers/Transmitter.js</h1>
+    <h1 class="page-title">structures/Module.js</h1>
     
 
     
@@ -37,130 +37,55 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>let Promise
-try {
-  Promise = require('bluebird')
-} catch (err) {
-  Promise = global.Promise
-}
-
-const crypto = require('crypto')
-
-const Collection = require('../util/Collection')
+            <pre class="prettyprint source linenums"><code>const Base = require('./Base')
 
 /**
- * Manager class for inter-process communication
- * @prop {String} pid Process ID
- * @prop {Map} commands IPC commands
+ * Built-in module class
+ * @extends {Base}
+ * @abstract
  */
-class Transmitter extends Collection {
-  /**
-   * Creates a new Transmitter instance
-   * @arg {Client} client Client instance
-   */
-  constructor (client) {
-    super()
-
-    this.pid = process.pid
-    this._client = client
-
-    process.on('message', this.onMessage.bind(this))
-  }
-
-  /**
-   * Sends a message to the master IPC process
-   * @arg {String} event Event name
-   * @arg {*} data Attached data
-   */
-  send (event, data) {
-    process.send({
-      op: event,
-      d: data
-    })
-  }
-
-  onMessage (message) {
-    if (!message.op) {
-      if (!this._client.suppressWarnings) {
-        this._logger.warn('Received IPC message with no op')
-      }
-      return
+class Module extends Base {
+  constructor (client, options) {
+    super(client)
+    if (this.constructor === Module) {
+      throw new Error('Must extend abstract Module')
     }
 
-    if (['resp', 'broadcast'].includes(message.op)) return
-
-    if (this[message.op]) {
-      return this[message.op](message)
-    }
-
-    const command = this.get(message.op)
-    if (command) {
-      return command(message, this._bot)
-    }
+    this._verify(options)
   }
 
+  /** Initialises the module */
+  init () {}
+
+  /** Unloads the module */
+  unload () {}
+
   /**
-   * Awaits for a certain response
-   * @arg {String} op op code
-   * @arg {*} d Attached data
-   * @returns {Promise&lt;*>}
+   * Verifies the options passed to the constructor
+   * @arg {Object} args Options passed to the Command constructor
+   * @private
    */
-  async awaitResponse (op, d) {
-    const code = crypto.randomBytes(64).toString('hex')
-    return new Promise((resolve, reject) => {
-      const awaitListener = (msg) => {
-        if (!['resp', 'error'].includes(msg.op)) return
-        process.removeListener('message', awaitListener)
-        if (msg.op === 'resp' &amp;&amp; msg.code === code) return resolve(msg.d)
-        if (msg.op === 'error') return reject(msg.d)
+  _verify ({ name, events = {}, localeKey } = {}) {
+    if (typeof name === 'undefined') throw new Error(`${this.constructor.name} is not named`)
+    if (typeof events !== 'object') throw new Error('Module event must be an object')
+
+    for (const event in events) {
+      if (typeof event !== 'string') {
+        throw new TypeError(`Module ${name} has an invalid event`)
       }
 
-      const payload = { op, code }
-      if (d) payload.d = d
-
-      process.on('message', awaitListener)
-      process.send(payload)
-
-      setTimeout(() => {
-        process.removeListener('message', awaitListener)
-        return reject('IPC timed out after 2000ms')
-      }, 2000)
-    })
-  }
-
-  /**
-   * Registers an IPC command
-   * @arg {function} command Command function
-   * @arg {String} command.name Name of the IPC command
-   * @returns {Transmitter}
-   */
-  register (command) {
-    if (!command || !command.name) {
-      this._client.throwOrEmit('ipc:error', new TypeError(`Invalid command - ${command}`))
-      return
+      if (typeof this[events[event]] !== 'function') {
+        throw new TypeError(`Module ${name} has an invalid handler`)
+      }
     }
-    this.set(command.name, command)
-    return this
-  }
 
-  /**
-   * Unregisters an IPC command by name
-   * @arg {String} name Name of the IPC command
-   * @returns {Transmitter}
-   */
-  unregister (name) {
-    this.delete(name)
-    return this
+    this.name = name
+    this.events = events
+    this.localeKey = localeKey
   }
-
-  /**
-   * Fires when an error occurs in Transmitter
-   * @event Client#ipc:error
-   * @type {Error}
-   */
 }
 
-module.exports = Transmitter
+module.exports = Module
 </code></pre>
         </article>
     </section>
