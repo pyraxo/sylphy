@@ -35,11 +35,9 @@ class Command extends Base {
 
     this.responder = new Responder(this)
     this.subcommands = new Collection()
-
-    const options = args.reduce((p, c) => Object.assign(c, p), {})
-    this._verify(options, ...args)
-
     this.timers = new Map()
+
+    this.options = args.reduce((p, c) => Object.assign(c, p), {})
   }
 
   /**
@@ -47,7 +45,7 @@ class Command extends Base {
    * @arg {Object} args Options passed to the Command constructor
    * @private
    */
-  _verify (args = {}) {
+  set options (args = {}) {
     const { name, group = 'none', aliases = [], cooldown = 5, usage = [], options = {}, subcommands = {}, subcommand } = args
 
     this.triggers = typeof name === 'string'
@@ -83,7 +81,7 @@ class Command extends Base {
   }
 
   /**
-   * Checks the validatiy of a command and executes it
+   * Checks the validaty of a command and executes it
    * @arg {Container} container Container context
    * @returns {Promise}
    */

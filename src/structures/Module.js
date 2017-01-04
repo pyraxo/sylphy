@@ -12,7 +12,7 @@ class Module extends Base {
       throw new Error('Must extend abstract Module')
     }
 
-    this._verify(options)
+    this.options = options
   }
 
   /** Initialises the module */
@@ -26,7 +26,7 @@ class Module extends Base {
    * @arg {Object} args Options passed to the Command constructor
    * @private
    */
-  _verify ({ name, events = {}, localeKey } = {}) {
+  set options ({ name, events = {}, localeKey } = {}) {
     if (typeof name === 'undefined') throw new Error(`${this.constructor.name} is not named`)
     if (typeof events !== 'object') throw new Error('Module event must be an object')
 
