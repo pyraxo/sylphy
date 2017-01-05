@@ -75,7 +75,7 @@ class Responder {
       response = this.formatMethods[format[0]](response, format[1])
     }
 
-    const promise = (options.DM ? this.command.bot.getDMChannel(message.author.id) : Promise.resolve(message.channel))
+    const promise = (options.DM ? this.command._client.getDMChannel(message.author.id) : Promise.resolve(message.channel))
     .then(channel => this.command.send(channel, response, options))
 
     delete this._formats
@@ -122,7 +122,7 @@ class Responder {
       }
 
       let p1 = await this.send(prompt, options)
-      const collector = this.command.bot.engine.bridge.collect({
+      const collector = this.command._client.engine.bridge.collect({
         channel: message.channel.id,
         author: message.author.id,
         tries,
