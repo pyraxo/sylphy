@@ -37,7 +37,7 @@ class Command extends Base {
     this.subcommands = new Collection()
     this.timers = new Map()
 
-    this.options = args.reduce((p, c) => Object.assign(c, p), {})
+    this._options = Object.assign({}, ...args)
   }
 
   /**
@@ -45,8 +45,17 @@ class Command extends Base {
    * @arg {Object} args Options passed to the Command constructor
    * @private
    */
-  set options (args = {}) {
-    const { name, group = 'none', aliases = [], cooldown = 5, usage = [], options = {}, subcommands = {}, subcommand } = args
+  set _options (args = {}) {
+    const {
+      name,
+      group = 'none',
+      aliases = [],
+      cooldown = 5,
+      usage = [],
+      options = {},
+      subcommands = {},
+      subcommand
+    } = args
 
     this.triggers = typeof name === 'string'
     ? [name].concat(aliases)
@@ -59,7 +68,7 @@ class Command extends Base {
     this.cooldown = cooldown
     this.options = options
     if (this.options.modOnly) {
-      this.options.permissions = (this.options.permissions || []).concat('manageGuild')
+      this.options.permissions = (options.permissions || []).concat('manageGuild')
     }
 
     this.group = group
