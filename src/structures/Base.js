@@ -134,7 +134,7 @@ class Base {
     const id = this._client.user.id
     return Promise.all(msgs.reduce((arr, msg) => {
       if (!msg || !msg.guild) return arr
-      if (msg.author.id === id || msg.channel.permissionsOf(id).has('manageMessages')) {
+      if (msg.author.id === id || this.hasPermissions(msg.channel, msg.member, 'manageMessages')) {
         arr.push(msg.delete)
       }
       return arr

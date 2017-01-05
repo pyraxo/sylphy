@@ -125,7 +125,7 @@ class Client extends Eris {
 
   /**
    * Runs the bot
-   * @returns {Client}
+   * @returns {Promise}
    */
   run () {
     if (typeof this.token !== 'string') {
@@ -134,8 +134,7 @@ class Client extends Eris {
     this.plugins.forEach(plugin => {
       if (typeof plugin.run === 'function') plugin.run()
     })
-    this.connect()
-    return this
+    return this.connect()
   }
 
   /**
