@@ -50,6 +50,7 @@ class Crystal extends EventEmitter {
     worker.on('exit', () => this.onExit(worker))
     worker.on('message', (msg) => this.onMessage(worker, msg))
     this.clusters.set(cluster.id, cluster)
+    this.emit('clusterCreate', cluster.id)
   }
 
   /**
@@ -90,6 +91,12 @@ class Crystal extends EventEmitter {
     .catch(err => worker.send({ op: 'error', d: err, code: message.code }))
   }
 
+  /**
+   * Broadcast a message to all clusters
+   * @arg {Object} message Message to send
+   * @arg {String} message.op Message topic
+   * @arg {String} message.d Message data
+   */
   broadcast (message) {
     if (message.op === 'broadcast') {
       message = message.d
