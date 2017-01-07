@@ -27,6 +27,7 @@ class Commander extends Collection {
    * @arg {String|Object|Array} commands An object, array or relative path to a folder or file to load commands from
    * @arg {Object} [options] Additional command options
    * @arg {String} [options.prefix] Command prefix, will be overwritten by prefix setting in the command
+   * @arg {Boolean} [options.groupedCommands] Option for object/path supplied to be an object of objects with command groups as keys
    * @returns {Client}
    */
   register (commands, options = {}) {
@@ -51,7 +52,14 @@ class Commander extends Collection {
           return this
         }
         for (const group in commands) {
-          this.attach(commands[group], group, options.prefix)
+          const command = commands[group]
+          if (options.groupedCommands && typeof command === 'object') {
+            for (const name in command) {
+              this.attach(command[name], group, options.prefix)
+            }
+            return this
+          }
+          this.attach(command, group, options.prefix)
         }
         return this
       }
