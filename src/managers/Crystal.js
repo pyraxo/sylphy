@@ -47,9 +47,10 @@ class Crystal extends EventEmitter {
   createCluster (id) {
     const cluster = new (require('../structures')).Cluster(this._file, id)
     const worker = cluster.worker
-    worker.on('exit', this.onExit.bind(this, worker))
-    worker.on('message', this.onMessage.bind(this, worker))
+    worker.on('exit', () => this.onExit(worker))
+    worker.on('message', (msg) => this.onMessage(worker, msg))
     this.clusters.set(cluster.id, cluster)
+    this.emit('clusterCreate', cluster.id)
   }
 
   /**
@@ -61,7 +62,8 @@ class Crystal extends EventEmitter {
   }
 
   onExit (worker) {
-    const cluster = this.getCluster(worker)
+    const cluster = this.getCluster(worker.pid)
+    if (!cluster) return
     this.emit('clusterExit', worker.pid, cluster.id)
     this.clusters.delete(cluster.id)
     this.createCluster(cluster.id)
@@ -89,6 +91,12 @@ class Crystal extends EventEmitter {
     .catch(err => worker.send({ op: 'error', d: err, code: message.code }))
   }
 
+  /**
+   * Broadcast a message to all clusters
+   * @arg {Object} message Message to send
+   * @arg {String} message.op Message topic
+   * @arg {String} message.d Message data
+   */
   broadcast (message) {
     if (message.op === 'broadcast') {
       message = message.d

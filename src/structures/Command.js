@@ -35,11 +35,9 @@ class Command extends Base {
 
     this.responder = new Responder(this)
     this.subcommands = new Collection()
-
-    const options = args.reduce((p, c) => Object.assign(c, p), {})
-    this._verify(options, ...args)
-
     this.timers = new Map()
+
+    this._options = Object.assign({}, ...args)
   }
 
   /**
@@ -47,8 +45,17 @@ class Command extends Base {
    * @arg {Object} args Options passed to the Command constructor
    * @private
    */
-  _verify (args = {}) {
-    const { name, group = 'none', aliases = [], cooldown = 5, usage = [], options = {}, subcommands = {}, subcommand } = args
+  set _options (args = {}) {
+    const {
+      name,
+      group = 'none',
+      aliases = [],
+      cooldown = 5,
+      usage = [],
+      options = {},
+      subcommands = {},
+      subcommand
+    } = args
 
     this.triggers = typeof name === 'string'
     ? [name].concat(aliases)
@@ -61,7 +68,7 @@ class Command extends Base {
     this.cooldown = cooldown
     this.options = options
     if (this.options.modOnly) {
-      this.options.permissions = (this.options.permissions || []).concat('manageGuild')
+      this.options.permissions = (options.permissions || []).concat('manageGuild')
     }
 
     this.group = group
@@ -83,7 +90,7 @@ class Command extends Base {
   }
 
   /**
-   * Checks the validatiy of a command and executes it
+   * Checks the validaty of a command and executes it
    * @arg {Container} container Container context
    * @returns {Promise}
    */

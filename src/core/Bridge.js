@@ -177,13 +177,17 @@ class Bridge {
 
   /**
    * Remove middleware by name and returns it if found
-   * @arg {String} name Middleware name
+   * @arg {String|Boolean} name Middleware name, will remove all if true
    * @returns {?Middleware}
    */
   unregister (name) {
-    const middleware = this.tasks.find(mw => mw.name === name)
-    if (!middleware) return null
-    this.tasks.splice(this.tasks.indexOf(middleware, 1))
+    if (name === true) {
+      this.tasks = []
+    } else {
+      const middleware = this.tasks.find(mw => mw.name === name)
+      if (!middleware) return null
+      this.tasks.splice(this.tasks.indexOf(middleware, 1))
+    }
     return middleware
   }
 

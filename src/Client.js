@@ -39,11 +39,11 @@ class Client extends Eris {
 
     if (!this.noDefaults) {
       this
-      .createPlugin('commands', Commander)
-      .createPlugin('modules', Router)
-      .createPlugin('middleware', Bridge)
-      .createPlugin('i18n', Interpreter)
-      .createPlugin('logger', Logger)
+      .createPlugin('commands', Commander, options)
+      .createPlugin('modules', Router, options)
+      .createPlugin('middleware', Bridge, options)
+      .createPlugin('i18n', Interpreter, options)
+      .createPlugin('logger', Logger, options)
 
       this.logger = this.plugins.get('logger')
 
@@ -61,10 +61,11 @@ class Client extends Eris {
    * Creates a plugin
    * @arg {String} type The type of plugin
    * @arg {Plugin} Plugin Plugin class
+   * @arg {Object} [options] Additional plugin options
    * @returns {Client}
    */
-  createPlugin (type, Plugin) {
-    const plugin = new Plugin(this)
+  createPlugin (type, Plugin, options) {
+    const plugin = new Plugin(this, options)
     this.plugins.set(type, plugin)
     return this
   }
@@ -124,7 +125,7 @@ class Client extends Eris {
 
   /**
    * Runs the bot
-   * @returns {Client}
+   * @returns {Promise}
    */
   run () {
     if (typeof this.token !== 'string') {
@@ -133,8 +134,7 @@ class Client extends Eris {
     this.plugins.forEach(plugin => {
       if (typeof plugin.run === 'function') plugin.run()
     })
-    this.connect()
-    return this
+    return this.connect()
   }
 
   /**
