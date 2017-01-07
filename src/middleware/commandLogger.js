@@ -5,7 +5,7 @@ module.exports = {
     const { msg, isPrivate, isCommand, logger } = container
     if (!isCommand || !logger) return Promise.resolve()
 
-    const curry = (color) => (str) => logger.styles[color](logger.styles.bold(str))
+    const curry = (color) => (str) => logger[color](logger.bold(str))
 
     logger.info(
       curry('magenta')(!isPrivate ? msg.guild.name : '(in PMs)') + ' > ' +

@@ -6,6 +6,7 @@ const { requireAll, isDir, Collection } = require('../util')
 
 /**
  * Commander class for command processing
+ * @prop {Set} prefixes Set of added prefixes
  */
 class Commander extends Collection {
   /**
@@ -16,6 +17,9 @@ class Commander extends Collection {
     super()
     this._client = client
     this._cached = []
+
+    this.prefixes = new Set()
+    this.prefixes.add(client.prefix)
   }
 
   /**
@@ -37,6 +41,9 @@ class Commander extends Collection {
         return this.register(cmds)
       }
       case 'object': {
+        if (options.prefix) {
+          this.prefixes.add(options.prefix)
+        }
         if (Array.isArray(commands)) {
           for (const command of commands) {
             this.attach(command, null, options.prefix)
