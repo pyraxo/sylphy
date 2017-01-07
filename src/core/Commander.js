@@ -21,9 +21,11 @@ class Commander extends Collection {
   /**
    * Registers commands
    * @arg {String|Object|Array} commands An object, array or relative path to a folder or file to load commands from
+   * @arg {Object} [options] Additional command options
+   * @arg {String} [options.prefix] Command prefix, will be overwritten by prefix setting in the command
    * @returns {Client}
    */
-  register (commands) {
+  register (commands, options = {}) {
     switch (typeof commands) {
       case 'string': {
         const filepath = path.join(process.cwd(), commands)
@@ -37,12 +39,12 @@ class Commander extends Collection {
       case 'object': {
         if (Array.isArray(commands)) {
           for (const command of commands) {
-            this.attach(command)
+            this.attach(command, null, options.prefix)
           }
           return this
         }
         for (const group in commands) {
-          this.attach(commands[group], group)
+          this.attach(commands[group], group, options.prefix)
         }
         return this
       }
@@ -65,9 +67,10 @@ class Commander extends Collection {
    * Attaches a command
    * @arg {AbstractCommand} Command Command class, object or function
    * @arg {String} [group] Default command group, will be overwritten by group setting in the command
+   * @arg {String} [prefix] Default command prefix, will be overwritten by prefix setting in the command
    * @returns {Commander}
    */
-  attach (Command, group) {
+  attach (Command, group = 'misc', prefix) {
     let command = typeof Command === 'function' ? new Command(this._client) : Command
     if (!command.triggers || !command.triggers.length) {
       this._client.throwOrEmit('commander:error', new Error(`Invalid command - ${util.inspect(command)}`))
@@ -79,6 +82,7 @@ class Commander extends Collection {
         return this
       }
       command.group = command.group || group
+      command.prefix = command.prefix || prefix
       this.set(trigger.toLowerCase(), command)
     }
 
