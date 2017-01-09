@@ -206,7 +206,9 @@ class Bridge {
   /** Starts running the bridge */
   run () {
     this._client.on('messageCreate', msg => {
-      if (msg.author.id === this._client.user.id || msg.author.bot) return
+      if (this.selfbot && msg.author.id !== this._client.user.id) return
+      else if (msg.author.id === this._client.user.id || msg.author.bot) return
+
       this.handle({
         msg: msg,
         client: this._client,
@@ -249,20 +251,12 @@ class Bridge {
       if (collected) return Promise.reject()
     }
     for (const task of this.tasks) {
-      try {
-        const result = await task.process(container)
-        if (!result) return Promise.reject()
-        container = result
-      } catch (err) {
-        throw err
-      }
+      const result = await task.process(container)
+      if (!result) return Promise.reject()
+      container = result
     }
-    try {
-      if (!container.trigger) return Promise.reject()
-      this._commander.execute(container.trigger, container)
-    } catch (err) {
-      throw err
-    }
+    if (!container.trigger) return Promise.reject()
+    this._commander.execute(container.trigger, container)
     return container
   }
 }
