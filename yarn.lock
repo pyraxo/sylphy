@@ -321,7 +321,7 @@ end-of-stream@~0.1.5:
 
 "eris@github:abalabahaha/eris#dev":
   version "0.5.1"
-  resolved "https://codeload.github.com/abalabahaha/eris/tar.gz/074364ad4cf41aba57a9d73fee10bc316d35afbb"
+  resolved "https://codeload.github.com/abalabahaha/eris/tar.gz/7764328a2dfb3482b6b2e0cfb7b25c87c1d2142b"
   dependencies:
     ws "^1.1.1"
   optionalDependencies:

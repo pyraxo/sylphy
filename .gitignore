@@ -1,11 +1,17 @@
+# Logs
 logs
 *.log
 npm-debug.log*
 
+# NPM
 node_modules
 .npm
 
+# Tests
 test/auth.json
 
+# Docs
 docs
+
+# Compiled
 build
