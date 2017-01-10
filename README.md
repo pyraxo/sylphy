@@ -18,15 +18,14 @@ As the bot framework extends the [Eris](https://github.com/abalabahaha/Eris) cli
 $ npm install --save sylphy
 ```
 
-If you don't want to use any built-in plugins, you may run the above command with the `--no-optional` flag.
-
 #### Example
 ```js
 const Bot = require('sylphy')
 
 const client = new Bot({
   token: 'your token here',
-  modules: 'path/to/modules'
+  modules: 'path/to/modules',
+  // Eris client options here
 })
 
 client.register('commands', 'path/to/commands')
