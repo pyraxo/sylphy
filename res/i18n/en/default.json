@@ -17,7 +17,7 @@
     "MORE_RESULTS": "And {{num}} more..."
   },
   "collector": {
-    "timeout": "Timeout after {{time}}s",
+    "timeout": "Timeout after {{timeout}}s",
     "max": "Exceeded {{max}} tries",
     "maxMatches": "Exceeded {{maxMatches}} matches"
   }

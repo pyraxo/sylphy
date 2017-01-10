@@ -140,7 +140,7 @@ class Command extends Base {
       return false
     }
 
-    if (permissions.length && !this.hasPermissions(msg.channel, msg.author, ...permissions)) {
+    if (permissions.length && !(isAdmin || this.hasPermissions(msg.channel, msg.author, ...permissions))) {
       responder.error('{{%errors.NO_PERMS}}', {
         perms: permissions.map(p => `\`${p}\``).join(', ')
       })

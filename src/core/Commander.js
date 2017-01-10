@@ -39,7 +39,7 @@ class Commander extends Collection {
         }
         const cmds = isDir(filepath) ? requireAll(filepath) : require(filepath)
         this._cached.push(filepath)
-        return this.register(cmds)
+        return this.register(cmds, options)
       }
       case 'object': {
         if (options.prefix) {

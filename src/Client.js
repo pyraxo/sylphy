@@ -18,6 +18,7 @@ class Client extends Eris {
    * @arg {String} options.token Discord bot token
    * @arg {String} [options.prefix='!'] Default prefix for commands
    * @arg {String} [options.admins=[]] Array of admin IDs
+   * @arg {String} [options.selfbot=false] Option for selfbot mode
    * @arg {String} [options.commands] Relative path to commands folder
    * @arg {String} [options.modules] Relative path to modules folder
    * @arg {String} [options.middleware] Relative path to middleware folder
@@ -28,6 +29,7 @@ class Client extends Eris {
    */
   constructor (options = {}) {
     super(options.token, options)
+    this.selfbot = options.selfbot
     this.prefix = options.prefix || '!'
     this.suppressWarnings = options.suppressWarnings
     this.noDefaults = options.noDefaults
