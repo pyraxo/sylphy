@@ -78,6 +78,22 @@ class Bridge {
     const middleware = typeof Middleware === 'function' ? new Middleware(this) : Middleware
     this.tasks.push(middleware)
     this.tasks.sort((a, b) => a.priority - b.priority)
+
+    /**
+     * Fires when a middleware is registered
+     *
+     * @event Client#bridge:registered
+     * @type {Object}
+     * @prop {String} name Middleware name
+     * @prop {Number} index Location of middleware in the tasks chain
+     * @prop {Number} count Number of loaded middleware tasks
+     */
+    this._client.emit('bridge:registered', {
+      name: middleware.name,
+      index: this.tasks.indexOf(middleware),
+      count: this.tasks.length
+    })
+    return this
   }
 
   /**
