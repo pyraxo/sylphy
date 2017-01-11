@@ -91,6 +91,21 @@ class Router extends Collection {
 
       this.events[event] = Object.assign(this.events[event] || {}, { [module.name]: listener })
     }
+
+    /**
+     * Fires when a module is registered
+     *
+     * @event Client#router:registered
+     * @type {Object}
+     * @prop {String} name Module name
+     * @prop {Number} events Number of events in the module
+     * @prop {Number} count Number of loaded modules
+     */
+    this._client.emit('router:registered', {
+      name: module.name,
+      events: Object.keys(module.events),
+      count: this.size
+    })
     return this
   }
 

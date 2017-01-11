@@ -78,6 +78,22 @@ class Bridge {
     const middleware = typeof Middleware === 'function' ? new Middleware(this) : Middleware
     this.tasks.push(middleware)
     this.tasks.sort((a, b) => a.priority - b.priority)
+
+    /**
+     * Fires when a middleware is registered
+     *
+     * @event Client#bridge:registered
+     * @type {Object}
+     * @prop {String} name Middleware name
+     * @prop {Number} index Location of middleware in the tasks chain
+     * @prop {Number} count Number of loaded middleware tasks
+     */
+    this._client.emit('bridge:registered', {
+      name: middleware.name,
+      index: this.tasks.indexOf(middleware),
+      count: this.tasks.length
+    })
+    return this
   }
 
   /**
@@ -206,8 +222,11 @@ class Bridge {
   /** Starts running the bridge */
   run () {
     this._client.on('messageCreate', msg => {
-      if (this.selfbot && msg.author.id !== this._client.user.id) return
-      else if (msg.author.id === this._client.user.id || msg.author.bot) return
+      if (this._client.selfbot) {
+        if (msg.author.id !== this._client.user.id) return
+      } else {
+        if (msg.author.id === this._client.user.id || msg.author.bot) return
+      }
 
       this.handle({
         msg: msg,

@@ -109,11 +109,13 @@ class Commander extends Collection {
      * @prop {String} trigger Command trigger
      * @prop {String} group Command group
      * @prop {Number} aliases Number of trigger aliases
+     * @prop {Number} count Number of loaded command triggers
      */
     this._client.emit('commander:registered', {
       trigger: command.triggers[0],
       group: command.group,
-      aliases: command.triggers.length - 1
+      aliases: command.triggers.length - 1,
+      count: this.size
     })
     return this
   }
