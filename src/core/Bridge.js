@@ -222,8 +222,11 @@ class Bridge {
   /** Starts running the bridge */
   run () {
     this._client.on('messageCreate', msg => {
-      if (this._client.selfbot && msg.author.id !== this._client.user.id) return
-      else if (msg.author.id === this._client.user.id || msg.author.bot) return
+      if (this._client.selfbot) {
+        if (msg.author.id !== this._client.user.id) return
+      } else {
+        if (msg.author.id === this._client.user.id || msg.author.bot) return
+      }
 
       this.handle({
         msg: msg,

@@ -1,6 +1,6 @@
 {
   "name": "sylphy",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "The better Discord bot framework",
   "main": "build/index.js",
   "scripts": {
