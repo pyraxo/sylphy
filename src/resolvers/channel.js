@@ -1,7 +1,7 @@
 module.exports = {
   type: 'channel',
   resolve: (content, { text = true, voice = true } = {}, msg) => {
-    const guild = msg.guild
+    const guild = msg.channel.guild
     content = String(content).toLowerCase()
     let channel = content.match(/^<#?(\d{17,18})>$/)
     if (!channel) {

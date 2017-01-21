@@ -8,7 +8,7 @@ module.exports = {
     const curry = (color) => (str) => logger[color](logger.bold(str))
 
     logger.info(
-      curry('magenta')(!isPrivate ? msg.guild.name : '(in PMs)') + ' > ' +
+      curry('magenta')(!isPrivate ? msg.channel.guild.name : '(in PMs)') + ' > ' +
       curry('green')(msg.author.username) + ': ' +
       curry('blue')(msg.cleanContent.replace(/\n/g, ' '))
     )
