@@ -1,15 +1,23 @@
 const util = require('util')
 const Client = require('../')
 
-const { token, admins } = require('./auth.json')
+let auth
+try {
+  auth = require('./auth.json')
+} catch (err) {
+  auth = {
+    token: process.env['TOKEN'],
+    admins: (process.env['ADMINS'] || '').split(',')
+  }
+}
 
 const processID = parseInt(process.env['PROCESS_ID'], 10)
 const bot = new Client({
-  token: token,
+  token: auth.token,
   commands: 'test/commands',
   locales: 'test/i18n',
   prefix: '+',
-  admins: admins,
+  admins: auth.admins,
   maxShards: 4,
   firstShardID: processID,
   lastShardID: processID
