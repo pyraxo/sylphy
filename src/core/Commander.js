@@ -57,7 +57,7 @@ class Commander extends Collection {
             for (const name in command) {
               this.attach(command[name], group, options.prefix)
             }
-            return this
+            continue
           }
           this.attach(command, group, options.prefix)
         }
