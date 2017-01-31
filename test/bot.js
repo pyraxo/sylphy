@@ -3,12 +3,16 @@ const Client = require('../')
 
 const { token, admins } = require('./auth.json')
 
+const processID = parseInt(process.env['PROCESS_ID'], 10)
 const bot = new Client({
   token: token,
   commands: 'test/commands',
   locales: 'test/i18n',
   prefix: '+',
-  admins: admins
+  admins: admins,
+  maxShards: 4,
+  firstShardID: processID,
+  lastShardID: processID
 })
 
 const logger = bot.logger
@@ -23,6 +27,7 @@ bot.on('commander:registered', logger.log)
 
 bot.on('ready', () => {
   logger.info('Logged in as ' + bot.user.username)
+  bot.shards.forEach(s => logger.info(`Loaded shard ${s.id}`))
 })
 
 bot.run()
