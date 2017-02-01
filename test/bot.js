@@ -1,6 +1,8 @@
 const util = require('util')
 const Client = require('../')
 
+process.on('message', (msg) => msg === 'end' && process.exit(0))
+
 let auth
 try {
   auth = require('./auth.json')
