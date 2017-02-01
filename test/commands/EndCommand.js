@@ -9,8 +9,9 @@ module.exports = class Stop extends Command {
     })
   }
 
-  handle ({ msg }, responder) {
+  handle ({ msg, client }, responder) {
     this.logger.debug('Ending test')
+    process.send({ op: 'broadcast', d: 'end' })
     return responder.reply('{{end}}', { x: 'now' }).then(process.exit)
   }
 }

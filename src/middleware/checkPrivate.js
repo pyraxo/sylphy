@@ -3,7 +3,7 @@ module.exports = {
   priority: 2,
   process: container => {
     const { msg } = container
-    container.isPrivate = !msg.guild
+    container.isPrivate = !msg.channel.guild
     return Promise.resolve(container)
   }
 }

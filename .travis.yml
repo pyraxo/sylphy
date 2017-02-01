@@ -1,0 +1,8 @@
+language: node_js
+node_js:
+  - "7"
+before_install:
+  - npm explore npm -g -- npm install node-gyp@latest
+install: npm install
+dist: trusty
+sudo: false

@@ -1,7 +1,7 @@
 module.exports = {
   type: 'member',
   resolve: (content, { bot = false }, msg) => {
-    const guild = msg.guild
+    const guild = msg.channel.guild
     content = String(content).toLowerCase()
     let user = content.match(/^<@!?(\d{17,18})>$/) || content.match(/^(\d{17,18})$/)
     if (!user) {
