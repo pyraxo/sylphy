@@ -117,7 +117,7 @@ class Command extends Base {
     }, usage).then((args = {}) => {
       container.args = args
       return this[process](container, responder)
-    }, err => responder.error(`{{%errors.${err.message}}}`)).catch(this.logError.bind(this))
+    }, err => responder.error(`{{%errors.${err.message}}}`, err)).catch(this.logError.bind(this))
   }
 
   /**
