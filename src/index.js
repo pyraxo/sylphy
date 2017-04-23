@@ -5,8 +5,8 @@ function Sylphy (opts) {
   return new Client(opts)
 }
 
-module.exports = Object.assign(Sylphy, Core,
-  { Client },
+module.exports = Object.assign(
+  Sylphy, Core, { Client },
   require('./util'),
   require('./structures'),
   require('./managers')
