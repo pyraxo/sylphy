@@ -186,7 +186,7 @@ class Responder {
     if (selections.length === 1) return [selections[0], 0]
 
     const { title = '{{%menus.SELECTION}}', footer = '{{%menus.INPUT}}', mapFunc } = options
-    const choices = (mapFunc ? selections.map(mapFunc) : selections).splice(0, 10)
+    const choices = (mapFunc ? selections.map(mapFunc) : selections).slice(0, 10)
 
     try {
       const { reply } = await this.dialog([{

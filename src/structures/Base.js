@@ -135,10 +135,10 @@ class Base {
     return Promise.all(msgs.reduce((arr, msg) => {
       if (!msg || !msg.channel.guild) return arr
       if (msg.author.id === id || this.hasPermissions(msg.channel, msg.member, 'manageMessages')) {
-        arr.push(msg.delete)
+        arr.push(msg.delete())
       }
       return arr
-    }), [])
+    }, []))
   }
 }
 
