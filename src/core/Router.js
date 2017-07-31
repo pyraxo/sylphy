@@ -121,6 +121,7 @@ class Router extends Collection {
         const module = this.get(name)
         if (!module) continue
         try {
+          if (!module._client) module._client = this._client
           module[events[name]](...args)
         } catch (err) {
           this._client.throwOrEmit('router:runError', err)

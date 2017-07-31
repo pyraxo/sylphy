@@ -109,6 +109,11 @@ class Responder {
   }
 
   async dialog (dialogs = [], options = {}) {
+    const bridge = this.command._client.plugins.get('middleware')
+    if (!bridge) {
+      throw new Error('Bridge plugin not found')
+    }
+  
     const { message, data } = this
     const { tries = 10, time = 60, matches = 10, filter, cancel = 'cancel' } = options
 
@@ -122,7 +127,7 @@ class Responder {
       }
 
       let p1 = await this.send(prompt, options)
-      const collector = this.command._client.engine.bridge.collect({
+      const collector = bridge.collect({
         channel: message.channel.id,
         author: message.author.id,
         tries,
