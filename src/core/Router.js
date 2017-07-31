@@ -77,7 +77,6 @@ class Router extends Collection {
    */
   attach (Module) {
     const module = typeof Module === 'function' ? new Module(this._client) : Module
-    if (!module._client) module._client = this._client
     this.set(module.name, module)
     for (const event in module.events) {
       if (typeof this.events[event] === 'undefined') {
@@ -122,6 +121,7 @@ class Router extends Collection {
         const module = this.get(name)
         if (!module) continue
         try {
+          if (!module._client) args.unshift(this._client)
           module[events[name]](...args)
         } catch (err) {
           this._client.throwOrEmit('router:runError', err)
