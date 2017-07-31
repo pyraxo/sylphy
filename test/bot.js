@@ -17,6 +17,7 @@ const processID = parseInt(process.env['PROCESS_ID'], 10)
 const bot = new Client({
   token: auth.token,
   commands: 'test/commands',
+  modules: 'test/modules',
   locales: 'test/i18n',
   prefix: '+',
   admins: auth.admins,
