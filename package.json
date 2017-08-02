@@ -2,7 +2,7 @@
   "name": "sylphy",
   "version": "0.3.14",
   "description": "The better Discord bot framework",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
     "test": "node test/sharding.js"
