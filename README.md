@@ -7,9 +7,7 @@
 
 ## Getting Started
 ### Requirements
-* **Node.js 6+**
-
-A firm grasp of **ES6 + async/await** syntax is optional but recommended.
+* **Node.js 8.0.0+**
 
 As the bot framework extends the [Eris](https://github.com/abalabahaha/Eris) client, please refer to the docs [here](https://abal.moe/Eris/docs).
 
