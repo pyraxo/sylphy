@@ -1,15 +1,14 @@
 {
   "name": "sylphy",
-  "version": "0.3.13",
+  "version": "0.4.0",
   "description": "The better Discord bot framework",
-  "main": "build/index.js",
+  "main": "index.js",
   "scripts": {
     "docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose",
-    "pub": "gulp && npm publish",
-    "test": "gulp && node test/sharding.js"
+    "test": "node test/sharding.js"
   },
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=8.0.0"
   },
   "repository": {
     "url": "git+https://github.com/pyraxo/sylphy.git",
@@ -35,10 +34,7 @@
     "eris": "github:abalabahaha/eris#dev"
   },
   "devDependencies": {
-    "babel-plugin-transform-async-to-generator": "^6.16.0",
     "docdash": "^0.4.0",
-    "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
     "jsdoc": "^3.4.3",
     "jsdoc-strip-async-await": "^0.1.0"
   }

@@ -26,6 +26,9 @@ class Bridge {
     this._cached = []
     this._client = client
     this._commander = client.plugins.get('commands')
+    if (!this._commander) {
+      client.logger.warn('Commander plugin not found')
+    }
   }
 
   /**
