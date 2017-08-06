@@ -121,7 +121,7 @@ class Interpreter extends Collection {
    */
   parse (string, group = 'default', locale = 'en', options = {}) {
     if (!string) return string
-    return string.split(' ').map(str => (
+    return String(string).split(' ').map(str => (
       str.replace(/\{\{(.+)\}\}/gi, (matched, key) => {
         const g = key.startsWith('%') ? 'default.' : group + '.'
         key = key.startsWith('%') ? key.substr(1) : key

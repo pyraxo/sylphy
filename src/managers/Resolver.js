@@ -187,7 +187,7 @@ class Resolver extends Collection {
       if (err instanceof Error) {
         return Promise.reject({ message: 'PARSING_ERROR', err: err })
       }
-      return Promise.reject({ message: err })
+      return Promise.reject({ message: err, arg: `**\`${arg.name || 'argument'}\`**` })
     })
   }
 
