@@ -145,7 +145,7 @@ class Responder {
             return await input.resolve(ans, [ans.cleanContent], data, dialog.input)
           } catch (err) {
             const display = err.err || err.message || err
-            const p2 = await this.format('emoji:error').send(
+            const p2 = await this.format('emoji:error').error(
               `{{%${display ? 'errors.' + display : 'menus.ERROR'}}}\n\n{{%menus.EXIT}}`,
               Object.assign(err, { cancel: `\`${cancel}\`` })
             )
