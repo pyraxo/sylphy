@@ -5,7 +5,40 @@
     "ON_COOLDOWN": "please cool down! ({{time}} seconds left)",
     "NO_PERMS": "you need the permissions {{perms}} to run this command!",
     "NO_PERMS_BOT": "I need the permissions {{perms}} to run this command!",
-    "NO_PMS": "this command can't be run in PMs."
+    "NO_PMS": "this command can't be run in PMs.",
+    "member": {
+      "NOT_FOUND": "the member could not be found"
+    },
+    "channel": {
+      "NOT_FOUND": "the channel could not be found"
+    },
+    "command": {
+      "NOT_FOUND": "the command could not be found"
+    },
+    "group": {
+      "NOT_FOUND": "the command group could not be found"
+    },
+    "role": {
+      "NOT_FOUND": "the role could not be found"
+    },
+    "string": {
+      "NOT_STRING": "{{arg}} must be a string",
+      "MAX": "{{arg}} length cannot be more than {{max}}",
+      "MIN": "{{arg}} length cannot be less than {{min}}",
+      "ONE_OF": "{{arg}} must be one of the following"
+    },
+    "list": {
+      "MAX": "{{arg}} length cannot contain more than {{max}} items",
+      "MIN": "{{arg}} length cannot contain less than {{min}} items",
+      "MAX_LENGTH": "{{arg}} cannot contain items longer than {{maxLength}}",
+      "MIN_LENGTH": "{{arg}} cannot contain items shorter than {{minLength}}",
+      "DUPES": "{{arg}} cannot contain duplicate values"
+    },
+    "int": {
+      "NOT_INT": "{{arg}} is not an integer",
+      "MAX": "{{arg}} must be less than or equals to {{max}}",
+      "MIN": "{{arg}} must be more than or equals to {{min}}"
+    }
   },
   "menus": {
     "EXIT": "Enter {{cancel}} to exit the menu.",
