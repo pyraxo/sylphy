@@ -48,6 +48,7 @@ class Command extends Base {
   set _options (args = {}) {
     const {
       name,
+      description,
       group = 'none',
       aliases = [],
       cooldown = 5,
@@ -65,6 +66,7 @@ class Command extends Base {
       throw new Error(`${this.constructor.name} command is not named`)
     }
 
+    this.description = description
     this.cooldown = cooldown
     this.options = options
     if (this.options.modOnly) {
