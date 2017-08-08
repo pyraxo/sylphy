@@ -1,6 +1,6 @@
 module.exports = {
   type: 'channel',
-  resolve: (content, { text = true, voice = true } = {}, msg) => {
+  resolve: (content, { text, voice } = {}, msg) => {
     const guild = msg.channel.guild
     if (!msg.channelMentions.length) {
       content = String(content).toLowerCase()
