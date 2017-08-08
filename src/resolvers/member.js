@@ -2,9 +2,8 @@ module.exports = {
   type: 'member',
   resolve: (content, { bot = false }, msg) => {
     const guild = msg.channel.guild
-    content = String(content).toLowerCase()
-    let user = content.match(/^<@!?(\d{17,18})>$/) || content.match(/^(\d{17,18})$/)
-    if (!user) {
+    if (!msg.mentions.length) {
+      content = String(content).toLowerCase()
       let members = guild.members.filter(m => {
         if (!bot && m.user.bot) return
         const name = m.user.username.toLowerCase()
@@ -22,7 +21,7 @@ module.exports = {
         return Promise.reject('member.NOT_FOUND')
       }
     } else {
-      let member = guild.members.get(user[1])
+      let member = guild.members.get(msg.mentions[0])
       if (!member) return Promise.reject('member.NOT_FOUND')
       return Promise.resolve([member])
     }

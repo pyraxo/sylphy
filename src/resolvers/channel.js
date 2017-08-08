@@ -2,9 +2,8 @@ module.exports = {
   type: 'channel',
   resolve: (content, { text = true, voice = true } = {}, msg) => {
     const guild = msg.channel.guild
-    content = String(content).toLowerCase()
-    let channel = content.match(/^<#?(\d{17,18})>$/)
-    if (!channel) {
+    if (!msg.channelMentions.length) {
+      content = String(content).toLowerCase()
       let channels = guild.channels.filter(c => {
         if (text && c.type !== 0) return
         if (voice && c.type !== 2) return
@@ -17,7 +16,7 @@ module.exports = {
         return Promise.reject('channel.NOT_FOUND')
       }
     } else {
-      let chan = guild.channels.get(channel[1])
+      let chan = guild.channels.get(msg.channelMentions[0])
       if (!chan) return Promise.reject('channel.NOT_FOUND')
       return Promise.resolve([chan])
     }
