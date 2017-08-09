@@ -82,7 +82,6 @@ class Commander extends Collection {
    * @arg {AbstractCommand} Command Command class, object or function
    * @arg {String} [group] Default command group, will be overwritten by group setting in the command
    * @arg {String} [prefix] Default command prefix, will be overwritten by prefix setting in the command
-   * @returns {Commander}
    */
   attach (Command, group = 'misc', prefix) {
     let command = typeof Command === 'function' ? new Command(this._client) : Command
@@ -123,7 +122,6 @@ class Commander extends Collection {
    * Unregisters a command group or trigger
    * @arg {?String} group The command group
    * @arg {String} [trigger] The command trigger
-   * @returns {Commander}
    */
   unregister (group, trigger) {
     if (this.group) {
@@ -135,7 +133,6 @@ class Commander extends Collection {
   /**
    * Ejects a command
    * @arg {String} trigger The command trigger
-   * @returns {Commander}
    */
   eject (trigger) {
     const command = this.get(trigger)
@@ -162,9 +159,8 @@ class Commander extends Collection {
 
   /**
    * Ejects a command group
-   * @arg {String} [group='*] The command group to be ejected
+   * @arg {String} [group='*'] The command group to be ejected
    * @arg {String} [trigger] The command trigger in the group
-   * @returns {Commander}
    */
   ejectGroup (group = '*', trig) {
     let count = 0
@@ -189,7 +185,6 @@ class Commander extends Collection {
 
   /**
    * Reloads command files (only those that have been added from by file path)
-   * @returns {Client}
    */
   reload () {
     for (const filepath of this._cached) {

@@ -211,7 +211,6 @@ class Bridge {
 
   /**
    * Reloads middleware files (only those that have been added from by file path)
-   * @returns {Client}
    */
   reload () {
     for (const filepath of this._cached) {

@@ -59,7 +59,7 @@ class Transmitter extends Collection {
 
     const command = this.get(message.op)
     if (command) {
-      return command(message, this._bot)
+      return command(message, this._client)
     }
   }
 
@@ -95,7 +95,6 @@ class Transmitter extends Collection {
   /**
    * Registers IPC commands
    * @arg {String|Object|Array} commands An object, array or relative path to a folder or file to load commands from
-   * @returns {Client}
    */
   register (commands) {
     switch (typeof commands) {
@@ -136,6 +135,18 @@ class Transmitter extends Collection {
   }
 
   /**
+   * Reloads IPC command files (only those that have been added from by file path)
+   */
+  reload () {
+    for (const filepath of this._cached) {
+      this._client.unload(filepath)
+      this._cached.shift()
+      this.register(filepath)
+    }
+    return this
+  }
+
+  /**
    * Attaches an IPC command
    * @arg {Function} command IPC command function
    */
@@ -151,7 +162,6 @@ class Transmitter extends Collection {
   /**
    * Unregisters an IPC command by name
    * @arg {String} name Name of the IPC command
-   * @returns {Transmitter}
    */
   unregister (name) {
     this.delete(name)

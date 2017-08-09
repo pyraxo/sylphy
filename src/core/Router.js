@@ -72,7 +72,6 @@ class Router extends Collection {
   /**
    * Attaches a module
    * @arg {AbstractModule} Module Module class, object or function
-   * @returns {Router}
    */
   attach (Module) {
     const module = typeof Module === 'function' ? new Module(this._client) : Module
@@ -111,7 +110,6 @@ class Router extends Collection {
   /**
    * Registers an event
    * @arg {String} event Event name
-   * @returns {Router}
    */
   record (event) {
     this._client.on(event, (...args) => {
@@ -132,7 +130,6 @@ class Router extends Collection {
 
   /**
    * Initialises all modules
-   * @returns {Router}
    */
   initAll () {
     this.forEach(module => {
@@ -145,7 +142,6 @@ class Router extends Collection {
 
   /**
    * Unregisters all modules
-   * @returns {Router}
    */
   unregister () {
     return this.destroy()
@@ -153,7 +149,6 @@ class Router extends Collection {
 
   /**
    * Destroys all modules and unloads them
-   * @returns {Router}
    */
   destroy () {
     for (const event in this.events) {
@@ -170,7 +165,6 @@ class Router extends Collection {
 
   /**
    * Reloads module files (only those that have been added from by file path)
-   * @returns {Client}
    */
   reload () {
     for (const filepath of this._cached) {
