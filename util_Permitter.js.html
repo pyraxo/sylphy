@@ -69,7 +69,7 @@ class Permitter {
    * @arg {Boolean} [defaultValue=true] The default result
    */
   static verifyMessage (node, msg, perms = {}, defVal = true) {
-    if (!msg.guild) return true
+    if (!msg.channel.guild) return true
     let res = this.check(`${msg.channel.id}.${msg.author.id}.${node}`, perms)
     if (this.isBoolean(res)) return res
 
