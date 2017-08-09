@@ -37,7 +37,7 @@ class Commander extends Collection {
           throw new Error(`Folder path ${filepath} does not exist`)
         }
         const cmds = isDir(filepath) ? requireAll(filepath) : require(filepath)
-        this._cached.push(filepath)
+        this._cached.push(commands)
         return this.register(cmds, options)
       }
       case 'object': {

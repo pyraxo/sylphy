@@ -43,7 +43,7 @@ class Bridge {
         if (!fs.existsSync(filepath)) {
           throw new Error(`Folder path ${filepath} does not exist`)
         }
-        this._cached.push(filepath)
+        this._cached.push(middleware)
         const mw = isDir(filepath) ? requireRecursive(filepath) : require(filepath)
         return this.register(mw)
       }

@@ -27,7 +27,7 @@ class Interpreter extends Collection {
         if (!fs.existsSync(filepath)) {
           throw new Error(`Folder path ${filepath} does not exist`)
         }
-        this._cached.push(filepath)
+        this._cached.push(strings)
         const stringMap = isDir(filepath) ? requireAll(filepath) : require(filepath)
         return this.register(stringMap)
       }
