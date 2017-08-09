@@ -28,7 +28,6 @@ class Commander extends Collection {
    * @arg {Object} [options] Additional command options
    * @arg {String} [options.prefix] Command prefix, will be overwritten by prefix setting in the command
    * @arg {Boolean} [options.groupedCommands] Option for object/path supplied to be an object of objects with command groups as keys
-   * @returns {Client}
    */
   register (commands, options = {}) {
     switch (typeof commands) {

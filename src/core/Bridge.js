@@ -238,6 +238,7 @@ class Bridge {
         admins: this._client.admins,
         commands: this._commander,
         modules: this._client.plugins.get('modules'),
+        plugins: this._client.plugins,
         middleware: this
       }).catch(err => {
         if (err && this._client.logger) {

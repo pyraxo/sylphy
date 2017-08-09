@@ -39,7 +39,6 @@ class Router extends Collection {
    /**
     * Registers modules
     * @arg {String|Object|Array} modules An object, array or relative path to a folder or file to load modules from
-    * @returns {Client}
     */
   register (modules) {
     switch (typeof modules) {

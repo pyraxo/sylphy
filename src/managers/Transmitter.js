@@ -90,12 +90,45 @@ class Transmitter extends Collection {
   }
 
   /**
-   * Registers an IPC command
-   * @arg {function} command Command function
-   * @arg {String} command.name Name of the IPC command
-   * @returns {Transmitter}
+   * Registers IPC commands
+   * @arg {String|Object|Array} commands An object, array or relative path to a folder or file to load commands from
+   * @arg {Object} [options] Additional command options
+   * @returns {Client}
    */
-  register (command) {
+  register (commands) {
+    switch (typeof commands) {
+      case 'string': {
+        const filepath = path.join(process.cwd(), commands)
+        if (!fs.existsSync(filepath)) {
+          throw new Error(`Folder path ${filepath} does not exist`)
+        }
+        const cmds = isDir(filepath) ? requireAll(filepath) : require(filepath)
+        this._cached.push(filepath)
+        return this.register(cmds, options)
+      }
+      case 'object': {
+        if (Array.isArray(commands)) {
+          for (const command of commands) {
+            this.attach(command)
+          }
+          return this
+        }
+        for (const group in commands) {
+          this.attach(commands[group])
+        }
+        return this
+      }
+      default: {
+        throw new Error('Path supplied is not an object or string')
+      }
+    }
+  }
+
+  /**
+   * Attaches an IPC command
+   * @arg {Function} command IPC command function
+   */
+  attach (name, command) {
     if (!command || !command.name) {
       this._client.throwOrEmit('ipc:error', new TypeError(`Invalid command - ${command}`))
       return
