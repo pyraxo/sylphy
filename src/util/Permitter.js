@@ -2,14 +2,6 @@
  * Permission checker
  */
 class Permitter {
-  /**
-   * Creates a new Permitter instance
-   * @arg {Client} Client instance
-   */
-  constructor (client) {
-    this._client = client
-  }
-
   static get contexts () {
     return ['members', 'roles', 'channels']
   }
@@ -31,26 +23,26 @@ class Permitter {
    */
   static verifyMessage (node, msg, perms = {}, defVal = true) {
     if (!msg.channel.guild) return true
-    let res = Permitter.check(`${msg.channel.id}.${msg.author.id}.${node}`, perms)
+    let res = this.check(`${msg.channel.id}.${msg.author.id}.${node}`, perms)
     if (this.isBoolean(res)) return res
 
     for (const perm of msg.member.roles.map(r => `${msg.channel.id}.${r}.${node}`)) {
-      res = Permitter.check(perm, perms)
+      res = this.check(perm, perms)
       if (this.isBoolean(res)) return res
     }
 
-    res = Permitter.check(`*.${msg.author.id}.${node}`, perms)
+    res = this.check(`*.${msg.author.id}.${node}`, perms)
     if (this.isBoolean(res)) return res
 
     for (const perm of msg.member.roles.map(r => `*.${r}.${node}`)) {
-      res = Permitter.check(perm, perms)
+      res = this.check(perm, perms)
       if (this.isBoolean(res)) return res
     }
 
-    res = Permitter.check(`${msg.channel.id}.${node}`, perms)
+    res = this.check(`${msg.channel.id}.${node}`, perms)
     if (this.isBoolean(res)) return res
 
-    res = Permitter.check(`*.*.${node}`, perms)
+    res = this.check(`*.*.${node}`, perms)
     if (this.isBoolean(res)) return res
 
     return defVal
@@ -61,7 +53,7 @@ class Permitter {
    * @arg {String} node The permission node
    * @arg {Object} perms THe permissions map
    */
-  check (node, perms = {}) {
+  static check (node, perms = {}) {
     const res = node.split('.').reduce((obj, idx) => {
       if (obj === null || this.isBoolean(obj)) return obj
       if (idx in obj) return obj[idx]
