@@ -31,26 +31,26 @@ class Permitter {
    */
   static verifyMessage (node, msg, perms = {}, defVal = true) {
     if (!msg.channel.guild) return true
-    let res = this.check(`${msg.channel.id}.${msg.author.id}.${node}`, perms)
+    let res = Permitter.check(`${msg.channel.id}.${msg.author.id}.${node}`, perms)
     if (this.isBoolean(res)) return res
 
     for (const perm of msg.member.roles.map(r => `${msg.channel.id}.${r}.${node}`)) {
-      res = this.check(perm, perms)
+      res = Permitter.check(perm, perms)
       if (this.isBoolean(res)) return res
     }
 
-    res = this.check(`*.${msg.author.id}.${node}`, perms)
+    res = Permitter.check(`*.${msg.author.id}.${node}`, perms)
     if (this.isBoolean(res)) return res
 
     for (const perm of msg.member.roles.map(r => `*.${r}.${node}`)) {
-      res = this.check(perm, perms)
+      res = Permitter.check(perm, perms)
       if (this.isBoolean(res)) return res
     }
 
-    res = this.check(`${msg.channel.id}.${node}`, perms)
+    res = Permitter.check(`${msg.channel.id}.${node}`, perms)
     if (this.isBoolean(res)) return res
 
-    res = this.check(`*.*.${node}`, perms)
+    res = Permitter.check(`*.*.${node}`, perms)
     if (this.isBoolean(res)) return res
 
     return defVal
