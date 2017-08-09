@@ -111,12 +111,21 @@ class Transmitter extends Collection {
       case 'object': {
         if (Array.isArray(commands)) {
           for (const command of commands) {
+            if (typeof command === 'object') {
+              this.register(command)
+              continue
+            }
             this.attach(command)
           }
           return this
         }
         for (const group in commands) {
-          this.attach(commands[group])
+          const command = commands[group]
+          if (typeof command === 'object') {
+            this.register(command)
+            continue
+          }
+          this.attach(command)
         }
         return this
       }
