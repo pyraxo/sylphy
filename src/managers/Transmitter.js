@@ -5,9 +5,11 @@ try {
   Promise = global.Promise
 }
 
+const fs = require('fs')
+const path = require('path')
 const crypto = require('crypto')
 
-const Collection = require('../util/Collection')
+const { Collection, requireAll, isDir } = require('../util')
 
 /**
  * Manager class for inter-process communication
@@ -24,6 +26,7 @@ class Transmitter extends Collection {
 
     this.pid = process.pid
     this._client = client
+    this._cached = []
 
     process.on('message', this.onMessage.bind(this))
   }
@@ -92,7 +95,6 @@ class Transmitter extends Collection {
   /**
    * Registers IPC commands
    * @arg {String|Object|Array} commands An object, array or relative path to a folder or file to load commands from
-   * @arg {Object} [options] Additional command options
    * @returns {Client}
    */
   register (commands) {
@@ -104,7 +106,7 @@ class Transmitter extends Collection {
         }
         const cmds = isDir(filepath) ? requireAll(filepath) : require(filepath)
         this._cached.push(filepath)
-        return this.register(cmds, options)
+        return this.register(cmds)
       }
       case 'object': {
         if (Array.isArray(commands)) {
