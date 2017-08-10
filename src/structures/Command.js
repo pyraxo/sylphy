@@ -66,6 +66,7 @@ class Command extends Base {
       throw new Error(`${this.constructor.name} command is not named`)
     }
 
+    this.name = name
     this.description = description
     this.cooldown = cooldown
     this.options = options
