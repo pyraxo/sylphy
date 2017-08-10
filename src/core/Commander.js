@@ -37,7 +37,7 @@ class Commander extends Collection {
           throw new Error(`Folder path ${filepath} does not exist`)
         }
         const cmds = isDir(filepath) ? requireAll(filepath) : require(filepath)
-        this._cached.push(commands)
+        this._cached.push([commands, options])
         return this.register(cmds, options)
       }
       case 'object': {
@@ -187,10 +187,10 @@ class Commander extends Collection {
    * Reloads command files (only those that have been added from by file path)
    */
   reload () {
-    for (const filepath of this._cached) {
+    for (const [filepath, options] of this._cached) {
       this._client.unload(filepath)
       this._cached.shift()
-      this.register(filepath)
+      this.register(filepath, options)
     }
     return this
   }
