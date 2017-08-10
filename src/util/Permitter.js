@@ -2,14 +2,6 @@
  * Permission checker
  */
 class Permitter {
-  /**
-   * Creates a new Permitter instance
-   * @arg {Client} Client instance
-   */
-  constructor (client) {
-    this._client = client
-  }
-
   static get contexts () {
     return ['members', 'roles', 'channels']
   }
@@ -61,7 +53,7 @@ class Permitter {
    * @arg {String} node The permission node
    * @arg {Object} perms THe permissions map
    */
-  check (node, perms = {}) {
+  static check (node, perms = {}) {
     const res = node.split('.').reduce((obj, idx) => {
       if (obj === null || this.isBoolean(obj)) return obj
       if (idx in obj) return obj[idx]

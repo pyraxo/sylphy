@@ -11,6 +11,8 @@
 
 As the bot framework extends the [Eris](https://github.com/abalabahaha/Eris) client, please refer to the docs [here](https://abal.moe/Eris/docs).
 
+The full Sylphy documentation can be found [here](https://pyraxo.github.io/sylphy).
+
 ### Usage
 ```bash
 $ npm install --save sylphy

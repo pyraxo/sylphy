@@ -37,7 +37,6 @@ class Logger extends Collection {
    * @arg {String} name Name of the logger transport
    * @arg {Object|Function} transport The logger transport
    * @arg {Object} [options] Options to supply the transport with
-   * @returns {Logger}
    */
   register (name, Transport, options) {
     this.set(name, typeof Transport === 'function' ? new Transport(options) : Transport)

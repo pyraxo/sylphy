@@ -28,7 +28,6 @@ class Commander extends Collection {
    * @arg {Object} [options] Additional command options
    * @arg {String} [options.prefix] Command prefix, will be overwritten by prefix setting in the command
    * @arg {Boolean} [options.groupedCommands] Option for object/path supplied to be an object of objects with command groups as keys
-   * @returns {Client}
    */
   register (commands, options = {}) {
     switch (typeof commands) {
@@ -38,7 +37,7 @@ class Commander extends Collection {
           throw new Error(`Folder path ${filepath} does not exist`)
         }
         const cmds = isDir(filepath) ? requireAll(filepath) : require(filepath)
-        this._cached.push(filepath)
+        this._cached.push([commands, options])
         return this.register(cmds, options)
       }
       case 'object': {
@@ -83,7 +82,6 @@ class Commander extends Collection {
    * @arg {AbstractCommand} Command Command class, object or function
    * @arg {String} [group] Default command group, will be overwritten by group setting in the command
    * @arg {String} [prefix] Default command prefix, will be overwritten by prefix setting in the command
-   * @returns {Commander}
    */
   attach (Command, group = 'misc', prefix) {
     let command = typeof Command === 'function' ? new Command(this._client) : Command
@@ -124,7 +122,6 @@ class Commander extends Collection {
    * Unregisters a command group or trigger
    * @arg {?String} group The command group
    * @arg {String} [trigger] The command trigger
-   * @returns {Commander}
    */
   unregister (group, trigger) {
     if (this.group) {
@@ -136,7 +133,6 @@ class Commander extends Collection {
   /**
    * Ejects a command
    * @arg {String} trigger The command trigger
-   * @returns {Commander}
    */
   eject (trigger) {
     const command = this.get(trigger)
@@ -163,9 +159,8 @@ class Commander extends Collection {
 
   /**
    * Ejects a command group
-   * @arg {String} [group='*] The command group to be ejected
+   * @arg {String} [group='*'] The command group to be ejected
    * @arg {String} [trigger] The command trigger in the group
-   * @returns {Commander}
    */
   ejectGroup (group = '*', trig) {
     let count = 0
@@ -190,13 +185,13 @@ class Commander extends Collection {
 
   /**
    * Reloads command files (only those that have been added from by file path)
-   * @returns {Client}
    */
   reload () {
-    for (const filepath of this._cached) {
+    this.clear()
+    for (const [filepath, options] of this._cached) {
       this._client.unload(filepath)
       this._cached.shift()
-      this.register(filepath)
+      this.register(filepath, options)
     }
     return this
   }

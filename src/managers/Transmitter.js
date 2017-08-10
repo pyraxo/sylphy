@@ -5,9 +5,11 @@ try {
   Promise = global.Promise
 }
 
+const fs = require('fs')
+const path = require('path')
 const crypto = require('crypto')
 
-const Collection = require('../util/Collection')
+const { Collection, requireAll, isDir } = require('../util')
 
 /**
  * Manager class for inter-process communication
@@ -24,6 +26,7 @@ class Transmitter extends Collection {
 
     this.pid = process.pid
     this._client = client
+    this._cached = []
 
     process.on('message', this.onMessage.bind(this))
   }
@@ -50,13 +53,9 @@ class Transmitter extends Collection {
 
     if (['resp', 'broadcast'].includes(message.op)) return
 
-    if (this[message.op]) {
-      return this[message.op](message)
-    }
-
     const command = this.get(message.op)
     if (command) {
-      return command(message, this._bot)
+      return command(message, this._client)
     }
   }
 
@@ -90,12 +89,64 @@ class Transmitter extends Collection {
   }
 
   /**
-   * Registers an IPC command
-   * @arg {function} command Command function
-   * @arg {String} command.name Name of the IPC command
-   * @returns {Transmitter}
+   * Registers IPC commands
+   * @arg {String|Object|Array} commands An object, array or relative path to a folder or file to load commands from
    */
-  register (command) {
+  register (commands) {
+    switch (typeof commands) {
+      case 'string': {
+        const filepath = path.join(process.cwd(), commands)
+        if (!fs.existsSync(filepath)) {
+          throw new Error(`Folder path ${filepath} does not exist`)
+        }
+        const cmds = isDir(filepath) ? requireAll(filepath) : require(filepath)
+        this._cached.push(commands)
+        return this.register(cmds)
+      }
+      case 'object': {
+        if (Array.isArray(commands)) {
+          for (const command of commands) {
+            if (typeof command === 'object') {
+              this.register(command)
+              continue
+            }
+            this.attach(command)
+          }
+          return this
+        }
+        for (const group in commands) {
+          const command = commands[group]
+          if (typeof command === 'object') {
+            this.register(command)
+            continue
+          }
+          this.attach(command)
+        }
+        return this
+      }
+      default: {
+        throw new Error('Path supplied is not an object or string')
+      }
+    }
+  }
+
+  /**
+   * Reloads IPC command files (only those that have been added from by file path)
+   */
+  reload () {
+    for (const filepath of this._cached) {
+      this._client.unload(filepath)
+      this._cached.shift()
+      this.register(filepath)
+    }
+    return this
+  }
+
+  /**
+   * Attaches an IPC command
+   * @arg {Function} command IPC command function
+   */
+  attach (command) {
     if (!command || !command.name) {
       this._client.throwOrEmit('ipc:error', new TypeError(`Invalid command - ${command}`))
       return
@@ -107,7 +158,6 @@ class Transmitter extends Collection {
   /**
    * Unregisters an IPC command by name
    * @arg {String} name Name of the IPC command
-   * @returns {Transmitter}
    */
   unregister (name) {
     this.delete(name)

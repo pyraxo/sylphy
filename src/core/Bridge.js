@@ -43,7 +43,7 @@ class Bridge {
         if (!fs.existsSync(filepath)) {
           throw new Error(`Folder path ${filepath} does not exist`)
         }
-        this._cached.push(filepath)
+        this._cached.push(middleware)
         const mw = isDir(filepath) ? requireRecursive(filepath) : require(filepath)
         return this.register(mw)
       }
@@ -211,7 +211,6 @@ class Bridge {
 
   /**
    * Reloads middleware files (only those that have been added from by file path)
-   * @returns {Client}
    */
   reload () {
     for (const filepath of this._cached) {
@@ -238,6 +237,7 @@ class Bridge {
         admins: this._client.admins,
         commands: this._commander,
         modules: this._client.plugins.get('modules'),
+        plugins: this._client.plugins,
         middleware: this
       }).catch(err => {
         if (err && this._client.logger) {

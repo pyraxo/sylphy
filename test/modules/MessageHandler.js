@@ -3,5 +3,5 @@ module.exports = {
   events: {
     messageCreate: 'onMessage'
   },
-  onMessage: (client, msg) => console.log(msg.id)
+  onMessage: (msg, client) => console.log(msg.id)
 }
