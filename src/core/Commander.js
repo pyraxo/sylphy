@@ -187,6 +187,7 @@ class Commander extends Collection {
    * Reloads command files (only those that have been added from by file path)
    */
   reload () {
+    this.clear()
     for (const [filepath, options] of this._cached) {
       this._client.unload(filepath)
       this._cached.shift()
