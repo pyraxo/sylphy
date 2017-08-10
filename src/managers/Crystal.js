@@ -72,9 +72,6 @@ class Crystal extends EventEmitter {
   onMessage (worker, message) {
     if (!message.op) return
     if (message.op === 'resp') return
-    if (this[message.op]) {
-      return this[message.op](message)
-    }
 
     this.awaitResponse(worker, message)
   }

@@ -53,10 +53,6 @@ class Transmitter extends Collection {
 
     if (['resp', 'broadcast'].includes(message.op)) return
 
-    if (this[message.op]) {
-      return this[message.op](message)
-    }
-
     const command = this.get(message.op)
     if (command) {
       return command(message, this._client)
