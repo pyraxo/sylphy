@@ -122,7 +122,7 @@ class Resolver extends Collection {
         message: 'INSUFFICIENT_ARGS',
         requiredArgs: `**${requiredArgs}**`,
         argsCount: `**${argsCount}**.`,
-        usage: this.getUsage(usage, data)
+        usage: this.getUsage(this.usage, data)
       })
     }
 
@@ -191,7 +191,7 @@ class Resolver extends Collection {
       return Promise.reject({
         message: err,
         arg: `**\`${arg.name || 'argument'}\`**`,
-        usage: this.getUsage(usage, data)
+        usage: this.getUsage(this.usage, data)
       })
     })
   }
