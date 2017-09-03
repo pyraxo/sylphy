@@ -47,8 +47,6 @@ class Client extends Eris {
       .createPlugin('i18n', Interpreter, options)
       .createPlugin('logger', Logger, options)
 
-      this.logger = this.plugins.get('logger')
-
       this.register('i18n', path.join(__dirname, '..', 'res/i18n'))
       this.register('middleware', path.join(__dirname, 'middleware'))
 
@@ -57,6 +55,10 @@ class Client extends Eris {
       if (options.middleware) this.register('middleware', options.middleware)
       if (options.locales) this.register('i18n', options.locales)
     }
+  }
+
+  get logger () {
+    return this.plugins.get('logger')
   }
 
   /**

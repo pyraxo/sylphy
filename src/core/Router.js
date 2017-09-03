@@ -48,7 +48,7 @@ class Router extends Collection {
           throw new Error(`Folder path ${filepath} does not exist`)
         }
         const mods = isDir(filepath) ? requireRecursive(filepath) : require(filepath)
-        this._cached.push(filepath)
+        this._cached.push(modules)
         return this.register(mods)
       }
       case 'object': {

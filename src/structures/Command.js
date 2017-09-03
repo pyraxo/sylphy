@@ -120,7 +120,7 @@ class Command extends Base {
     }, usage).then((args = {}) => {
       container.args = args
       return this[process](container, responder)
-    }, err => responder.error(`{{%errors.${err.message}}}`, err)).catch(this.logError.bind(this))
+    }, err => responder.error(`{{%errors.${err.message}}}`, err)).catch(this.logger.error)
   }
 
   /**
@@ -187,12 +187,6 @@ class Command extends Base {
    * @arg {Responder} responder Responder instance
    */
   async handle (container, responder) { return true }
-
-  logError (err) {
-    if (err && this.logger) {
-      this.logger.error(`Error running ${this.triggers[0]} command`, err)
-    }
-  }
 
   get permissionNode () {
     return `${this.group}.${this.triggers[0]}`
