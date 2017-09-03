@@ -54,7 +54,7 @@ class Router extends Collection {
       case 'object': {
         if (Array.isArray(modules)) {
           for (const module of modules) {
-            this.attach(module)
+            this.register(module)
           }
           return this
         }
@@ -74,6 +74,12 @@ class Router extends Collection {
    * @arg {AbstractModule} Module Module class, object or function
    */
   attach (Module) {
+    if (Module instanceof Array) {
+      for (const mod of Module) {
+        this.attach(mod)
+      }
+      return this
+    }
     const module = typeof Module === 'function' ? new Module(this._client) : Module
     this.set(module.name, module)
     for (const event in module.events) {
@@ -131,7 +137,7 @@ class Router extends Collection {
   /**
    * Initialises all modules
    */
-  initAll () {
+  run () {
     this.forEach(module => {
       if (typeof module.init === 'function') {
         module.init()
