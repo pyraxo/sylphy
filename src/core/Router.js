@@ -54,7 +54,7 @@ class Router extends Collection {
       case 'object': {
         if (Array.isArray(modules)) {
           for (const module of modules) {
-            this.register(module)
+            this.attach(module)
           }
           return this
         }
