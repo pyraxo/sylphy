@@ -88,6 +88,7 @@ class Commander extends Collection {
       for (const cmd of Command) {
         this.attach(cmd)
       }
+      return this
     }
     let command = typeof Command === 'function' ? new Command(this._client) : Command
     if (!command.triggers || !command.triggers.length) {
