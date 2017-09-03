@@ -37,7 +37,7 @@ class Command extends Base {
     this.subcommands = new Collection()
     this.timers = new Map()
 
-    this._options = Object.assign({}, ...args)
+    this._options = args.reduce((p, c) => Object.assign(c, p), {})
   }
 
   /**
