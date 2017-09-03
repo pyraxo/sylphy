@@ -84,6 +84,11 @@ class Commander extends Collection {
    * @arg {String} [prefix] Default command prefix, will be overwritten by prefix setting in the command
    */
   attach (Command, group = 'misc', prefix) {
+    if (Command instanceof Array) {
+      for (const cmd of Command) {
+        this.attach(cmd)
+      }
+    }
     let command = typeof Command === 'function' ? new Command(this._client) : Command
     if (!command.triggers || !command.triggers.length) {
       this._client.throwOrEmit('commander:error', new Error(`Invalid command - ${util.inspect(command)}`))
