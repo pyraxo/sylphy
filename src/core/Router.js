@@ -101,7 +101,7 @@ class Router extends Collection {
      */
     this._client.emit('router:registered', {
       name: module.name,
-      events: Object.keys(module.events),
+      events: Object.keys(module.events || {}).length,
       count: this.size
     })
     return this
