@@ -149,7 +149,7 @@ class Transmitter extends Collection {
    * @arg {Object} [command.command]
    */
   attach (command) {
-    if (!command.name || typeof command.command !== 'function' || typeof command !== 'function') {
+    if (!command.name && (typeof command.command !== 'function' || typeof command !== 'function')) {
       this._client.throwOrEmit('ipc:error', new TypeError(`Invalid command - ${command}`))
       return
     }
