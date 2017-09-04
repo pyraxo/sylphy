@@ -144,10 +144,12 @@ class Transmitter extends Collection {
 
   /**
    * Attaches an IPC command
-   * @arg {Function} command IPC command function
+   * @arg {Function|Object} command IPC command function or object containing the function
+   * @arg {String} command.name
+   * @arg {Object} [command.command]
    */
   attach (command) {
-    if (!command || !command.name) {
+    if (!command.name || typeof command.command !== 'function' || typeof command !== 'function') {
       this._client.throwOrEmit('ipc:error', new TypeError(`Invalid command - ${command}`))
       return
     }
