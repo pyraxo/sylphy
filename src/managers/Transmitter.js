@@ -153,7 +153,7 @@ class Transmitter extends Collection {
       this._client.throwOrEmit('ipc:error', new TypeError(`Invalid command - ${command}`))
       return
     }
-    this.set(command.name, command)
+    this.set(command.name, command.command || command)
     return this
   }
 
