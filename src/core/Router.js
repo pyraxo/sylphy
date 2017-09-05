@@ -173,6 +173,7 @@ class Router extends Collection {
    * Reloads module files (only those that have been added from by file path)
    */
   reload () {
+    this.destroy()
     for (const filepath of this._cached) {
       this._client.unload(filepath)
       this._cached.shift()
