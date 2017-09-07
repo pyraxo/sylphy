@@ -164,6 +164,7 @@ class Router extends Collection {
       if (typeof module.unload === 'function') {
         module.unload()
       }
+      module = null
     })
     this.clear()
     return this

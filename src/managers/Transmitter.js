@@ -46,7 +46,7 @@ class Transmitter extends Collection {
   onMessage (message) {
     if (!message.op) {
       if (!this._client.suppressWarnings) {
-        this._logger.warn('Received IPC message with no op')
+        this._client.logger.warn('Received IPC message with no op')
       }
       return
     }
