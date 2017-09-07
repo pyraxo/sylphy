@@ -179,6 +179,7 @@ class Router extends Collection {
       this._client.unload(filepath)
       this._cached.shift()
       this.register(filepath)
+      this.run()
     }
     return this
   }
