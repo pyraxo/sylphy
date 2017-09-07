@@ -21,9 +21,7 @@ module.exports = {
         return Promise.reject('member.NOT_FOUND')
       }
     } else {
-      let member = guild.members.get(msg.mentions[0])
-      if (!member) return Promise.reject('member.NOT_FOUND')
-      return Promise.resolve([member])
+      return Promise.resolve(msg.mentions)
     }
   }
 }
