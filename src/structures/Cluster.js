@@ -18,7 +18,7 @@ class Cluster {
    * @arg {Number} id ID of the cluster
    */
   constructor (file, id) {
-    this.worker = child.fork(file, { env: Object.assign(process.env, { PROCESS_ID: id })})
+    this.worker = child.fork(file, { env: Object.assign(process.env, { PROCESS_ID: id }) })
     this.id = id
   }
 

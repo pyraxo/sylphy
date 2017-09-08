@@ -48,7 +48,7 @@ class Router extends Collection {
           throw new Error(`Folder path ${filepath} does not exist`)
         }
         const mods = isDir(filepath) ? requireRecursive(filepath) : require(filepath)
-        this._cached.push(filepath)
+        this._cached.push(modules)
         return this.register(mods)
       }
       case 'object': {
@@ -74,6 +74,12 @@ class Router extends Collection {
    * @arg {AbstractModule} Module Module class, object or function
    */
   attach (Module) {
+    if (Module instanceof Array) {
+      for (const mod of Module) {
+        this.attach(mod)
+      }
+      return this
+    }
     const module = typeof Module === 'function' ? new Module(this._client) : Module
     this.set(module.name, module)
     for (const event in module.events) {
@@ -101,7 +107,7 @@ class Router extends Collection {
      */
     this._client.emit('router:registered', {
       name: module.name,
-      events: Object.keys(module.events),
+      events: Object.keys(module.events || {}).length,
       count: this.size
     })
     return this
@@ -131,7 +137,7 @@ class Router extends Collection {
   /**
    * Initialises all modules
    */
-  initAll () {
+  run () {
     this.forEach(module => {
       if (typeof module.init === 'function') {
         module.init()
@@ -158,6 +164,7 @@ class Router extends Collection {
       if (typeof module.unload === 'function') {
         module.unload()
       }
+      module = null
     })
     this.clear()
     return this
@@ -167,10 +174,12 @@ class Router extends Collection {
    * Reloads module files (only those that have been added from by file path)
    */
   reload () {
+    this.destroy()
     for (const filepath of this._cached) {
       this._client.unload(filepath)
       this._cached.shift()
       this.register(filepath)
+      this.run()
     }
     return this
   }

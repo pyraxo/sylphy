@@ -46,7 +46,7 @@ class Transmitter extends Collection {
   onMessage (message) {
     if (!message.op) {
       if (!this._client.suppressWarnings) {
-        this._logger.warn('Received IPC message with no op')
+        this._client.logger.warn('Received IPC message with no op')
       }
       return
     }
@@ -144,14 +144,16 @@ class Transmitter extends Collection {
 
   /**
    * Attaches an IPC command
-   * @arg {Function} command IPC command function
+   * @arg {Function|Object} command IPC command function or object containing the function
+   * @arg {String} command.name
+   * @arg {Object} [command.command]
    */
   attach (command) {
-    if (!command || !command.name) {
+    if (!command.name && (typeof command.command !== 'function' || typeof command !== 'function')) {
       this._client.throwOrEmit('ipc:error', new TypeError(`Invalid command - ${command}`))
       return
     }
-    this.set(command.name, command)
+    this.set(command.name, command.command || command)
     return this
   }
 

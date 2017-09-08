@@ -121,7 +121,8 @@ class Resolver extends Collection {
       return Promise.reject({
         message: 'INSUFFICIENT_ARGS',
         requiredArgs: `**${requiredArgs}**`,
-        argsCount: `**${argsCount}**.`
+        argsCount: `**${argsCount}**.`,
+        usage: this.getUsage(this.usage, data)
       })
     }
 
@@ -156,7 +157,7 @@ class Resolver extends Collection {
         }
         idx++
       }
-      resolves.push(this._resolveArg(arg, rawArg, message, data).then(res => {
+      resolves.push(this._resolveArg(arg, rawArg, message, data, usage).then(res => {
         args[arg.name] = res
         return res
       }))
@@ -165,7 +166,7 @@ class Resolver extends Collection {
     return Promise.all(resolves).then(() => args)
   }
 
-  _resolveArg (arg, rawArg, message, data) {
+  _resolveArg (arg, rawArg, message, data, usage) {
     const resolves = arg.types.map(type => {
       const resolver = this.get(type)
       if (!resolver) {
@@ -187,7 +188,11 @@ class Resolver extends Collection {
       if (err instanceof Error) {
         return Promise.reject({ message: 'PARSING_ERROR', err: err })
       }
-      return Promise.reject({ message: err, arg: `**\`${arg.name || 'argument'}\`**` })
+      return Promise.reject({
+        message: err,
+        arg: `**\`${arg.name || 'argument'}\`**`,
+        usage: this.getUsage(this.usage, data)
+      })
     })
   }
 

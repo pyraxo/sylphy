@@ -55,7 +55,7 @@ class Responder {
 
   t (content = '', tags = {}) {
     const cmd = this.command
-    const file = cmd.name ? cmd.name.split(':')[0] : (cmd.labels ? cmd.labels[0] : 'common')
+    const file = cmd.name ? cmd.name.split(':')[0] : (cmd.triggers ? cmd.triggers[0] : 'common')
     const res = cmd.i18n.parse(content, cmd.localeKey || file, this.settings.lang || 'en', tags)
     return res.replace(/:(\S+):/gi, (matched, name) => emojis[name] || emojis['information_source'])
   }
