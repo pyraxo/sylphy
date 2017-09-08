@@ -195,13 +195,13 @@ class Resolver extends Collection {
       }
       let err = results[0].err
       if (err instanceof Error) {
-        return Promise.reject({ message: 'PARSING_ERROR', err: err })
+        return Promise.reject({ message: 'PARSING_ERROR', err })
       }
-      return Promise.reject({
+      return Promise.reject(Object.assign(results[0], {
         message: err,
         arg: `**\`${arg.name || 'argument'}\`**`,
         usage: this.getUsage(this.usage, data)
-      })
+      }))
     })
   }
 
