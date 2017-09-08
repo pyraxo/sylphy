@@ -175,7 +175,7 @@ class Resolver extends Collection {
       return resolver.resolve(rawArg, arg, message, this._client)
       .catch(err => Object.assign(arg, {
         arg: `**\`${arg.name || 'argument'}\`**`,
-        err: err
+        err: err.message || err
       }))
     })
     return Promise.all(resolves).then(results => {
@@ -189,7 +189,7 @@ class Resolver extends Collection {
         return Promise.reject({ message: 'PARSING_ERROR', err: err })
       }
       return Promise.reject({
-        message: err,
+        message: err.message || err,
         arg: `**\`${arg.name || 'argument'}\`**`,
         usage: this.getUsage(this.usage, data)
       })
