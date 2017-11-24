@@ -73,6 +73,7 @@ class Base {
       const err = new Error(`Could not send message: Invalid channel - ${chan}`)
       if (this.logger) {
         this.logger.error(err)
+        return
       } else {
         throw err
       }
@@ -83,6 +84,7 @@ class Base {
       const err = new Error('Could not send message: Insufficient permissions')
       if (this.logger) {
         this.logger.error(err)
+        return
       } else {
         throw err
       }

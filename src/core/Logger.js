@@ -11,7 +11,7 @@ class Logger extends Collection {
    * @arg {String} [options.loggerPrefix] Option for a prefix before logging
    * @arg {Boolean} [options.suppressWarnings=false] Option to suppress warnings
    * @arg {Boolean} [options.timestamps=true] Option to show timestamps
-   * @arg {Array} [options.levels] Array of logging levels
+   * @arg {Array} [options.logLevels] Array of logging levels
    */
   constructor (client, options = {}) {
     super()

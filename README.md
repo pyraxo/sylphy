@@ -36,6 +36,11 @@ client.run()
 ### Documentation
 To view the API, please visit the [wiki](https://github.com/pyraxo/sylphy/wiki).
 
+## Examples
+
+* [Yui](https://github.com/pyraxo/yui) - by [pyraxo](https://github.com/pyraxo)
+* [SatomiBot](https://github.com/stellarsdev/satomibot) - by [stellarsdev](https://github.com/stellarsdev)
+
 ## License
 Copyright (C) 2017  Pyraxo
 
