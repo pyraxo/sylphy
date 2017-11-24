@@ -25,7 +25,7 @@
       "NOT_STRING": "{{arg}} must be a string",
       "MAX": "{{arg}} length cannot be more than {{max}}",
       "MIN": "{{arg}} length cannot be less than {{min}}",
-      "ONE_OF": "{{arg}} must be one of the following"
+      "ONE_OF": "{{arg}} must be one of the following: {{choices}}"
     },
     "list": {
       "MAX": "{{arg}} length cannot contain more than {{max}} items",

@@ -173,10 +173,19 @@ class Resolver extends Collection {
         return Promise.resolve({ err: 'Invalid resolver type' })
       }
       return resolver.resolve(rawArg, arg, message, this._client)
-      .catch(err => Object.assign(arg, {
-        arg: `**\`${arg.name || 'argument'}\`**`,
-        err: err
-      }))
+      .catch(err => {
+        let resp = arg
+        if (err.message) {
+          for (const key in err) {
+            if (key === 'message') continue
+            resp[key] = err[key]
+          }
+        }
+        return Object.assign(resp, {
+          arg: `**\`${arg.name || 'argument'}\`**`,
+          err: err.message
+        })
+      })
     })
     return Promise.all(resolves).then(results => {
       const resolved = results.filter(v => !v.err)
@@ -186,13 +195,13 @@ class Resolver extends Collection {
       }
       let err = results[0].err
       if (err instanceof Error) {
-        return Promise.reject({ message: 'PARSING_ERROR', err: err })
+        return Promise.reject({ message: 'PARSING_ERROR', err })
       }
-      return Promise.reject({
+      return Promise.reject(Object.assign(results[0], {
         message: err,
         arg: `**\`${arg.name || 'argument'}\`**`,
         usage: this.getUsage(this.usage, data)
-      })
+      }))
     })
   }
 

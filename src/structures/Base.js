@@ -72,14 +72,23 @@ class Base {
     const channel = typeof chan === 'string' ? this._client.getChannel(chan) : chan
     if (!channel) {
       const err = new Error(`Could not send message: Invalid channel - ${chan}`)
-      if (this.logger) this.logger.error(err)
-      throw err
+      if (this.logger) {
+        this.logger.error(err)
+        return
+      } else {
+        throw err
+      }
     }
 
     let { file = null, lang, delay = 0, deleteDelay = 0, embed } = options
     if (channel.guild && !this.hasPermissions(channel, this._client.user, 'sendMessages')) {
       const err = new Error('Could not send message: Insufficient permissions')
-      if (this.logger) this.logger.error(err)
+      if (this.logger) {
+        this.logger.error(err)
+        return
+      } else {
+        throw err
+      }
     }
 
     if (delay) await promDelay(delay)
@@ -103,8 +112,11 @@ class Base {
 
       return msg
     } catch (err) {
-      if (this.logger) this.logger.error('Could not send message -', err)
-      throw err
+      if (this.logger) {
+        this.logger.error('Could not send message -', err)
+      } else {
+        throw err
+      }
     }
   }
 
