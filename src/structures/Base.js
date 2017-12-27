@@ -34,7 +34,7 @@ class Base {
   hasPermissions (channel, user, ...perms) {
     const member = channel.guild.members.get(user.id);
     for (const perm of perms) {
-      if (!clientMember.permission.has(perm)) return false;
+      if (!member.permission.has(perm)) return false;
     }
     return true;
   }
