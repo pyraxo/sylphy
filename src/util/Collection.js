@@ -1,10 +1,10 @@
 /**
- * An extended map with utility functions
+ * An extended map with utility functions.
  * @extends Map
  */
 class Collection extends Map {
   /**
-   * Returns all items in the collection as an array
+   * Returns all items in the collection as an array.
    * @returns {Array} Array of values
    */
   toArray () {
@@ -12,52 +12,52 @@ class Collection extends Map {
   }
 
   /**
-   * Executes a function on all values
-   * @arg {function} func forEach function
+   * Executes a function on all values.
+   * @arg {Function} func - forEach function
    */
-  forEach (...args) {
-    return this.toArray().forEach(...args)
+  forEach (func) {
+    return this.toArray().forEach(func)
   }
 
   /**
-   * Filter values by function
-   * @arg {function} func filter function
+   * Filter values by function.
+   * @arg {Function} func - filter function
    * @returns {Array} Array of filtered values
    */
-  filter (...args) {
-    return this.toArray().filter(...args)
+  filter (func) {
+    return this.toArray().filter(func)
   }
 
   /**
-   * Find values by function
-   * @arg {function} func find function
+   * Find values by function.
+   * @arg {Function} func - find function
    * @returns {*} Value that was found
    */
-  find (...args) {
-    return this.toArray().find(...args)
+  find (func) {
+    return this.toArray().find(func)
   }
 
   /**
-   * Map values by function
-   * @arg {function} func map function
+   * Map values by function.
+   * @arg {Function} func - map function
    * @returns {Array} Array of mapped values
    */
-  map (...args) {
-    return this.toArray().map(...args)
+  map (func) {
+    return this.toArray().map(func)
   }
 
   /**
-   * Reduce values by function
-   * @arg {function} func reduce function
+   * Reduce values by function.
+   * @arg {Function} func - reduce function
    * @returns {Array} Array of reduced values
    */
-  reduce (...args) {
-    return this.toArray().reduce(...args)
+  reduce (func) {
+    return this.toArray().reduce(func)
   }
 
   /**
-   * Pluck values with key by function
-   * @arg {String} key The matching key
+   * Pluck values with key by function.
+   * @arg {string} key - The matching key
    * @returns {Array} Array of keyed values
    */
   pluck (key) {
@@ -69,22 +69,21 @@ class Collection extends Map {
   }
 
   /**
-   * Group values by key
-   * @arg {String} key The matching key
+   * Group values by key.
+   * @arg {string} key - The matching key
    * @returns {Object} Object containing grouped values
    */
   groupBy (key) {
-    return this.toArray().reduce((i, o) => {
-      let val = o[key]
-      i[val] = i[val] || []
-      i[val].push(o)
-      return i
-    }, {})
+    return this.toArray().reduce((obj, val) => (
+      Object.assign({}, obj, {
+        [val[key]]: (val[key] || []).concat([val])
+      })
+    ))
   }
 
   /**
-   * Get unique values
-   * @returns {Array} unique Array of unique values
+   * Get unique values.
+   * @returns {Array} Array of unique values
    */
   unique () {
     return [...new Set(this.toArray())]
