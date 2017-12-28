@@ -1,6 +1,6 @@
-module.exports = Object.assign(require('./Utils'), {
-  utils: require('./Utils'),
-  Collection: require('./Collection'),
-  Permitter: require('./Permitter'),
-  Terminal: require('./Terminal')
-})
+module.exports = Object.assign({},
+  require('./util-discord'),
+  require('./util-methods'),
+  { permitter: require('./permitter') },
+  { Collection: require('./Collection') }
+)
