@@ -39,7 +39,8 @@ To view the API, please visit the [wiki](https://github.com/pyraxo/sylphy/wiki).
 ## Examples
 
 * [Yui](https://github.com/pyraxo/yui) - by [pyraxo](https://github.com/pyraxo)
-* [SatomiBot](https://github.com/stellarsdev/satomi) - by [stellarsdev](https://github.com/stellarsdev)
+* [Satomi](https://github.com/stellarsdev/satomi) - by [stellarsdev](https://github.com/stellarsdev)
+* [Sagiri](https://sagiri.kiru.space/) - by [Kiru](https://github.com/itskiru)
 
 ## License
 Copyright (C) 2017  Pyraxo

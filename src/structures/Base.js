@@ -32,14 +32,11 @@ class Base {
    * @returns {Boolean}
    */
   hasPermissions (channel, user, ...perms) {
-    if (!channel.guild) return true
-    const member = channel.guild.members.get(user.id)
-    const role_everyone = channel.guild.roles.get(channel.guild.id)
-
-    if (!perms.every(p => member.permission.has(p))) return false
-    return perms.every(perm =>
-      !channel.permissionOverwrites.find(p => (member.roles.includes(p.id) || p.id === user.id || p.id === role_everyone.id) && p.json[perm] === false)
-    )
+    const member = channel.guild.members.get(user.id);
+    for (const perm of perms) {
+      if (!member.permission.has(perm)) return false;
+    }
+    return true;
   }
 
   /**
