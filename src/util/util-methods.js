@@ -1,24 +1,30 @@
 const path = require('path')
 
 /**
- * Unloads a filepath from the require cache.
- * @param {string} filepath - Relative/absolute path
- */
-const unload = (filepath) => {
-  const str = path.isAbsolute(filepath) ? filepath : path.join(process.cwd(), filepath)
-  Object.keys(require.cache).forEach(file => {
-    if (str === file || file.startsWith(str)) {
-      delete require.cache[require.resolve(file)]
-    }
-  })
-}
-
-/**
  * Checks if path supplied is a directory.
  * @param {string} fpath - Path to check
  */
 const isDir = (fpath) => {
   return fs.existsSync(fpath) ? fs.statSync(fpath).isDirectory() : false
+}
+
+/**
+ * Gets the absolute path of a supplied path.
+ * @param {string} fpath - Path to get
+ */
+const getAbsolute = (fpath) => path.isAbsolute(fpath) ? fpath : path.join(process.cwd(), fpath)
+
+/**
+ * Unloads a filepath from the require cache.
+ * @param {string} filepath - Relative/absolute path
+ */
+const unload = (filepath) => {
+  const str = getAbsolute(filepath)
+  Object.keys(require.cache).forEach(file => {
+    if (str === file || file.startsWith(str)) {
+      delete require.cache[require.resolve(file)]
+    }
+  })
 }
 
 /**
@@ -81,16 +87,18 @@ const readdirRecursive = (dir, func) => fs.readdirSync(dir).reduce((arr, file) =
 const readdirRecursiveObject = (dir, func) => fs.readdirSync(dir).reduce((obj, file) => {
   if (file.startsWith('.')) return obj
   const filepath = path.join(dir, file)
-  return Object.assign({}, obj, {
+  return {
+    ...obj,
     [file.substring(
       0, path.basename(filepath, path.extname(filepath)).length
     )]: isDir(filepath) ? readdirRecursiveObject(filepath) : func(filepath)
-  })
+  }
 }, {})
 
 module.exports = {
   unload,
   isDir,
+  getAbsolute,
   padStart,
   padEnd,
   groupThousands,
