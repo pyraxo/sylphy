@@ -1,140 +1,120 @@
 const path = require('path')
-const Eris = require('eris').Client
+const Eris = require('eris')
 
 const { Commander, Router, Bridge, Interpreter, Logger } = require('./core')
 const { Collection } = require('./util')
 
 /**
- * Interface between the Discord client and plugins
- * @version 3.0.0
+ * Interface between the Eris client and plugins.
+ * @version 1.0.0
  * @extends Eris.Client
- * @prop {Collection} plugins A Collection of plugins
+ * @prop {Collection} plugins - Collection of plugins
  * @see {@link https://abal.moe/Eris/docs/Client|Eris.Client}
  */
-class Client extends Eris {
+class Client extends Eris.Client {
   /**
-   * Creates a new Client instance
-   * @arg {Object} options An object containing sylphy's and/or Eris client options
-   * @arg {String} options.token Discord bot token
-   * @arg {String} [options.prefix='!'] Default prefix for commands
-   * @arg {String} [options.admins=[]] Array of admin IDs
-   * @arg {String} [options.selfbot=false] Option for selfbot mode
-   * @arg {String} [options.commands] Relative path to commands folder
-   * @arg {String} [options.modules] Relative path to modules folder
-   * @arg {String} [options.middleware] Relative path to middleware folder
-   * @arg {String} [options.locales] Relative path to locales folder
-   * @arg {String} [options.resolvers] Relative path to resolvers folder
-   * @arg {Boolean} [options.suppressWarnings=false] Option to suppress console warnings
-   * @arg {Boolean} [options.noDefaults=false] Option to not use built-in plugins
+   * Creates a new Client instance.
+   * @arg {Object} options - An object containing Sylphy's and Eris client options
+   * @arg {string} options.token - Discord bot token
+   * @arg {string} [options.prefix='!'] - Default prefix for commands
+   * @arg {string} [options.admins=[]] - Array of admin IDs
+   * @arg {boolean} [options.selfbot=false] - Array of admin IDs
    */
   constructor (options = {}) {
     super(options.token, options)
-    this.selfbot = options.selfbot
-    this.prefix = options.prefix || '!'
-    this.suppressWarnings = options.suppressWarnings
-    this.noDefaults = options.noDefaults
-    this.admins = Array.isArray(options.admins) ? options.admins : []
-
-    this._resolvers = options.resolvers
+    this.options = options
 
     this.plugins = new Collection()
+  }
 
-    if (!this.noDefaults) {
-      this
-      .createPlugin('commands', Commander, options)
-      .createPlugin('modules', Router, options)
-      .createPlugin('middleware', Bridge, options)
-      .createPlugin('i18n', Interpreter, options)
-      .createPlugin('logger', Logger, options)
-
-      this.register('i18n', path.join(__dirname, '..', 'res/i18n'))
-      this.register('middleware', path.join(__dirname, 'middleware'))
-
-      if (options.commands) this.register('commands', options.commands)
-      if (options.modules) this.register('modules', options.modules)
-      if (options.middleware) this.register('middleware', options.middleware)
-      if (options.locales) this.register('i18n', options.locales)
-    }
+  set options ({
+    prefix,
+    admins = [],
+    selfbot = false
+  }) {
+    if (!this.token) throw new Error('Bot token not supplied')
+    if (!prefix) throw new Error('Missing prefix option')
+    this.prefix = prefix
+    this.admins = admins
+    this.selfbot = selfbot
   }
 
   get logger () {
     return this.plugins.get('logger')
   }
 
+  get commander () {
+    return this.plugins.get('commands')
+  }
+
   /**
-   * Creates a plugin
-   * @arg {String} type The type of plugin
-   * @arg {Plugin} Plugin Plugin class
-   * @arg {Object} [options] Additional plugin options
+   * Loads and instantiates a plugin.
+   * @arg {string} name - Name of plugin
+   * @arg {Class} Plugin - Plugin class
+   * @arg {Object} [options] - Additional plugin options
    * @returns {Client}
    */
-  createPlugin (type, Plugin, options) {
+  createPlugin (name, plugin, options) {
     const plugin = new Plugin(this, options)
-    this.plugins.set(type, plugin)
+    this.plugins.set(name, plugin)
     return this
   }
 
   /**
-   * Registers plugins
-   * @arg {String} type The type of plugin<br />
-   * Defaults: `commands`, `modules`, `middleware`, `resolvers`, `ipc`
-   * @arg {...*} args Arguments supplied to the plugin
+   * Removes a plugin.
+   * @arg {string} name - Name of plugin
    * @returns {Client}
    */
-  register (type, ...args) {
-    if (typeof type !== 'string') {
-      throw new Error('Invalid type supplied to register')
+  removePlugin (name) {
+    this.plugins.delete(name)
+    return this
+  }
+
+  /**
+   * Calls the `register()` function in a plugin.
+   * @arg {string} name - Name of plugin
+   * @arg {...*} [args] - Arguments supplied to `register()`
+   * @returns {Client}
+   */
+  register (name, ...args) {
+    if (typeof name !== 'string') {
+      throw new TypeError('Plugin name must be a string')
     }
-    const plugin = this.plugins.get(type)
+
+    const plugin = this.plugins.get(name)
     if (!plugin) {
-      throw new Error(`Plugin type ${type} not found`)
+      throw new Error(`Plugin '${name}' not found`)
     }
+
     if (typeof plugin.register === 'function') plugin.register(...args)
     return this
   }
 
   /**
-   * Unregisters plugins
-   * @arg {String} type The type of plugin<br />
-   * Defaults: `commands`, `modules`, `middleware`, `resolvers`, `ipc`
-   * @arg {...*} args Arguments supplied to the plugin
+   * Calls the `unregister()` function in a plugin.
+   * @arg {string} name - Name of plugin
+   * @arg {...*} [args] - Arguments supplied to `unregister()`
    * @returns {Client}
    */
-  unregister (type, ...args) {
-    if (typeof type !== 'string') {
-      throw new Error('Invalid type supplied to register')
+  unregister (name, ...args) {
+    if (typeof name !== 'string') {
+      throw new TypeError('Plugin name must be a string')
     }
-    const plugin = this.plugins.get(type)
+
+    const plugin = this.plugins.get(name)
     if (!plugin) {
-      throw new Error(`Plugin type ${type} not found`)
+      throw new Error(`Plugin type ${name} not found`)
     }
+
     if (typeof plugin.unregister === 'function') plugin.unregister(...args)
     return this
   }
 
   /**
-   * Unloads files from the require cache
-   * @arg {String} filepath A relative or absolute directory path, file path or file name
-   * @returns {Client}
-   */
-  unload (filepath) {
-    Object.keys(require.cache).forEach(file => {
-      const str = path.isAbsolute(filepath) ? filepath : path.join(process.cwd(), filepath)
-      if (str === file || file.startsWith(str)) {
-        delete require.cache[require.resolve(file)]
-      }
-    })
-    return this
-  }
-
-  /**
-   * Runs the bot
+   * Starts the bot and its plugins running.
    * @returns {Promise}
    */
   run () {
-    if (typeof this.token !== 'string') {
-      throw new TypeError('No bot token supplied')
-    }
     this.plugins.forEach(plugin => {
       if (typeof plugin.run === 'function') plugin.run()
     })
@@ -142,9 +122,9 @@ class Client extends Eris {
   }
 
   /**
-   * Emits an error or throws when there are no listeners
-   * @arg {String} event Event name
-   * @arg {Error} error Thrown or emitted error
+   * Emits an error or throws when there are no listeners.
+   * @arg {string} event - Event name
+   * @arg {Error} error - Thrown or emitted error
    * @private
    */
   throwOrEmit (event, error) {
