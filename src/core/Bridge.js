@@ -1,81 +1,60 @@
-let Promise
-try {
-  Promise = require('bluebird')
-} catch (err) {
-  Promise = global.Promise
-}
-
 const path = require('path')
 const fs = require('fs')
 
-const { requireRecursive, isDir } = require('../util')
+const { readdirRecursive, isDir, unload } = require('../util')
 
 /**
- * Middleware manager for commands
- * @prop {Array} tasks An array of middleware
- * @prop {Array} collectors An array of message collectors
+ * Middleware manager for commands.
+ * @prop {Array} tasks - Array of middleware
+ * @prop {Array} collectors - Array of message collectors
  */
 class Bridge {
   /**
-   * Creates a new Bridge instance
-   * @arg {Client} client Client instance
+   * Creates a new Bridge instance.
+   * @arg {Client} client - Client instance
    */
-  constructor (client) {
+  constructor (bot) {
     this.tasks = []
     this.collectors = []
-    this._cached = []
-    this._client = client
-    this._commander = client.plugins.get('commands')
-    if (!this._commander) {
-      client.logger.warn('Commander plugin not found')
-    }
+
+    this.cached = []
+    this.bot = bot
   }
 
   /**
-   * Registers middleware
-   * @arg {String|Object|Array} middleware An object, array or relative path to a folder or file to load middleware from
+   * Registers middleware.
+   * @arg {string|Middleware|Middleware[]} middleware - Path to file/folder of middleware
+   * OR the Middleware object(s)
    * @returns {Client}
    */
-  register (middleware) {
-    switch (typeof middleware) {
-      case 'string': {
-        const filepath = path.isAbsolute(middleware) ? middleware : path.join(process.cwd(), middleware)
-        if (!fs.existsSync(filepath)) {
-          throw new Error(`Folder path ${filepath} does not exist`)
-        }
-        this._cached.push(middleware)
-        const mw = isDir(filepath) ? requireRecursive(filepath) : require(filepath)
-        return this.register(mw)
+  register (arg) {
+    if (typeof arg === 'string') {
+      const filepath = getAbsolute(arg)
+      if (!fs.existsSync(arg)) {
+        this.bot.throwOrEmit(new Error(`File/folder ${arg} does not exist`))
       }
-      case 'object': {
-        if (Array.isArray(middleware)) {
-          for (const mw of middleware) {
-            this.push(mw)
-          }
-          return this
-        }
-        for (const key in middleware) {
-          this.push(middleware[key])
-        }
-        return this
-      }
-      default: {
-        throw new Error('Path supplied is not an object or string')
-      }
+      this.cached.push(arg)
+      return this.register(isDir(arg) ? readdirRecursive(arg, require) : require(arg))
+    } else if (typeof arg === 'object') {
+      if (arg instanceof Array) return this.push(...arg)
+      Object.values(arg).forEach(this.push.bind(this))
+    } else {
+      this.bot.throwOrEmit(new TypeError('Filepath or object needed to register middleware'))
     }
+    return this
   }
 
   /**
-   * Methods that parses messages and adds properties to a context container
+   * Methods that parses messages and adds properties to a context container.
    * @typedef {Object} Middleware
-   * @prop {String} name Name of middleware
-   * @prop {Number} priority Priority level of the middleware
-   * @prop {Promise(Container)} process Middleware process
+   * @prop {string} name - Name of middleware
+   * @prop {number} priority - Priority level of the middleware
+   * @prop {Promise(Container)} process - Middleware process
    */
 
   /**
    * Inserts new middleware to the task queue according to ascending priority (lower numbers are earlier in queue)
-   * @arg {Middleware} middleware Middleware object
+   * @arg {Middleware} middleware - Middleware object
    */
   push (Middleware) {
     const middleware = typeof Middleware === 'function' ? new Middleware(this) : Middleware
@@ -83,15 +62,15 @@ class Bridge {
     this.tasks.sort((a, b) => a.priority - b.priority)
 
     /**
-     * Fires when a middleware is registered
+     * Fires when a middleware is registered.
      *
      * @event Client#bridge:registered
      * @type {Object}
-     * @prop {String} name Middleware name
-     * @prop {Number} index Location of middleware in the tasks chain
-     * @prop {Number} count Number of loaded middleware tasks
+     * @prop {string} name - Middleware name
+     * @prop {number} index - Location of middleware in the tasks chain
+     * @prop {number} count - Number of loaded middleware tasks
      */
-    this._client.emit('bridge:registered', {
+    this.bot.emit('bridge:registered', {
       name: middleware.name,
       index: this.tasks.indexOf(middleware),
       count: this.tasks.length
@@ -102,183 +81,101 @@ class Bridge {
   /**
    * Creates a message collector
    * @arg {Object} options Collector options
-   * @arg {String} options.filter The filter function to pass all messages through
-   * @arg {String} [options.channel] The channel ID to filter messages from
-   * @arg {String} [options.author] The author ID to filter messages from
-   * @arg {Number} [options.tries=10] Max number of attempts to filter a message
-   * @arg {Number} [options.time=60] Max length of time to wait for messages, in seconds
-   * @arg {Number} [options.matches=10] Max number of successful filtered messages
+   * @arg {string} options.filter The filter function to pass all messages through
+   * @arg {string} [options.channel] The channel ID to filter messages from
+   * @arg {string} [options.author] The author ID to filter messages from
+   * @arg {number} [options.tries=10] Max number of attempts to filter a message
+   * @arg {number} [options.time=60] Max length of time to wait for messages, in seconds
+   * @arg {number} [options.matches=10] Max number of successful filtered messages
    * @returns {Collector} Message collector object
    */
   collect (options = {}) {
-    const { tries = 10, time = 60, matches = 10, channel, author, filter } = options
-
-    /**
-     * Message collector object, intended for menus
-     * @namespace Collector
-     * @type {Object}
-     */
-    const collector = {
-      /**
-       * An array of collected messages
-       * @memberof Collector
-       * @type {Array}
-       */
-      collected: [],
-      _tries: 0,
-      _matches: 0,
-      _listening: false,
-      _ended: false,
-      _timer: time ? setTimeout(() => {
-        collector._ended = {
-          reason: 'timeout',
-          arg: time,
-          collected: collector.collected
-        }
-      }, time * 1000) : null
-    }
-    /**
-     * Stop collecting messages
-     * @memberof Collector
-     * @method
-     */
-    collector.stop = () => {
-      collector._listening = false
-      this.collectors.splice(this.collectors.indexOf(collector), 1)
-    }
-    /**
-     * Resolves when message is collected, and rejects when collector has ended
-     * @memberof Collector
-     * @returns {Promise<external:"Eris.Message">}
-     */
-    collector.next = () => {
-      return new Promise((resolve, reject) => {
-        collector._resolve = resolve
-        if (collector._ended) {
-          collector.stop()
-          reject(collector._ended)
-        }
-        collector._listening = true
-      })
-    }
-    /**
-     * Pass a message object to be filtered
-     * @memberof Collector
-     * @method
-     * @returns {Boolean}
-     */
-    collector.passMessage = msg => {
-      if (!collector._listening) return false
-      if (author && author !== msg.author.id) return false
-      if (channel && channel !== msg.channel.id) return false
-      if (typeof filter === 'function' && !filter(msg)) return false
-
-      collector.collected.push(msg)
-      if (collector.collected.size >= matches) {
-        collector._ended = { reason: 'maxMatches', arg: matches }
-      } else if (tries && collector.collected.size === tries) {
-        collector._ended = { reason: 'max', arg: tries }
-      }
-      collector._resolve(msg)
-      return true
-    }
-    this.collectors.push(collector)
+    this.collectors.push(new MessageCollector(options))
     return collector
   }
 
-  /**
-   * Destroy all tasks and collectors
-   */
+  // Destroy all tasks and collectors.
   destroy () {
     this.tasks = []
     this.collectors = []
   }
 
   /**
-   * Remove middleware by name and returns it if found
-   * @arg {String|Boolean} name Middleware name, will remove all if true
+   * Remove middleware by name and returns it if found.
+   * @arg {string|boolean} name - Middleware name, will remove all if `true`
    * @returns {?Middleware}
    */
   unregister (name) {
     if (name === true) {
       return this.tasks.splice(0)
     }
+
     const middleware = this.tasks.find(mw => mw.name === name)
     if (!middleware) return null
     this.tasks.splice(this.tasks.indexOf(middleware, 1))
     return middleware
   }
 
-  /**
-   * Reloads middleware files (only those that have been added from by file path)
-   */
+  // Reloads middleware files (only those that have been added by file path).
   reload () {
-    for (const filepath of this._cached) {
-      this._client.unload(filepath)
-      this._cached.shift()
+    this.cached.splice(0, this.cached.length).forEach(filepath => {
+      unload(filepath)
       this.register(filepath)
-    }
+    })
     return this
   }
 
-  /** Starts running the bridge */
-  run () {
-    this._client.on('messageCreate', msg => {
-      if (this._client.selfbot) {
-        if (msg.author.id !== this._client.user.id) return
+  _createListener () {
+    return msg => {
+      if (this.bot.selfbot) {
+        if (msg.author.id !== this.bot.user.id) return
       } else {
-        if (msg.author.id === this._client.user.id || msg.author.bot) return
+        if (msg.author.id === this.bot.user.id) return
       }
 
-      this.handle({
-        msg: msg,
-        client: this._client,
-        logger: this._client.logger,
-        admins: this._client.admins,
-        commands: this._commander,
-        modules: this._client.plugins.get('modules'),
-        plugins: this._client.plugins,
-        middleware: this
-      }).catch(err => {
-        if (err && this._client.logger) {
-          this._client.logger.error('Failed to handle message in Bridge -', err)
-        }
-      })
-    })
+      this.handle({ msg, client: this.bot }).then(
+        container => this.bot.commander && this.bot.commander.handle(container),
+        err => err && this.bot.logger && this.bot.logger.error('Error in Bridge handle', err)
+      )
+    }
   }
 
-  /** Stops running the bridge */
+  // Starts running the bridge.
+  run () {
+    this.bot.on('messageCreate', this._createListener())
+  }
+
+  // Stops running the bridge.
   stop () {
-    this._client.removeAllListeners('messageCreate')
+    this.bot.removeListener('messageCreate', this._createListener)
   }
 
   /**
-   * Context container holding a message object along with added properties and objects
+   * Context container holding a message object, with added properties and objects.
    * @typedef {Object} Container
-   * @prop {external:"Eris.Message"} msg The message object
-   * @prop {Client} client The client object
-   * @prop {String} trigger The command trigger<br />
+   * @prop {external:"Eris.Message"} msg - Message object
+   * @prop {Client} client - Client object
+   * @prop {string} trigger - Command trigger<br />
    * At least one middleware should add this into the container; default middleware does it for you
    */
 
   /**
-   * Collects and executes messages after running them through middleware
-   * @arg {Container} container The message container
+   * Collects and executes messages after running them through middleware.
+   * @arg {Container} container - Message container
    * @returns {Promise<Container>}
    */
   async handle (container) {
     const { msg } = container
-    for (let collector of this.collectors) {
-      const collected = collector.passMessage(msg)
-      if (collected) return Promise.reject()
-    }
+    const collected = this.collectors.filter(collector => !collector.passMessage(msg))
+    if (collected.length) return Promise.reject()
+
     for (const task of this.tasks) {
       const result = await task.process(container)
       if (!result) return Promise.reject()
-      container = result
+      container = { ...container, ...result }
     }
     if (!container.trigger) return Promise.reject()
-    this._commander.execute(container.trigger, container)
+
     return container
   }
 }
