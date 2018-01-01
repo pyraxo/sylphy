@@ -74,11 +74,10 @@ class Collection extends Map {
    * @returns {Object} Object containing grouped values
    */
   groupBy (key) {
-    return this.toArray().reduce((obj, val) => (
-      Object.assign({}, obj, {
-        [val[key]]: (val[key] || []).concat([val])
-      })
-    ))
+    return this.toArray().reduce((obj, val) => ({
+      ...obj,
+      [val[key]]: (val[key] || []).concat([val]),
+    }))
   }
 
   /**
