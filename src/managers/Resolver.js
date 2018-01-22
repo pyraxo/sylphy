@@ -186,7 +186,7 @@ class Resolver extends Collection {
         }
         return Object.assign(resp, {
           arg: `**\`${arg.name || 'argument'}\`**`,
-          err: err.message
+          err: error
         })
       })
     })
