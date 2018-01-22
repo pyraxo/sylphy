@@ -174,12 +174,15 @@ class Resolver extends Collection {
       }
       return resolver.resolve(rawArg, arg, message, this._client)
       .catch(err => {
+        let error
         let resp = arg
         if (err.message) {
           for (const key in err) {
             if (key === 'message') continue
-            resp[key] = err[key]
+            error = err[key]
           }
+        } else {
+          error = err
         }
         return Object.assign(resp, {
           arg: `**\`${arg.name || 'argument'}\`**`,
