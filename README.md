@@ -40,7 +40,7 @@ To view the API, please visit the [wiki](https://github.com/pyraxo/sylphy/wiki).
 
 * [Yui](https://github.com/pyraxo/yui) - by [pyraxo](https://github.com/pyraxo)
 * [Satomi](https://github.com/envyist/satomi) - by [envyist](https://github.com/envyist)
-* [Sagiri](https://sagiri.kiru.space/) - by [Kiru](https://github.com/itskiru)
+* [Sagiri](https://sagiri.party/) - by [Kiru](https://github.com/itskiru)
 
 ## License
 Copyright (C) 2018  Pyraxo
