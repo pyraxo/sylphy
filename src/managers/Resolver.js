@@ -170,7 +170,7 @@ class Resolver extends Collection {
     const resolves = arg.types.map(type => {
       const resolver = this.get(type)
       if (!resolver) {
-        return Promise.resolve({ err: 'Invalid resolver type' })
+        return Promise.resolve({ err: 'INVALID_RESOLVER_TYPE' })
       }
       return resolver.resolve(rawArg, arg, message, this._client)
       .catch(err => {

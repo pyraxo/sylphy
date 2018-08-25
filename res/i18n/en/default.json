@@ -6,6 +6,7 @@
     "NO_PERMS": "you need the permissions {{perms}} to run this command!",
     "NO_PERMS_BOT": "I need the permissions {{perms}} to run this command!",
     "NO_PMS": "this command can't be run in PMs.",
+    "INVALID_RESOLVER_TYPE": "Invalid resolver type",
     "member": {
       "NOT_FOUND": "the member could not be found"
     },
