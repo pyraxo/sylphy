@@ -32,6 +32,7 @@ class Base {
    * @returns {Boolean}
    */
   hasPermissions (channel, user, ...perms) {
+    if (!channel.guild) return true;
     const member = channel.guild.members.get(user.id);
     for (const perm of perms) {
       if (!member.permission.has(perm)) return false;
