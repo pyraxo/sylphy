@@ -1,4 +1,5 @@
 {
+  "ERROR": "Error.",
   "errors": {
     "INSUFFICIENT_ARGS": "insufficient arguments supplied - {{requiredArgs}} expected, but only {{argsCount}} found.",
     "NO_END_QUOTE": "you have a missing end quote.",
