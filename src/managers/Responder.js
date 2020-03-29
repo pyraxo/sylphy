@@ -99,7 +99,8 @@ class Responder {
   }
 
   file (name, file) {
-    this._options.file = { name, file }
+    Array.isArray(this._options.file) ? this._options.file.push({ name, file })
+      : this._options.file = [{ name, file }];
     return this
   }
 
